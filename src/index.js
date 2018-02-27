@@ -18,8 +18,10 @@ import {
   ModalHeader,
 } from 'reactstrap';
 
-import TruthTable from './TruthTable.jsx';
+import NetworkCPT from './NetworkCPT.jsx';
+import NetworkMarginals from './NetworkMarginals.jsx';
 import PropositionTab from './PropositionTab.jsx';
+import TruthTable from './TruthTable.jsx';
 import { toRsClass } from './helpers';
 
 class Graph extends React.Component {
@@ -69,60 +71,11 @@ Rust.bay_web.then((module) => {
   ReactDOM.render(main, document.getElementById('react'));
 });
 
-class BayesianNode extends JsonGraphNode {
-  renderContainer({isDragging, content}) {
-    const containerClass = 'node__container_Ef9';
-    const containerDraggingClass = 'node__container_dragging_yes_3SG';
-    const className = `${containerClass} ${isDragging ? containerDraggingClass : ''}`;
-
-    const containerStyle = {
-      padding: '10px',
-    };
-
-    return (
-        <div style={containerStyle} className={className}>
-            { Boolean(content) && this.renderContent(content) }
-        </div>
-    );
-  }
-
-  renderContent(content) {
-    const headerStyle = {
-
-    };
-
-    return (
-      <div>
-        <h3>{content.id}</h3>
-        <TruthTable tt={content.tt} />
-      </div>
-    );
-  }
-}
-
-const nodeFromClass = (klass, truthTables) => {
-  return {
-    id: klass.id,
-    label: {
-      id: klass.id,
-      tt: truthTables[klass.id],
-    },
-    position: klass.graphPosition,
-  };
-};
-
-const edgesFromClass = (klass) => {
-  return (klass.parents || []).map(parentKlass => ({
-    source: parentKlass,
-    target: klass.id,
-  }));
-}
-
 const exampleClasses = [
   {
     id: 'Organization',
     parents: [],
-    graphPosition: {x: 100, y: 100},
+    graphPosition: {x: 500, y: 100},
   },
   {
     id: 'Company',
@@ -176,7 +129,7 @@ const exampleIndividuals = [
 
 class Page extends React.Component {
   state = {
-    activeTab: 'network',
+    activeTab: 'propositions',
     ontologyClasses: exampleClasses,
     ontologyIndividuals: exampleIndividuals,
   }
@@ -188,10 +141,18 @@ class Page extends React.Component {
       <ul className="nav nav-tabs">
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true,  active: (activeTab === 'network') })}
-            onClick={() => this.setState({ activeTab: 'network' })}
+            className={classNames({ 'nav-link': true,  active: (activeTab === 'network_cpt') })}
+            onClick={() => this.setState({ activeTab: 'network_cpt' })}
           >
             Network (CPTs)
+          </a>
+        </li>
+        <li className="nav-item">
+          <a
+            className={classNames({ 'nav-link': true,  active: (activeTab === 'network_marginals') })}
+            onClick={() => this.setState({ activeTab: 'network_marginals' })}
+          >
+            Network (Probabilities)
           </a>
         </li>
         <li className="nav-item">
@@ -208,38 +169,42 @@ class Page extends React.Component {
 
   renderTabContainer() {
     const { activeTab } = this.state;
-    if (activeTab === 'network') {
-      return this.renderTabNetwork();
+    if (activeTab === 'network_cpt') {
+      return this.renderTabNetworkCPT();
+    } else if (activeTab === 'network_marginals') {
+      return this.renderTabNetworkMarginals();
     } else if (activeTab === 'propositions') {
       return this.renderTabPropositions();
     }
   }
 
-  renderTabNetwork() {
+  renderTabNetworkCPT() {
     const { bayModule } = this.props;
-    const { ontologyClasses, ontologyIndividuals } = this.state;
-
-    let rsClasses = ontologyClasses.map(toRsClass);
-    let truth_tables = bayModule.js_build_domain_probabilities(rsClasses, ontologyIndividuals);
-
-    const concat = (x,y) => x.concat(y);
-    const nodes = ontologyClasses.map(klass => nodeFromClass(klass, truth_tables));
-    const edges = ontologyClasses.map(klass => edgesFromClass(klass)).reduce(concat, []);
+    const { ontologyIndividuals, ontologyClasses } = this.state;
 
     return (
-      <JsonGraph
-        width={1200}
-        height={2000}
-        json={{
-            nodes,
-            edges,
-        }}
-        Node={BayesianNode}
-        isVertical={true}
-        isDirected={true}
-        scale={0.5}
-        onChange={(newGraphJSON) => console.log(newGraphJSON)}
-      />
+      <ErrorBoundary>
+        <NetworkCPT
+          bayModule={bayModule}
+          ontologyClasses={ontologyClasses}
+          ontologyIndividuals={ontologyIndividuals}
+        />
+      </ErrorBoundary>
+    );
+  }
+
+  renderTabNetworkMarginals() {
+    const { bayModule } = this.props;
+    const { ontologyIndividuals, ontologyClasses } = this.state;
+
+    return (
+      <ErrorBoundary>
+        <NetworkMarginals
+          bayModule={bayModule}
+          ontologyClasses={ontologyClasses}
+          ontologyIndividuals={ontologyIndividuals}
+        />
+      </ErrorBoundary>
     );
   }
 
@@ -253,6 +218,12 @@ class Page extends React.Component {
       });
     }
 
+    const handleDeleteProposition = (proposition) => {
+      this.setState({
+        ontologyIndividuals: this.state.ontologyIndividuals.filter(n => n.label !== proposition.label),
+      });
+    }
+
     return (
       <ErrorBoundary>
         <PropositionTab
@@ -260,6 +231,7 @@ class Page extends React.Component {
             ontologyClasses={ontologyClasses}
             ontologyIndividuals={ontologyIndividuals}
             onAddProposition={handleAddProposition}
+            onDeleteProposition={handleDeleteProposition}
         />
       </ErrorBoundary>
     );

@@ -12,6 +12,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from 'reactstrap';
+import { uniq } from 'lodash-es';
 
 export default class AddPropositionModal extends React.Component {
   static defaultProps = {
@@ -51,12 +52,18 @@ export default class AddPropositionModal extends React.Component {
 
   handleAddClassClick = () => {
     this.setState({
-      valueClasses: [].concat(
+      valueClasses: this.addClasses(
         this.state.valueClasses,
         this.impliedClasses(this.state.valueClass),
       ),
       valueClass: '',
     });
+  }
+
+  handleAddClassKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      this.handleAddClassClick();
+    }
   }
 
   handleSubmitClick = () => {
@@ -102,6 +109,10 @@ export default class AddPropositionModal extends React.Component {
     return parentClasses(concreteOntClass);
   }
 
+  addClasses = (oldClasses, newClasses) => {
+    return uniq([].concat(oldClasses, newClasses));
+  }
+
   explanation = () => {
     let text = '';
 
@@ -134,10 +145,12 @@ export default class AddPropositionModal extends React.Component {
           <FormGroup>
             <InputGroup>
               <Input
-                placeholder="Name of class, e.g. 'ForProfit'"
-                value={this.state.valueClass}
+                autofocus
                 onChange={this.handleValueClassChange}
+                onKeyPress={this.handleAddClassKeyPress}
+                placeholder="Name of class, e.g. 'ForProfit'"
                 valid={this.validateClass()}
+                value={this.state.valueClass}
               />
               <InputGroupAddon addonType="append"><Button onClick={this.handleAddClassClick}>+</Button></InputGroupAddon>
               <FormFeedback>No class with that name found</FormFeedback>

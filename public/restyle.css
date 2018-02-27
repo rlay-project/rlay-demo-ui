@@ -1,0 +1,14 @@
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.edge__root_DFo {
+  stroke: #00c0ff !important;
+  stroke-dasharray: 10,2;
+  animation: dash 1s linear infinite;
+}

@@ -13,16 +13,19 @@
   "license": "ISC",
   "dependencies": {
     "@babel/core": "^7.0.0-beta.38",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.40",
     "@babel/preset-env": "^7.0.0-beta.38",
     "@babel/preset-react": "^7.0.0-beta.38",
     "babel-cli": "^6.26.0",
     "babel-loader": "^8.0.0-beta.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "cids": "^0.5.2",
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.3.1",
     "express": "^4.16.2",
+    "lodash-es": "^4.17.5",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-error-boundary": "^1.2.1",
@@ -35,6 +38,5 @@
     "webpack-livereload-plugin": "^1.0.0"
   },
   "devDependencies": {
-    "babel-plugin-transform-class-properties": "^6.24.1"
   }
 }
