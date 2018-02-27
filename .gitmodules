@@ -1,0 +1,3 @@
+[submodule "vendor/bay"]
+	path = vendor/bay
+	url = git@github.com:spread-foundation/bay.git

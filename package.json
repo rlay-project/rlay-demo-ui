@@ -1,0 +1,40 @@
+{
+  "name": "wasm_webpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch:cargo": "cd vendor/bay && cargo +nightly web start --features bay_web --target wasm32-unknown-unknown --bin bay_web --host 127.0.0.1",
+    "watch:webpack": "webpack --config webpack.config.js --watch",
+    "server": "node ./src/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.0.0-beta.38",
+    "@babel/preset-env": "^7.0.0-beta.38",
+    "@babel/preset-react": "^7.0.0-beta.38",
+    "babel-cli": "^6.26.0",
+    "babel-loader": "^8.0.0-beta.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "cids": "^0.5.2",
+    "classnames": "^2.2.5",
+    "copy-webpack-plugin": "^4.3.1",
+    "express": "^4.16.2",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-error-boundary": "^1.2.1",
+    "react-json-graph": "^2.0.2",
+    "reactstrap": "^5.0.0-beta",
+    "storm-react-diagrams": "^4.0.0",
+    "viz.js": "^1.8.0",
+    "wasm-loader": "^1.1.0",
+    "webpack": "^3.10.0",
+    "webpack-livereload-plugin": "^1.0.0"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-class-properties": "^6.24.1"
+  }
+}
