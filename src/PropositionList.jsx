@@ -7,7 +7,7 @@ import {
   ModalBody,
 } from 'reactstrap';
 
-import { canQuery, query, printProbability } from './helpers';
+import { canQuery, query, printProbability, hashAsJson } from './helpers';
 
 export default class PropositionList extends React.Component {
   render() {
@@ -114,9 +114,10 @@ class PropositionListItem extends React.Component {
       queryRes = query(bayModule, ontologyClasses, ontologyIndividuals, proposition)
       queryResTrue = Object.values(queryRes).filter((n) => n["key"][0].value === true)[0].value;
     }
+    const propositionHash = hashAsJson(proposition);
 
     return (
-      <li className="list-group-item" style={itemStyle}>
+      <li className="list-group-item" style={itemStyle} title={`<spread://${propositionHash}>`}>
         <span style={{ width: '200px' }}>
           {proposition.label}
         </span>

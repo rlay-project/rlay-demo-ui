@@ -285,6 +285,12 @@ class PropositionExplanation extends React.Component {
             <li>{expl}</li>
           )) }
         </ul>
+        <b>RDF equivalent:</b>
+        <ul>
+          { explanation.asserted_rdf.map(expl => (
+            <li>{`<${expl.subject}> <${expl.predicate}> <${expl.object}>`}</li>
+          )) }
+        </ul>
       </div>
     );
   }

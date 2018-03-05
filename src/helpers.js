@@ -3,6 +3,8 @@ import {
   flatMap,
   uniq,
 } from 'lodash-es';
+import multihash from 'multihashes';
+import { sha3_256 } from 'js-sha3';
 
 const toRsClass = (klass) => {
   return {
@@ -90,19 +92,39 @@ const compactProposition = (proposition) => {
   return compactProposition;
 };
 
+const hashAsJson = (obj) => {
+  const buf = Buffer.from(sha3_256(JSON.stringify(obj)), 'hex');
+  const hash = multihash.toB58String(multihash.encode(buf, 'sha3-256'));
+
+  return hash;
+}
+
 /// Give a plaintext explanation of a proposition
 const explainProposition = (plainProposition, ontologyClasses) => {
   if (!plainProposition) {
     return null;
   }
+  // TODO: replace with real hash function from Rust core
+  const proposition_hash = hashAsJson(plainProposition);
   const proposition = enrichPropositionInference(plainProposition, ontologyClasses);
 
   const asserted = [];
+  const asserted_rdf = [];
   if (proposition.label !== '') {
     asserted.push(`There is a entity named ${proposition.label}. (The name does not have any influence on the reasoning.)`);
+    asserted_rdf.push({
+      subject: `spread://${proposition_hash}`,
+      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#label',
+      object: `"${proposition.label}"^^en`,
+    });
   }
   proposition.class_memberships.forEach((klass) => {
     asserted.push(`${proposition.label} is a ${klass}`);
+    asserted_rdf.push({
+      subject: `spread://${proposition_hash}`,
+      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: `spread://${hashAsJson(klass)}`,
+    });
   });
 
   const inferred = [];
@@ -112,6 +134,7 @@ const explainProposition = (plainProposition, ontologyClasses) => {
 
   return {
     asserted,
+    asserted_rdf,
     inferred,
   };
 }
@@ -122,6 +145,7 @@ module.exports = {
   edgesFromClass,
   enrichPropositionInference,
   explainProposition,
+  hashAsJson,
   nodeFromClass,
   printProbability,
   query,
