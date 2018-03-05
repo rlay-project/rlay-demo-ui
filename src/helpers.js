@@ -1,6 +1,7 @@
 import {
   difference,
   flatMap,
+  uniq,
 } from 'lodash-es';
 
 const toRsClass = (klass) => {
@@ -51,14 +52,14 @@ const inferredClasses = (ontologyClasses, concreteClass) => {
   const parentClasses = (ontClass) => {
     let classes = [ontClass.id];
     if (ontClass.parents === []) {
-      return classes;
+      return uniq(classes);
     } else {
       ontClass.parents.forEach((parent) => {
         const parentOntClass = ontologyClasses.find(n => n.id === parent);
         const pClasses = parentClasses(parentOntClass);
         classes = [].concat(classes, pClasses);
       })
-      return classes;
+      return uniq(classes);
     }
   };
 
@@ -69,7 +70,7 @@ const inferredClasses = (ontologyClasses, concreteClass) => {
 /// Enrich a proposition with information that can be inferred via the ontology
 const enrichPropositionInference = (plainProposition, ontologyClasses) => {
   const proposition = Object.assign({}, plainProposition);
-  let inferredKlasses = flatMap(proposition.class_memberships, (klass) => inferredClasses(ontologyClasses, klass));
+  let inferredKlasses = uniq(flatMap(proposition.class_memberships, (klass) => inferredClasses(ontologyClasses, klass)));
   inferredKlasses = difference(inferredKlasses, proposition.class_memberships);
   proposition.inferred_class_memberships = inferredKlasses;
 

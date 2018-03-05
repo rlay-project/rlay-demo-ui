@@ -30,6 +30,7 @@
     "react-dom": "^16.2.0",
     "react-error-boundary": "^1.2.1",
     "react-json-graph": "^2.0.2",
+    "react-select": "^1.2.1",
     "reactstrap": "^5.0.0-beta",
     "storm-react-diagrams": "^4.0.0",
     "viz.js": "^1.8.0",
@@ -37,6 +38,5 @@
     "webpack": "^3.10.0",
     "webpack-livereload-plugin": "^1.0.0"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }

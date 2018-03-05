@@ -21,9 +21,11 @@ import {
 import NetworkCPT from './NetworkCPT.jsx';
 import NetworkMarginals from './NetworkMarginals.jsx';
 import PropositionTab from './PropositionTab.jsx';
+import StorageTab from './StorageTab.jsx';
 import TruthTable from './TruthTable.jsx';
 import { toRsClass } from './helpers';
 import { exampleClasses, exampleIndividuals } from './example_data';
+import { storageKey } from './config';
 
 class Graph extends React.Component {
   render() {
@@ -77,6 +79,48 @@ class Page extends React.Component {
     ontologyIndividuals: exampleIndividuals,
   }
 
+  componentDidMount() {
+    this.reloadStorage();
+  }
+
+  reloadStorage = () => {
+    try {
+      const raw_data = window.localStorage.getItem(storageKey);
+      if (!raw_data) {
+        return;
+      }
+      const data = JSON.parse(raw_data);
+
+      this.setState({
+        ontologyClasses: data.classes,
+        ontologyIndividuals: data.propositions,
+      });
+    } catch(err) {
+      return;
+    }
+  }
+
+  updateStorage = () => {
+    const data = {
+      classes: this.state.ontologyClasses,
+      propositions: this.state.ontologyIndividuals,
+    };
+
+    window.localStorage.setItem(storageKey, JSON.stringify(data));
+  }
+
+  handleAddProposition = (proposition) => {
+    this.setState({
+      ontologyIndividuals: [].concat(this.state.ontologyIndividuals, proposition),
+    }, () => this.updateStorage());
+  }
+
+  handleDeleteProposition = (proposition) => {
+    this.setState({
+      ontologyIndividuals: this.state.ontologyIndividuals.filter(n => n.label !== proposition.label),
+    }, () => this.updateStorage());
+  }
+
   renderNav() {
     const { activeTab } = this.state;
 
@@ -108,6 +152,14 @@ class Page extends React.Component {
             Propositions
           </a>
         </li>
+        <li className="nav-item">
+          <a
+            className={classNames({ 'nav-link': true,  active: (activeTab === 'storage') })}
+            onClick={() => this.setState({ activeTab: 'storage' })}
+          >
+            Storage
+          </a>
+        </li>
       </ul>
     );
   }
@@ -120,6 +172,8 @@ class Page extends React.Component {
       return this.renderTabNetworkMarginals();
     } else if (activeTab === 'propositions') {
       return this.renderTabPropositions();
+    } else if (activeTab === 'storage') {
+      return this.renderTabStorage();
     }
   }
 
@@ -157,26 +211,24 @@ class Page extends React.Component {
     const { bayModule } = this.props;
     const { ontologyIndividuals, ontologyClasses } = this.state;
 
-    const handleAddProposition = (proposition) => {
-      this.setState({
-        ontologyIndividuals: [].concat(this.state.ontologyIndividuals, proposition),
-      });
-    }
-
-    const handleDeleteProposition = (proposition) => {
-      this.setState({
-        ontologyIndividuals: this.state.ontologyIndividuals.filter(n => n.label !== proposition.label),
-      });
-    }
-
     return (
       <ErrorBoundary>
         <PropositionTab
             bayModule={bayModule}
             ontologyClasses={ontologyClasses}
             ontologyIndividuals={ontologyIndividuals}
-            onAddProposition={handleAddProposition}
-            onDeleteProposition={handleDeleteProposition}
+            onAddProposition={this.handleAddProposition}
+            onDeleteProposition={this.handleDeleteProposition}
+        />
+      </ErrorBoundary>
+    );
+  }
+
+  renderTabStorage() {
+    return (
+      <ErrorBoundary>
+        <StorageTab
+          onTriggerReload={this.reloadStorage}
         />
       </ErrorBoundary>
     );

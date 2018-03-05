@@ -12,6 +12,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from 'reactstrap';
+import { Creatable } from 'react-select';
 import {
   uniq,
   isNull,
@@ -188,24 +189,9 @@ class AddPropositionForm extends React.Component {
     }, () => this.handlePropositionChange());
   }
 
-  handleValueClassChange = (e) => {
-    this.setState({
-      valueClass: e.target.value,
-    });
-  }
-
-  handleAddClassClick = () => {
-    if (!this.validateClass()) {
-      return;
-    }
-
-    this.setState({
-      valueClasses: this.addClasses(
-        this.state.valueClasses,
-        [this.state.valueClass],
-      ),
-      valueClass: '',
-    }, () => this.handlePropositionChange());
+  handleClassSelectChange = (selectedOptions) => {
+    this.setState({ valueClasses: selectedOptions },
+      () => this.handlePropositionChange());
   }
 
   handleAddClassKeyPress = (e) => {
@@ -217,7 +203,7 @@ class AddPropositionForm extends React.Component {
   buildProposition = () => {
     return {
       label: this.state.valueLabel,
-      class_memberships: this.state.valueClasses,
+      class_memberships: this.state.valueClasses.map(n => n.id),
     };
   };
 
@@ -248,12 +234,10 @@ class AddPropositionForm extends React.Component {
     return false;
   }
 
-  addClasses = (oldClasses, newClasses) => {
-    return uniq([].concat(oldClasses, newClasses));
-  }
-
   render() {
     const { ontologyClasses } = this.props;
+
+    const classOptions = ontologyClasses.map(n => Object.assign({ ...n, value: n.id }));
 
     return (
       <Form>
@@ -267,16 +251,16 @@ class AddPropositionForm extends React.Component {
         </InputGroup>
         </FormGroup>
         <FormGroup>
-          <InputGroup>
-            <select value={this.state.valueClass} className="custom-select" onChange={this.handleValueClassChange}>
-              <option value={null}>Choose a class...</option>
-              { ontologyClasses.map(klass => (
-                <option value={klass.id}>{klass.id}</option>
-              )) }
-            </select>
-            <InputGroupAddon addonType="append"><Button onClick={this.handleAddClassClick}>+</Button></InputGroupAddon>
-            <FormFeedback>No class with that name found</FormFeedback>
-          </InputGroup>
+          <Creatable
+            options={classOptions}
+            multi={true}
+            labelKey="id"
+            value={this.state.valueClasses}
+            onChange={this.handleClassSelectChange}
+            isOptionUnique={() => true}
+            placeholder="Select class..."
+            promptTextCreator={(label) => `Create class "${label}"`}
+          />
         </FormGroup>
       </Form>
     );
