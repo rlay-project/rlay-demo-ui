@@ -23,6 +23,7 @@ import NetworkMarginals from './NetworkMarginals.jsx';
 import PropositionTab from './PropositionTab.jsx';
 import TruthTable from './TruthTable.jsx';
 import { toRsClass } from './helpers';
+import { exampleClasses, exampleIndividuals } from './example_data';
 
 class Graph extends React.Component {
   render() {
@@ -42,10 +43,7 @@ Rust.bay_web.then((module) => {
   let graph_join_tree_dot = module.print_join_tree();
 
   let truth_table = module.truth_table();
-  console.log(truth_table);
-  console.log("-------");
   let truth_tables = module.truth_tables();
-  console.log(truth_tables);
 
   let main = (
     <span>
@@ -71,61 +69,6 @@ Rust.bay_web.then((module) => {
   ReactDOM.render(main, document.getElementById('react'));
 });
 
-const exampleClasses = [
-  {
-    id: 'Organization',
-    parents: [],
-    graphPosition: {x: 500, y: 100},
-  },
-  {
-    id: 'Company',
-    parents: ['Organization'],
-    graphPosition: {x: 100, y: 500},
-  },
-  {
-    id: 'ForProfit',
-    parents: ['Company'],
-    graphPosition: {x: 100, y: 1000},
-  },
-  {
-    id: 'NotForProfit',
-    parents: ['Company'],
-    graphPosition: {x: 500, y: 1000},
-  },
-  {
-    id: 'GovernmentAgency',
-    parents: ['Organization'],
-    graphPosition: {x: 1000, y: 500},
-  },
-  {
-    id: 'University',
-    parents: ['Organization'],
-    graphPosition: {x: 500, y: 500},
-  },
-]
-
-const exampleIndividuals = [
-  {
-    label: 'Airweb',
-    class_memberships: ["Organization", "Company", "ForProfit"],
-  },
-  {
-    label: 'Daimler AG',
-    class_memberships: ["Organization", "Company", "ForProfit"],
-  },
-  {
-    label: 'BlablaCar',
-    class_memberships: ["Organization", "Company", "ForProfit"],
-  },
-  {
-    label: 'Aalto University',
-    class_memberships: ["Organization", "University"],
-  },
-  {
-    label: 'Cambridge University',
-    class_memberships: ["Organization", "University"],
-  },
-];
 
 class Page extends React.Component {
   state = {
@@ -147,6 +90,7 @@ class Page extends React.Component {
             Network (CPTs)
           </a>
         </li>
+        { /*
         <li className="nav-item">
           <a
             className={classNames({ 'nav-link': true,  active: (activeTab === 'network_marginals') })}
@@ -155,6 +99,7 @@ class Page extends React.Component {
             Network (Probabilities)
           </a>
         </li>
+        */ }
         <li className="nav-item">
           <a
             className={classNames({ 'nav-link': true,  active: (activeTab === 'propositions') })}

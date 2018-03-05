@@ -12,9 +12,14 @@ import {
   ModalFooter,
   ModalHeader,
 } from 'reactstrap';
-import { uniq } from 'lodash-es';
+import {
+  uniq,
+  isNull,
+} from 'lodash-es';
 
-export default class AddPropositionModal extends React.Component {
+import { compactProposition, enrichPropositionInference, explainProposition } from './helpers';
+
+class AddPropositionModal extends React.Component {
   static defaultProps = {
     isOpen: false,
     ontologyClasses: [],
@@ -23,25 +28,164 @@ export default class AddPropositionModal extends React.Component {
   }
 
   static defaultState = {
-    valueLabel: '',
-    valueClass: '',
-    valueClasses: [],
+    formProposition: null,
   }
 
   state = {
-    valueLabel: '',
-    valueClass: '',
-    valueClasses: [],
+    formProposition: null,
+    resetCounter: 0,
   }
 
   handleToggle = () => {
     this.props.onChangeOpen(!this.props.isOpen);
   }
 
+  handleSubmitClick = () => {
+    const { ontologyClasses } = this.props;
+
+    const proposition = compactProposition(enrichPropositionInference(this.state.formProposition, ontologyClasses))
+    this.props.onSubmit(proposition);
+    this.setState({
+      ...AddPropositionModal.defaultState,
+      resetCounter: this.state.resetCounter + 1,
+    });
+    this.handleToggle();
+  }
+
+  handleFormPropositionChange = (formProposition) => {
+    this.setState({ formProposition });
+  }
+
+  explanation = () => {
+    const { ontologyClasses } = this.props;
+    const { formProposition: plainProposition } = this.state;
+    return explainProposition(plainProposition, ontologyClasses);
+  }
+
+  render() {
+    const { isOpen } = this.props;
+    const explanation = this.explanation();
+
+    return (
+      <Modal isOpen={isOpen} toggle={this.handleToggle} >
+        <ModalHeader toggle={this.handleToggle}>Add proposition</ModalHeader>
+        <ModalBody>
+          <AddPropositionForm
+            ontologyClasses={this.props.ontologyClasses}
+            onPropositionChange={this.handleFormPropositionChange}
+            resetCounter={this.state.resetCounter}
+          />
+        </ModalBody>
+        { !isNull(explanation) ? (
+          <ModalBody>
+            <PropositionExplanation explanation={explanation} />
+          </ModalBody>
+        ) : null }
+        <ModalFooter>
+          <Button color="primary" onClick={this.handleSubmitClick}>Submit</Button>{' '}
+        </ModalFooter>
+      </Modal>
+    );
+  }
+}
+
+class AddPropositionContainer extends React.Component {
+  static defaultProps = {
+    ontologyClasses: [],
+    onChangeOpen: () => {},
+    onSubmit: () => {},
+  }
+
+  static defaultState = {
+    formProposition: null,
+    formValid: false,
+  }
+
+  state = {
+    formProposition: null,
+    formValid: false,
+    resetCounter: 0,
+  }
+
+  handleSubmitClick = () => {
+    const { ontologyClasses } = this.props;
+
+    const proposition = compactProposition(enrichPropositionInference(this.state.formProposition, ontologyClasses))
+    this.props.onSubmit(proposition);
+    this.setState({
+      ...AddPropositionModal.defaultState,
+      resetCounter: this.state.resetCounter + 1,
+    });
+  }
+
+  handleFormPropositionChange = (formProposition) => {
+    this.setState({ formProposition });
+  }
+
+  handleFormValidate = (valid) => {
+    this.setState({ formValid: valid });
+  }
+
+  explanation = () => {
+    const { ontologyClasses } = this.props;
+    const { formProposition: plainProposition } = this.state;
+    return explainProposition(plainProposition, ontologyClasses);
+  }
+
+  render() {
+    const explanation = this.explanation();
+
+    return (
+      <span className="border rounded" style={{ marginLeft: '20px', padding: '20px', display: 'block', width: '100%', height: '100%' }}>
+        <h3>Add proposition</h3>
+        <AddPropositionForm
+          ontologyClasses={this.props.ontologyClasses}
+          onPropositionChange={this.handleFormPropositionChange}
+          onValidate={this.handleFormValidate}
+          resetCounter={this.state.resetCounter}
+        />
+        { explanation ? (
+          <ModalBody>
+            <PropositionExplanation explanation={explanation} />
+          </ModalBody>
+        ) : null }
+        <Button color="primary" onClick={this.handleSubmitClick} disabled={!this.state.formValid}>Submit</Button>{' '}
+      </span>
+    );
+  }
+}
+
+class AddPropositionForm extends React.Component {
+  static defaultProps = {
+    ontologyClasses: [],
+    resetCounter: 0,
+    onPropositionChange: () => {},
+    onValidate: () => {},
+  }
+
+  static defaultState = {
+    valueLabel: '',
+    valueClass: null,
+    valueClasses: [],
+  }
+
+  state = {
+    valueLabel: '',
+    valueClass: null,
+    valueClasses: [],
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.resetCounter != nextProps.resetCounter) {
+      this.setState(AddPropositionForm.defaultState,
+        () => this.handlePropositionChange());
+    }
+  }
+
   handleValueLabelChange = (e) => {
     this.setState({
       valueLabel: e.target.value,
-    });
+    }, () => this.handlePropositionChange());
   }
 
   handleValueClassChange = (e) => {
@@ -51,13 +195,17 @@ export default class AddPropositionModal extends React.Component {
   }
 
   handleAddClassClick = () => {
+    if (!this.validateClass()) {
+      return;
+    }
+
     this.setState({
       valueClasses: this.addClasses(
         this.state.valueClasses,
-        this.impliedClasses(this.state.valueClass),
+        [this.state.valueClass],
       ),
       valueClass: '',
-    });
+    }, () => this.handlePropositionChange());
   }
 
   handleAddClassKeyPress = (e) => {
@@ -66,14 +214,26 @@ export default class AddPropositionModal extends React.Component {
     }
   }
 
-  handleSubmitClick = () => {
-    const proposition = {
+  buildProposition = () => {
+    return {
       label: this.state.valueLabel,
       class_memberships: this.state.valueClasses,
     };
-    this.props.onSubmit(proposition);
-    this.setState(AddPropositionModal.defaultState);
-    this.handleToggle();
+  };
+
+  handlePropositionChange = () => {
+    this.props.onPropositionChange(this.buildProposition());
+    this.props.onValidate(this.validate());
+  }
+
+  validate = () => {
+    if (this.state.valueClasses.length === 0) {
+      return false;
+    }
+    if (this.state.valueLabel === '') {
+      return false;
+    }
+    return true;
   }
 
   validateClass = () => {
@@ -88,87 +248,67 @@ export default class AddPropositionModal extends React.Component {
     return false;
   }
 
-  impliedClasses = (concreteClass) => {
-    const { ontologyClasses } = this.props;
-
-    const parentClasses = (ontClass) => {
-      let classes = [ontClass.id];
-      if (ontClass.parents === []) {
-        return classes;
-      } else {
-        ontClass.parents.forEach((parent) => {
-          const parentOntClass = ontologyClasses.find(n => n.id === parent);
-          const pClasses = parentClasses(parentOntClass);
-          classes = [].concat(classes, pClasses);
-        })
-        return classes;
-      }
-    };
-
-    const concreteOntClass = ontologyClasses.find(n => n.id === concreteClass);
-    return parentClasses(concreteOntClass);
-  }
-
   addClasses = (oldClasses, newClasses) => {
     return uniq([].concat(oldClasses, newClasses));
   }
 
-  explanation = () => {
-    let text = '';
-
-    if (this.state.valueLabel !== '') {
-      text = text + `- There is a entity named ${this.state.valueLabel}. (The name does not have any influence on the reasoning.)\n`;
-    }
-    this.state.valueClasses.forEach((klass) => {
-      text = text + `- ${this.state.valueLabel} is a ${klass}\n`;
-    });
-
-    return text;
-  }
-
   render() {
-    const { isOpen } = this.props;
+    const { ontologyClasses } = this.props;
+
     return (
-      <Modal isOpen={isOpen} toggle={this.handleToggle} >
-        <ModalHeader toggle={this.handleToggle}>Add proposition</ModalHeader>
-        <ModalBody>
-          <Form>
-          <FormGroup>
-          <InputGroup style={{marginBottom: '10px'}}>
-            <Input
-              placeholder="Label for entity"
-              value={this.state.valueLabel}
-              onChange={this.handleValueLabelChange}
-            />
+      <Form>
+        <FormGroup>
+        <InputGroup style={{marginBottom: '10px'}}>
+          <Input
+            placeholder="Label for entity"
+            value={this.state.valueLabel}
+            onChange={this.handleValueLabelChange}
+          />
+        </InputGroup>
+        </FormGroup>
+        <FormGroup>
+          <InputGroup>
+            <select value={this.state.valueClass} className="custom-select" onChange={this.handleValueClassChange}>
+              <option value={null}>Choose a class...</option>
+              { ontologyClasses.map(klass => (
+                <option value={klass.id}>{klass.id}</option>
+              )) }
+            </select>
+            <InputGroupAddon addonType="append"><Button onClick={this.handleAddClassClick}>+</Button></InputGroupAddon>
+            <FormFeedback>No class with that name found</FormFeedback>
           </InputGroup>
-          </FormGroup>
-          <FormGroup>
-            <InputGroup>
-              <Input
-                autofocus
-                onChange={this.handleValueClassChange}
-                onKeyPress={this.handleAddClassKeyPress}
-                placeholder="Name of class, e.g. 'ForProfit'"
-                valid={this.validateClass()}
-                value={this.state.valueClass}
-              />
-              <InputGroupAddon addonType="append"><Button onClick={this.handleAddClassClick}>+</Button></InputGroupAddon>
-              <FormFeedback>No class with that name found</FormFeedback>
-            </InputGroup>
-          </FormGroup>
+        </FormGroup>
       </Form>
-        </ModalBody>
-        <ModalBody>
-          <b>Plaintext Explanation:</b>
-          <p style={{ whiteSpace: 'pre-line' }}>
-          {this.explanation()}
-          </p>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={this.handleSubmitClick}>Submit</Button>{' '}
-        </ModalFooter>
-      </Modal>
     );
   }
 }
 
+class PropositionExplanation extends React.Component {
+  render() {
+    const { explanation } = this.props;
+
+    return (
+      <div>
+        <b>Plaintext Explanation:</b>
+        <ul>
+          { explanation.asserted.map(expl => (
+            <li>{expl}</li>
+          )) }
+        </ul>
+        <b>Plaintext Explanation (inferred):</b>
+        <ul>
+          { explanation.inferred.map(expl => (
+            <li>{expl}</li>
+          )) }
+        </ul>
+      </div>
+    );
+  }
+}
+
+module.exports = {
+  AddPropositionModal,
+  AddPropositionContainer,
+  AddPropositionForm,
+  PropositionExplanation,
+};
