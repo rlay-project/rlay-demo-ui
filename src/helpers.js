@@ -6,80 +6,71 @@ import {
 import multihash from 'multihashes';
 import { sha3_256 } from 'js-sha3';
 
-const toRsClass = (klass) => {
-  return {
-    label: klass.id,
-    parents: (klass.parents || []),
-  };
-}
+const toRsClass = klass => ({
+  label: klass.id,
+  parents: (klass.parents || []),
+});
 
-const nodeFromClass = (klass, truthTables) => {
-  return {
+const nodeFromClass = (klass, truthTables) => ({
+  id: klass.id,
+  label: {
     id: klass.id,
-    label: {
-      id: klass.id,
-      tt: truthTables[klass.id],
-    },
-    position: klass.graphPosition,
-  };
-};
+    tt: truthTables[klass.id],
+  },
+  position: klass.graphPosition,
+});
 
-const edgesFromClass = (klass) => {
-  return (klass.parents || []).map(parentKlass => ({
-    source: parentKlass,
-    target: klass.id,
-  }));
-}
+const edgesFromClass = klass => (klass.parents || []).map(parentKlass => ({
+  source: parentKlass,
+  target: klass.id,
+}));
 
 const canQuery = (bayModule, klasses, individuals, queryIndividual) => {
   const otherIndividuals = individuals.filter(n => n.label !== queryIndividual.label);
 
   const rsClasses = klasses.map(toRsClass);
   return bayModule.can_query(rsClasses, otherIndividuals, queryIndividual);
-}
+};
 
 const query = (bayModule, klasses, individuals, queryIndividual) => {
   const otherIndividuals = individuals.filter(n => n.label !== queryIndividual.label);
 
   const rsClasses = klasses.map(toRsClass);
   return bayModule.query(rsClasses, otherIndividuals, queryIndividual);
-}
+};
 
-const printProbability = (probability) => {
-  return `${(probability * 100).toFixed(2)} %`;
-}
+const printProbability = probability => `${(probability * 100).toFixed(2)} %`;
 
-/// Return all classes that can be inferred from the ontology for a single class
+// / Return all classes that can be inferred from the ontology for a single class
 const inferredClasses = (ontologyClasses, concreteClass) => {
   const parentClasses = (ontClass) => {
     let classes = [ontClass.id];
     if (ontClass.parents === []) {
       return uniq(classes);
-    } else {
-      ontClass.parents.forEach((parent) => {
-        const parentOntClass = ontologyClasses.find(n => n.id === parent);
-        const pClasses = parentClasses(parentOntClass);
-        classes = [].concat(classes, pClasses);
-      })
-      return uniq(classes);
     }
+    ontClass.parents.forEach((parent) => {
+      const parentOntClass = ontologyClasses.find(n => n.id === parent);
+      const pClasses = parentClasses(parentOntClass);
+      classes = [].concat(classes, pClasses);
+    });
+    return uniq(classes);
   };
 
   const concreteOntClass = ontologyClasses.find(n => n.id === concreteClass);
   return parentClasses(concreteOntClass);
 };
 
-/// Enrich a proposition with information that can be inferred via the ontology
+// / Enrich a proposition with information that can be inferred via the ontology
 const enrichPropositionInference = (plainProposition, ontologyClasses) => {
   const proposition = Object.assign({}, plainProposition);
-  let inferredKlasses = uniq(flatMap(proposition.class_memberships, (klass) => inferredClasses(ontologyClasses, klass)));
+  let inferredKlasses = uniq(flatMap(proposition.class_memberships, klass => inferredClasses(ontologyClasses, klass)));
   inferredKlasses = difference(inferredKlasses, proposition.class_memberships);
   proposition.inferred_class_memberships = inferredKlasses;
 
   return proposition;
 };
 
-/// Fold the inferred fields of a proposition into its non-inferred equivalents
+// / Fold the inferred fields of a proposition into its non-inferred equivalents
 const compactProposition = (proposition) => {
   const compactProposition = Object.assign({}, proposition);
 
@@ -87,7 +78,7 @@ const compactProposition = (proposition) => {
     compactProposition.class_memberships,
     compactProposition.inferred_class_memberships,
   );
-  delete(compactProposition.inferred_class_memberships);
+  delete (compactProposition.inferred_class_memberships);
 
   return compactProposition;
 };
@@ -97,9 +88,9 @@ const hashAsJson = (obj) => {
   const hash = multihash.toB58String(multihash.encode(buf, 'sha3-256'));
 
   return hash;
-}
+};
 
-/// Give a plaintext explanation of a proposition
+// / Give a plaintext explanation of a proposition
 const explainProposition = (plainProposition, ontologyClasses) => {
   if (!plainProposition) {
     return null;
@@ -137,7 +128,7 @@ const explainProposition = (plainProposition, ontologyClasses) => {
     asserted_rdf,
     inferred,
   };
-}
+};
 
 module.exports = {
   canQuery,

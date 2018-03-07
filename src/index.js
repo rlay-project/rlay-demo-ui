@@ -1,7 +1,7 @@
 import Viz from 'viz.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import JsonGraph, {Node as JsonGraphNode} from 'react-json-graph';
+import JsonGraph, { Node as JsonGraphNode } from 'react-json-graph';
 import classNames from 'classnames';
 import ErrorBoundary from 'react-error-boundary';
 import {
@@ -30,40 +30,40 @@ import { storageKey } from './config';
 class Graph extends React.Component {
   render() {
     const graphDot = this.props.graphString;
-    const image = Viz(graphDot, { format: "svg" });
+    const image = Viz(graphDot, { format: 'svg' });
 
     return (
-      <span dangerouslySetInnerHTML={{__html: image}} />
-    )
+      <span dangerouslySetInnerHTML={{ __html: image }} />
+    );
   }
 }
 
 Rust.bay_web.then((module) => {
-  let graph_dot = module.print_graph();
-  let graph_moral_dot = module.print_moral_graph();
-  let graph_max_cliques_dot = module.print_max_cliques();
-  let graph_join_tree_dot = module.print_join_tree();
+  const graph_dot = module.print_graph();
+  const graph_moral_dot = module.print_moral_graph();
+  const graph_max_cliques_dot = module.print_max_cliques();
+  const graph_join_tree_dot = module.print_join_tree();
 
-  let truth_table = module.truth_table();
-  let truth_tables = module.truth_tables();
+  const truth_table = module.truth_table();
+  const truth_tables = module.truth_tables();
 
-  let main = (
+  const main = (
     <span>
-      <span style={{display: 'inline-block'}}>
+      <span style={{ display: 'inline-block' }}>
         <h2>Original Graph</h2>
-        <Graph graphString={graph_dot}/>
+        <Graph graphString={graph_dot} />
       </span>
-      <span style={{display: 'inline-block'}}>
+      <span style={{ display: 'inline-block' }}>
         <h2>Moral Graph</h2>
-        <Graph graphString={graph_moral_dot}/>
+        <Graph graphString={graph_moral_dot} />
       </span>
-      <span style={{display: 'inline-block'}}>
+      <span style={{ display: 'inline-block' }}>
         <h2>Join Tree</h2>
         <p dangerouslySetInnerHTML={{ __html: graph_join_tree_dot }} />
       </span>
-    <TruthTable tt={truth_table} />
-    { graph_max_cliques_dot.map(clique => (
-      <Graph graphString={clique} />
+      <TruthTable tt={truth_table} />
+      { graph_max_cliques_dot.map(clique => (
+        <Graph graphString={clique} />
     )) }
     </span>
   );
@@ -95,8 +95,8 @@ class Page extends React.Component {
         ontologyClasses: data.classes,
         ontologyIndividuals: data.propositions,
       });
-    } catch(err) {
-      return;
+    } catch (err) {
+
     }
   }
 
@@ -128,7 +128,7 @@ class Page extends React.Component {
       <ul className="nav nav-tabs">
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true,  active: (activeTab === 'network_cpt') })}
+            className={classNames({ 'nav-link': true, active: (activeTab === 'network_cpt') })}
             onClick={() => this.setState({ activeTab: 'network_cpt' })}
           >
             Network (CPTs)
@@ -146,7 +146,7 @@ class Page extends React.Component {
         */ }
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true,  active: (activeTab === 'propositions') })}
+            className={classNames({ 'nav-link': true, active: (activeTab === 'propositions') })}
             onClick={() => this.setState({ activeTab: 'propositions' })}
           >
             Propositions
@@ -154,7 +154,7 @@ class Page extends React.Component {
         </li>
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true,  active: (activeTab === 'storage') })}
+            className={classNames({ 'nav-link': true, active: (activeTab === 'storage') })}
             onClick={() => this.setState({ activeTab: 'storage' })}
           >
             Storage
@@ -214,11 +214,11 @@ class Page extends React.Component {
     return (
       <ErrorBoundary>
         <PropositionTab
-            bayModule={bayModule}
-            ontologyClasses={ontologyClasses}
-            ontologyIndividuals={ontologyIndividuals}
-            onAddProposition={this.handleAddProposition}
-            onDeleteProposition={this.handleDeleteProposition}
+          bayModule={bayModule}
+          ontologyClasses={ontologyClasses}
+          ontologyIndividuals={ontologyIndividuals}
+          onAddProposition={this.handleAddProposition}
+          onDeleteProposition={this.handleDeleteProposition}
         />
       </ErrorBoundary>
     );
@@ -245,9 +245,9 @@ class Page extends React.Component {
 }
 
 Rust.bay_web.then((module) => {
-  let main = (
-    <Page bayModule={module}/>
-  )
+  const main = (
+    <Page bayModule={module} />
+  );
 
   ReactDOM.render(main, document.getElementById('react-graph'));
 });

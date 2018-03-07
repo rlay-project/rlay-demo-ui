@@ -1,7 +1,7 @@
-var path = require('path');
-var express = require('express');
+const path = require('path');
+const express = require('express');
 
-var app = express(); // better instead
+const app = express(); // better instead
 // app.use('/media', express.static(__dirname + '/media'));
 app.use(express.static(path.join(__dirname, '../build')));
 
