@@ -4,7 +4,7 @@ import {
   uniq,
 } from 'lodash-es';
 import multihash from 'multihashes';
-import { sha3_256 } from 'js-sha3';
+import { sha3_256 } from 'js-sha3'; // eslint-disable-line
 
 const toRsClass = klass => ({
   label: klass.id,
@@ -63,8 +63,11 @@ const inferredClasses = (ontologyClasses, concreteClass) => {
 // / Enrich a proposition with information that can be inferred via the ontology
 const enrichPropositionInference = (plainProposition, ontologyClasses) => {
   const proposition = Object.assign({}, plainProposition);
-  let inferredKlasses = uniq(flatMap(proposition.class_memberships, klass => inferredClasses(ontologyClasses, klass)));
-  inferredKlasses = difference(inferredKlasses, proposition.class_memberships);
+
+  const inferredKlasses = proposition.class_memberships
+    |> (_ => flatMap(_, klass => inferredClasses(ontologyClasses, klass)))
+    |> uniq
+    |> (_ => difference(_, proposition.class_memberships));
   proposition.inferred_class_memberships = inferredKlasses;
 
   return proposition;
@@ -72,15 +75,15 @@ const enrichPropositionInference = (plainProposition, ontologyClasses) => {
 
 // / Fold the inferred fields of a proposition into its non-inferred equivalents
 const compactProposition = (proposition) => {
-  const compactProposition = Object.assign({}, proposition);
+  const compactPropo = Object.assign({}, proposition);
 
-  compactProposition.class_memberships = [].concat(
-    compactProposition.class_memberships,
-    compactProposition.inferred_class_memberships,
+  compactPropo.class_memberships = [].concat(
+    compactPropo.class_memberships,
+    compactPropo.inferred_class_memberships,
   );
-  delete (compactProposition.inferred_class_memberships);
+  delete (compactPropo.inferred_class_memberships);
 
-  return compactProposition;
+  return compactPropo;
 };
 
 const hashAsJson = (obj) => {
@@ -96,23 +99,23 @@ const explainProposition = (plainProposition, ontologyClasses) => {
     return null;
   }
   // TODO: replace with real hash function from Rust core
-  const proposition_hash = hashAsJson(plainProposition);
+  const propositionHash = hashAsJson(plainProposition);
   const proposition = enrichPropositionInference(plainProposition, ontologyClasses);
 
   const asserted = [];
-  const asserted_rdf = [];
+  const assertedRdf = [];
   if (proposition.label !== '') {
     asserted.push(`There is a entity named ${proposition.label}. (The name does not have any influence on the reasoning.)`);
-    asserted_rdf.push({
-      subject: `spread://${proposition_hash}`,
+    assertedRdf.push({
+      subject: `spread://${propositionHash}`,
       predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#label',
       object: `"${proposition.label}"^^en`,
     });
   }
   proposition.class_memberships.forEach((klass) => {
     asserted.push(`${proposition.label} is a ${klass}`);
-    asserted_rdf.push({
-      subject: `spread://${proposition_hash}`,
+    assertedRdf.push({
+      subject: `spread://${propositionHash}`,
       predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
       object: `spread://${hashAsJson(klass)}`,
     });
@@ -125,7 +128,7 @@ const explainProposition = (plainProposition, ontologyClasses) => {
 
   return {
     asserted,
-    asserted_rdf,
+    asserted_rdf: assertedRdf,
     inferred,
   };
 };

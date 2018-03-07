@@ -1,74 +1,56 @@
 import Viz from 'viz.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import JsonGraph, { Node as JsonGraphNode } from 'react-json-graph';
 import classNames from 'classnames';
 import ErrorBoundary from 'react-error-boundary';
-import {
-  Button,
-  Input,
-  InputGroup,
-  InputGroupAddon,
-  Form,
-  FormGroup,
-  FormFeedback,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from 'reactstrap';
 
 import NetworkCPT from './NetworkCPT.jsx';
 import NetworkMarginals from './NetworkMarginals.jsx';
 import PropositionTab from './PropositionTab.jsx';
 import StorageTab from './StorageTab.jsx';
 import TruthTable from './TruthTable.jsx';
-import { toRsClass } from './helpers';
 import { exampleClasses, exampleIndividuals } from './example_data';
 import { storageKey } from './config';
 
-class Graph extends React.Component {
-  render() {
-    const graphDot = this.props.graphString;
-    const image = Viz(graphDot, { format: 'svg' });
+const VizGraph = () => {
+  const graphDot = this.props.graphString;
+  const image = Viz(graphDot, { format: 'svg' });
 
-    return (
-      <span dangerouslySetInnerHTML={{ __html: image }} />
-    );
-  }
-}
+  return (
+    <span dangerouslySetInnerHTML={{ __html: image }} />
+  );
+};
 
 Rust.bay_web.then((module) => {
-  const graph_dot = module.print_graph();
-  const graph_moral_dot = module.print_moral_graph();
-  const graph_max_cliques_dot = module.print_max_cliques();
-  const graph_join_tree_dot = module.print_join_tree();
+  const graphDot = module.print_graph();
+  const graphMoralDot = module.print_moral_graph();
+  const graphMaxCliquesDot = module.print_max_cliques();
+  const graphJoinTreeDot = module.print_join_tree();
 
-  const truth_table = module.truth_table();
-  const truth_tables = module.truth_tables();
+  const truthTable = module.truthTable();
 
   const main = (
     <span>
       <span style={{ display: 'inline-block' }}>
         <h2>Original Graph</h2>
-        <Graph graphString={graph_dot} />
+        <VizGraph graphString={graphDot} />
       </span>
       <span style={{ display: 'inline-block' }}>
         <h2>Moral Graph</h2>
-        <Graph graphString={graph_moral_dot} />
+        <VizGraph graphString={graphMoralDot} />
       </span>
       <span style={{ display: 'inline-block' }}>
         <h2>Join Tree</h2>
-        <p dangerouslySetInnerHTML={{ __html: graph_join_tree_dot }} />
+        <p dangerouslySetInnerHTML={{ __html: graphJoinTreeDot }} />
       </span>
-      <TruthTable tt={truth_table} />
-      { graph_max_cliques_dot.map(clique => (
-        <Graph graphString={clique} />
+      <TruthTable tt={truthTable} />
+      { graphMaxCliquesDot.map(clique => (
+        <VizGraph graphString={clique} />
     )) }
     </span>
   );
 
-  ReactDOM.render(main, document.getElementById('react'));
+  ReactDOM.render(main, window.document.getElementById('react'));
 });
 
 
@@ -85,18 +67,18 @@ class Page extends React.Component {
 
   reloadStorage = () => {
     try {
-      const raw_data = window.localStorage.getItem(storageKey);
-      if (!raw_data) {
+      const rawData = window.localStorage.getItem(storageKey);
+      if (!rawData) {
         return;
       }
-      const data = JSON.parse(raw_data);
+      const data = JSON.parse(rawData);
 
       this.setState({
         ontologyClasses: data.classes,
         ontologyIndividuals: data.propositions,
       });
     } catch (err) {
-
+      console.error(err); // eslint-disable-line
     }
   }
 
@@ -116,9 +98,9 @@ class Page extends React.Component {
   }
 
   handleDeleteProposition = (proposition) => {
-    this.setState({
-      ontologyIndividuals: this.state.ontologyIndividuals.filter(n => n.label !== proposition.label),
-    }, () => this.updateStorage());
+    const ontologyIndividuals = this.state.ontologyIndividuals
+      .filter(n => n.label !== proposition.label);
+    this.setState({ ontologyIndividuals }, () => this.updateStorage());
   }
 
   renderNav() {
@@ -134,16 +116,6 @@ class Page extends React.Component {
             Network (CPTs)
           </a>
         </li>
-        { /*
-        <li className="nav-item">
-          <a
-            className={classNames({ 'nav-link': true,  active: (activeTab === 'network_marginals') })}
-            onClick={() => this.setState({ activeTab: 'network_marginals' })}
-          >
-            Network (Probabilities)
-          </a>
-        </li>
-        */ }
         <li className="nav-item">
           <a
             className={classNames({ 'nav-link': true, active: (activeTab === 'propositions') })}
@@ -175,6 +147,7 @@ class Page extends React.Component {
     } else if (activeTab === 'storage') {
       return this.renderTabStorage();
     }
+    return null;
   }
 
   renderTabNetworkCPT() {
@@ -249,5 +222,5 @@ Rust.bay_web.then((module) => {
     <Page bayModule={module} />
   );
 
-  ReactDOM.render(main, document.getElementById('react-graph'));
+  ReactDOM.render(main, window.document.getElementById('react-graph'));
 });
