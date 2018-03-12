@@ -12,8 +12,8 @@ import TruthTable from './TruthTable.jsx';
 import { exampleClasses, exampleIndividuals } from './example_data';
 import { storageKey } from './config';
 
-const VizGraph = () => {
-  const graphDot = this.props.graphString;
+const VizGraph = ({ graphString }) => {
+  const graphDot = graphString;
   const image = Viz(graphDot, { format: 'svg' });
 
   return (
@@ -27,7 +27,7 @@ Rust.bay_web.then((module) => {
   const graphMaxCliquesDot = module.print_max_cliques();
   const graphJoinTreeDot = module.print_join_tree();
 
-  const truthTable = module.truthTable();
+  const truthTable = module.truth_table();
 
   const main = (
     <span>

@@ -1,5 +1,5 @@
 #! /bin/bash
-scrape_output=$(ipfscrape http://localhost:3000/graph.html 2> /dev/null)
+scrape_output=$(ipfscrape http://localhost:3000 2> /dev/null)
 scrape_hash=$(echo $scrape_output | perl -ne 'print "$1" if /ipfs\.io\/ipfs\/(.*)/')
 
 mkdir -p ipfs_deploy
