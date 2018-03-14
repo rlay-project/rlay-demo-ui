@@ -7,7 +7,7 @@ import multihash from 'multihashes';
 import { sha3_256 } from 'js-sha3'; // eslint-disable-line
 
 const toRsClass = klass => ({
-  label: klass.id,
+  label: klass.id || klass.label,
   parents: (klass.parents || []),
 });
 

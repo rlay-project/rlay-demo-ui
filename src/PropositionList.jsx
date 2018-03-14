@@ -108,11 +108,20 @@ class PropositionListItem extends React.Component {
     };
 
     const canQueryRes = canQuery(bayModule, ontologyClasses, ontologyIndividuals, proposition);
+    console.log('prop', proposition);
+    const annotationPropertyLabel = bayModule.annotation_property_label();
+    const annotationLabel = {
+      property: annotationPropertyLabel,
+      value: proposition.label,
+    };
+    const hashedAnnotation = bayModule.hash_annotation(annotationLabel);
+    console.log('annotation', hashedAnnotation);
+
     let queryRes;
     let queryResTrue;
     if (canQueryRes) {
-      queryRes = query(bayModule, ontologyClasses, ontologyIndividuals, proposition)
-      queryResTrue = Object.values(queryRes).filter((n) => n["key"][0].value === true)[0].value;
+      queryRes = query(bayModule, ontologyClasses, ontologyIndividuals, proposition);
+      queryResTrue = Object.values(queryRes).filter((n) => n.key[0].value === true)[0].value;
     }
     const propositionHash = hashAsJson(proposition);
 

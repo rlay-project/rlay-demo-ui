@@ -9,8 +9,10 @@ import NetworkMarginals from './NetworkMarginals.jsx';
 import PropositionTab from './PropositionTab.jsx';
 import StorageTab from './StorageTab.jsx';
 import TruthTable from './TruthTable.jsx';
-import { exampleClasses, exampleIndividuals } from './example_data';
+import { exampleAnnotations, exampleClasses, exampleIndividuals } from './example_data';
 import { storageKey } from './config';
+import { toRsClass } from './helpers';
+import { Annotation } from './classes';
 
 const VizGraph = ({ graphString }) => {
   const graphDot = graphString;
@@ -28,6 +30,7 @@ Rust.bay_web.then((module) => {
   const graphJoinTreeDot = module.print_join_tree();
 
   const truthTable = module.truth_table();
+  const annotationPropertyLabel = module.annotation_property_label();
 
   const main = (
     <span>
@@ -47,6 +50,10 @@ Rust.bay_web.then((module) => {
       { graphMaxCliquesDot.map(clique => (
         <VizGraph graphString={clique} />
     )) }
+      <span>
+        {'Hash for AnnotationProperty <rdfs:label>'}
+        { annotationPropertyLabel }
+      </span>
     </span>
   );
 
@@ -221,6 +228,25 @@ Rust.bay_web.then((module) => {
   const main = (
     <Page bayModule={module} />
   );
+
+  Object.keys(exampleAnnotations).forEach((storedHash) => {
+    const val = new Annotation(exampleAnnotations[storedHash]);
+    const calculatedHash = val.hash(module);
+    console.log('ANN', storedHash, calculatedHash, val.value);
+  });
+  // exampleClasses.forEach((klass) => {
+    // console.log('klass', klass);
+    // const annotationPropertyLabel = module.annotation_property_label();
+    // const annotationLabel = {
+      // property: annotationPropertyLabel,
+      // value: klass.label,
+    // };
+    // const hashedAnnotation = module.hash_annotation(annotationLabel);
+    // console.log('annotation', annotationLabel, hashedAnnotation);
+
+    // const hash = module.hash_class(toRsClass(klass));
+    // console.log('klasshash', klass, hash);
+  // });
 
   ReactDOM.render(main, window.document.getElementById('react-graph'));
 });

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "test:eslint": "./node_modules/.bin/eslint src",
     "watch:cargo": "cd vendor/bay/bay-wasm && cargo +nightly web start --target wasm32-unknown-unknown --bin bay_web --host 127.0.0.1",
     "watch:webpack": "webpack --config webpack.config.js --watch",
     "server": "node ./src/server.js"
