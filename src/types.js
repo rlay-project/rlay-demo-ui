@@ -2,13 +2,32 @@
 
 export opaque type AnnotationPropertyHash = string;
 export opaque type AnnotationCid = string;
+export opaque type ClassCid = string;
 
-type FnHashAnnotationInput = {
+export type OntClass = any;
+export type Individual = any;
+export type Proposition = any;
+
+export type TruthTables = Object;
+
+type RsOntClass = {
+  label: AnnotationCid,
+  parents: Array<ClassCid>,
+};
+
+type RsIndividual = {
+  label: string,
+  class_memberships: Array<string>,
+}
+
+type RsAnnotation = {
   property: AnnotationPropertyHash,
   value: string,
 }
 
 export type BayModule = {
-  hash_annotation: (FnHashAnnotationInput) => AnnotationCid,
   annotation_property_label: () => AnnotationPropertyHash,
+  hash_annotation: (RsAnnotation) => AnnotationCid,
+  can_query: (Array<RsOntClass>, Array<RsIndividual>, RsIndividual) => boolean,
+  query: (Array<RsOntClass>, Array<RsIndividual>, RsIndividual) => TruthTables,
 };

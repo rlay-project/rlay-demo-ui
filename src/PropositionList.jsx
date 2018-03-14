@@ -9,11 +9,12 @@ import {
 } from 'reactstrap';
 
 import { canQuery, query, printProbability, hashAsJson } from './helpers';
-import type { BayModule } from './types';
-
-type Proposition = any;
-type OntClass = any;
-type Individual = Proposition;
+import type {
+  BayModule,
+  Individual,
+  OntClass,
+  Proposition,
+} from './types';
 
 type PropositionListProps = {
   bayModule: BayModule,
@@ -163,7 +164,7 @@ class PropositionListItem extends React.Component<PropositionListItemProps> {
           ))}
         </span>
         <span>
-          { isNumber(queryResTrue) ?
+          { isNumber(queryResTrue) && typeof queryResTrue !== 'undefined' ?
             printProbability(queryResTrue)
            : null }
         </span>

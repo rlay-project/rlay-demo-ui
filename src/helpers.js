@@ -1,17 +1,36 @@
+// @flow
 import {
   difference,
   flatMap,
   uniq,
+  flow,
 } from 'lodash-es';
 import multihash from 'multihashes';
 import { sha3_256 } from 'js-sha3'; // eslint-disable-line
 
-const toRsClass = klass => ({
+import type {
+  BayModule,
+  Individual,
+  OntClass,
+  Proposition,
+  TruthTables,
+} from './types';
+
+type ToRsClassIn = {
+  id?: string,
+  label: string,
+  parents: Array<string>,
+};
+
+const toRsClass = (klass: ToRsClassIn) => ({
   label: klass.id || klass.label,
   parents: (klass.parents || []),
 });
 
-const nodeFromClass = (klass, truthTables) => ({
+const nodeFromClass = (
+  klass: OntClass,
+  truthTables: TruthTables,
+) => ({
   id: klass.id,
   label: {
     id: klass.id,
@@ -20,30 +39,45 @@ const nodeFromClass = (klass, truthTables) => ({
   position: klass.graphPosition,
 });
 
-const edgesFromClass = klass => (klass.parents || []).map(parentKlass => ({
+const edgesFromClass = (klass: OntClass) => (klass.parents || []).map(parentKlass => ({
   source: parentKlass,
   target: klass.id,
 }));
 
-const canQuery = (bayModule, klasses, individuals, queryIndividual) => {
+const canQuery = (
+  bayModule: BayModule,
+  klasses: Array<OntClass>,
+  individuals: Array<Individual>,
+  queryIndividual: Individual,
+) => {
   const otherIndividuals = individuals.filter(n => n.label !== queryIndividual.label);
 
-  const rsClasses = klasses.map(toRsClass);
+  // TODO: get rid of typecast
+  const rsClasses = (klasses.map(toRsClass): any);
   return bayModule.can_query(rsClasses, otherIndividuals, queryIndividual);
 };
 
-const query = (bayModule, klasses, individuals, queryIndividual) => {
+const query = (
+  bayModule: BayModule,
+  klasses: Array<OntClass>,
+  individuals: Array<Individual>,
+  queryIndividual: Individual,
+) => {
   const otherIndividuals = individuals.filter(n => n.label !== queryIndividual.label);
 
-  const rsClasses = klasses.map(toRsClass);
+  // TODO: get rid of typecast
+  const rsClasses = (klasses.map(toRsClass): any);
   return bayModule.query(rsClasses, otherIndividuals, queryIndividual);
 };
 
-const printProbability = probability => `${(probability * 100).toFixed(2)} %`;
+const printProbability = (probability: number) => `${(probability * 100).toFixed(2)} %`;
 
 // / Return all classes that can be inferred from the ontology for a single class
-const inferredClasses = (ontologyClasses, concreteClass) => {
-  const parentClasses = (ontClass) => {
+const inferredClasses = (
+  ontologyClasses: Array<OntClass>,
+  concreteClass: string, // id
+) => {
+  const parentClasses = (ontClass: OntClass) => {
     let classes = [ontClass.id];
     if (ontClass.parents === []) {
       return uniq(classes);
@@ -61,20 +95,24 @@ const inferredClasses = (ontologyClasses, concreteClass) => {
 };
 
 // / Enrich a proposition with information that can be inferred via the ontology
-const enrichPropositionInference = (plainProposition, ontologyClasses) => {
+const enrichPropositionInference = (
+  plainProposition: Proposition,
+  ontologyClasses: Array<OntClass>,
+) => {
   const proposition = Object.assign({}, plainProposition);
 
-  const inferredKlasses = proposition.class_memberships
-    |> (_ => flatMap(_, klass => inferredClasses(ontologyClasses, klass)))
-    |> uniq
-    |> (_ => difference(_, proposition.class_memberships));
+  const inferredKlasses = flow([
+    (_ => flatMap(_, klass => inferredClasses(ontologyClasses, klass))),
+    uniq,
+    (_ => difference(_, proposition.class_memberships)),
+  ])(proposition.class_memberships);
   proposition.inferred_class_memberships = inferredKlasses;
 
   return proposition;
 };
 
 // / Fold the inferred fields of a proposition into its non-inferred equivalents
-const compactProposition = (proposition) => {
+const compactProposition = (proposition: Proposition) => {
   const compactPropo = Object.assign({}, proposition);
 
   compactPropo.class_memberships = [].concat(
@@ -86,7 +124,7 @@ const compactProposition = (proposition) => {
   return compactPropo;
 };
 
-const hashAsJson = (obj) => {
+const hashAsJson = (obj: Object) => {
   const buf = Buffer.from(sha3_256(JSON.stringify(obj)), 'hex');
   const hash = multihash.toB58String(multihash.encode(buf, 'sha3-256'));
 
@@ -94,7 +132,10 @@ const hashAsJson = (obj) => {
 };
 
 // / Give a plaintext explanation of a proposition
-const explainProposition = (plainProposition, ontologyClasses) => {
+const explainProposition = (
+  plainProposition: ?Proposition,
+  ontologyClasses: Array<OntClass>,
+) => {
   if (!plainProposition) {
     return null;
   }
