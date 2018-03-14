@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test:eslint": "./node_modules/.bin/eslint src",
+    "test": "echo \"No tests yet\"",
+    "lint": "npm run lint:eslint && npm run lint:flow",
+    "lint:eslint": "./node_modules/.bin/eslint src",
+    "lint:flow": "./node_modules/.bin/flow src",
     "watch:cargo": "cd vendor/bay/bay-wasm && cargo +nightly web start --target wasm32-unknown-unknown --bin bay_web --host 127.0.0.1",
     "watch:webpack": "webpack --config webpack.config.js --watch",
     "server": "node ./src/server.js"
@@ -47,6 +49,7 @@
     "babel-eslint": "^8.2.2",
     "eslint": "^4.18.2",
     "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.7.0",
