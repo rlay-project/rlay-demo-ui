@@ -6,12 +6,12 @@
   "scripts": {
     "test": "echo \"No tests yet\"",
     "build": "npm run build:bay && npm run build:webpack",
-    "build:bay": "cd vendor/bay/bay-wasm && cargo +nightly web build --target wasm32-unknown-unknown --bin bay_web",
+    "build:bay": "cd vendor/bay/bay-wasm && cargo web build --target wasm32-unknown-unknown --bin bay_web",
     "build:webpack": "webpack --config webpack.config.js",
     "lint": "npm run lint:eslint && npm run lint:flow",
     "lint:eslint": "./node_modules/.bin/eslint src",
     "lint:flow": "./node_modules/.bin/flow src",
-    "watch:cargo": "cd vendor/bay/bay-wasm && cargo +nightly web start --target wasm32-unknown-unknown --bin bay_web --host 127.0.0.1",
+    "watch:cargo": "cd vendor/bay/bay-wasm && cargo web start --target wasm32-unknown-unknown --bin bay_web --host 127.0.0.1",
     "watch:webpack": "webpack --config webpack.config.js --watch",
     "server": "node ./src/server.js"
   },
