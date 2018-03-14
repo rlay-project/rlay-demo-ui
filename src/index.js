@@ -11,7 +11,6 @@ import StorageTab from './StorageTab.jsx';
 import TruthTable from './TruthTable.jsx';
 import { exampleAnnotations, exampleClasses, exampleIndividuals } from './example_data';
 import { storageKey } from './config';
-import { toRsClass } from './helpers';
 import { Annotation } from './classes';
 
 const VizGraph = ({ graphString }) => {
@@ -235,17 +234,17 @@ Rust.bay_web.then((module) => {
     console.log('ANN', storedHash, calculatedHash, val.value);
   });
   // exampleClasses.forEach((klass) => {
-    // console.log('klass', klass);
-    // const annotationPropertyLabel = module.annotation_property_label();
-    // const annotationLabel = {
-      // property: annotationPropertyLabel,
-      // value: klass.label,
-    // };
-    // const hashedAnnotation = module.hash_annotation(annotationLabel);
-    // console.log('annotation', annotationLabel, hashedAnnotation);
+  // console.log('klass', klass);
+  // const annotationPropertyLabel = module.annotation_property_label();
+  // const annotationLabel = {
+  // property: annotationPropertyLabel,
+  // value: klass.label,
+  // };
+  // const hashedAnnotation = module.hash_annotation(annotationLabel);
+  // console.log('annotation', annotationLabel, hashedAnnotation);
 
-    // const hash = module.hash_class(toRsClass(klass));
-    // console.log('klasshash', klass, hash);
+  // const hash = module.hash_class(toRsClass(klass));
+  // console.log('klasshash', klass, hash);
   // });
 
   ReactDOM.render(main, window.document.getElementById('react-graph'));

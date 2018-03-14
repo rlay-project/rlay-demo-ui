@@ -1,11 +1,21 @@
+// @flow
+import type { AnnotationPropertyHash, AnnotationCid, BayModule } from './types';
+
+type AnnotationData = {
+  property: AnnotationPropertyHash,
+  value: string,
+};
+
 class Annotation {
-  constructor(data) {
-    // const instance = new this();
+  property: AnnotationPropertyHash;
+  value: string;
+
+  constructor(data: AnnotationData) {
     this.property = data.property;
     this.value = data.value;
   }
 
-  hash(bayModule) {
+  hash(bayModule: BayModule): AnnotationCid {
     const rsValue = {
       property: this.property,
       value: this.value,

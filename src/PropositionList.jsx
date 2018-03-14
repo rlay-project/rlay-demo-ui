@@ -1,3 +1,4 @@
+// @flow
 import React from 'react';
 import { isNumber } from 'lodash-es';
 import {
@@ -8,8 +9,20 @@ import {
 } from 'reactstrap';
 
 import { canQuery, query, printProbability, hashAsJson } from './helpers';
+import type { BayModule } from './types';
 
-export default class PropositionList extends React.Component {
+type Proposition = any;
+type OntClass = any;
+type Individual = Proposition;
+
+type PropositionListProps = {
+  bayModule: BayModule,
+  onDeleteProposition: (Proposition) => void,
+  ontologyClasses: Array<OntClass>,
+  ontologyIndividuals: Array<Individual>,
+};
+
+export default class PropositionList extends React.Component<PropositionListProps> {
   render() {
     const {
       bayModule,
@@ -34,7 +47,12 @@ export default class PropositionList extends React.Component {
   }
 }
 
-class PropositionListHeader extends React.Component {
+type PropositionListHeaderProps = {};
+type PropositionListHeaderState = {
+  probabilityModalOpen: boolean,
+};
+
+class PropositionListHeader extends React.Component<PropositionListHeaderProps, PropositionListHeaderState> {
   state = {
     probabilityModalOpen: false,
   }
@@ -88,7 +106,15 @@ class PropositionListHeader extends React.Component {
   }
 }
 
-class PropositionListItem extends React.Component {
+type PropositionListItemProps = {
+  bayModule: BayModule,
+  ontologyIndividuals: any,
+  ontologyClasses: any,
+  proposition: any,
+  onDeleteProposition: (any) => void,
+};
+
+class PropositionListItem extends React.Component<PropositionListItemProps> {
   render() {
     const {
       bayModule,
@@ -121,7 +147,8 @@ class PropositionListItem extends React.Component {
     let queryResTrue;
     if (canQueryRes) {
       queryRes = query(bayModule, ontologyClasses, ontologyIndividuals, proposition);
-      queryResTrue = Object.values(queryRes).filter((n) => n.key[0].value === true)[0].value;
+      // TODO: get rid of typecasts
+      queryResTrue = (Object.values(queryRes).filter((n) => (n: any).key[0].value === true)[0]: any).value;
     }
     const propositionHash = hashAsJson(proposition);
 
