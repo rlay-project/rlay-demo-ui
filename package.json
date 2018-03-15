@@ -14,7 +14,9 @@
     "lint:flow": "./node_modules/.bin/flow src",
     "watch:cargo": "cd vendor/bay/bay-wasm && cargo web start --target wasm32-unknown-unknown --bin bay_web --host 127.0.0.1",
     "watch:webpack": "webpack --config webpack.config.js --watch",
-    "server": "node ./src/server.js"
+    "server": "node ./src/server.js",
+    "storybook": "start-storybook -s ./public -p 6006",
+    "build-storybook": "build-storybook"
   },
   "author": "",
   "license": "ISC",
@@ -64,7 +66,8 @@
     "eslint-plugin-react": "^7.7.0",
     "flow-bin": "^0.67.1",
     "jest": "^22.4.2",
-    "jest-enzyme": "^6.0.0"
+    "jest-enzyme": "^6.0.0",
+    "@storybook/react": "^3.3.15"
   },
   "jest": {
     "setupFiles": [

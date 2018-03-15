@@ -93,7 +93,6 @@ class AddPropositionModal extends React.Component {
 class AddPropositionContainer extends React.Component {
   static defaultProps = {
     ontologyClasses: [],
-    onChangeOpen: () => {},
     onSubmit: () => {},
   }
 
