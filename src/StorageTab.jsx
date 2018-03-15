@@ -7,17 +7,21 @@ import { storageKey } from './config';
 
 export default class StorageTab extends React.Component {
   static defaultProps = {
-    onTriggerReload: () => {},
+    onTriggerClearStorage: () => {},
   }
 
   handleClearStoragClick = () => {
-    window.localStorage.removeItem(storageKey);
-    this.props.onTriggerReload();
+    this.props.onTriggerClearStorage();
   }
 
   render() {
     return (
-      <Button onClick={this.handleClearStoragClick}>Clear storage</Button>
+      <Button
+        id="clear-storage-button"
+        onClick={this.handleClearStoragClick}
+      >
+        Clear storage
+      </Button>
     );
   }
 }
