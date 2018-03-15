@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"No tests yet\"",
+    "test": "npm run test:jest",
+    "test:jest": "./node_modules/.bin/jest",
     "build": "npm run build:bay && npm run build:webpack",
     "build:bay": "cd vendor/bay/bay-wasm && cargo web build --target wasm32-unknown-unknown --bin bay_web",
     "build:webpack": "webpack --config webpack.config.js",
@@ -48,14 +49,30 @@
     "webpack-livereload-plugin": "^1.0.0"
   },
   "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.40",
     "@babel/preset-flow": "^7.0.0-beta.40",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.2",
+    "babel-jest": "^22.4.1",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.18.2",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.7.0",
-    "flow-bin": "^0.67.1"
+    "flow-bin": "^0.67.1",
+    "jest": "^22.4.2",
+    "jest-enzyme": "^6.0.0"
+  },
+  "jest": {
+    "setupFiles": [
+      "./test/jestsetup.js"
+    ],
+    "setupTestFrameworkScriptFile": "./node_modules/jest-enzyme/lib/index.js",
+    "transform": {
+      ".*": "<rootDir>/node_modules/babel-jest"
+    }
   }
 }

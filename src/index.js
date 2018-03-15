@@ -204,10 +204,14 @@ class Page extends React.Component {
   }
 
   renderTabStorage() {
+    const clearStorage = () => {
+      window.localStorage.removeItem(storageKey);
+      this.reloadStorage();
+    };
     return (
       <ErrorBoundary>
         <StorageTab
-          onTriggerReload={this.reloadStorage}
+          onTriggerReload={clearStorage}
         />
       </ErrorBoundary>
     );
