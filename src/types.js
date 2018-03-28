@@ -10,6 +10,11 @@ export type Proposition = any;
 
 export type TruthTables = Object;
 
+export type ContractConfig = {
+  abi: any,
+  address: string,
+};
+
 type RsOntClass = {
   label: AnnotationCid,
   parents: Array<ClassCid>,
@@ -20,7 +25,7 @@ type RsIndividual = {
   class_memberships: Array<string>,
 }
 
-type RsAnnotation = {
+export type RsAnnotation = {
   property: AnnotationPropertyHash,
   value: string,
 }
