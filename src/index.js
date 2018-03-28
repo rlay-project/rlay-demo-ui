@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import ErrorBoundary from 'react-error-boundary';
+import { Web3Provider } from 'react-web3';
 
 import NetworkCPT from './NetworkCPT.jsx';
 import NetworkMarginals from './NetworkMarginals.jsx';
@@ -219,10 +220,12 @@ class Page extends React.Component {
 
   render() {
     return (
-      <div>
-        { this.renderNav() }
-        { this.renderTabContainer() }
-      </div>
+      <Web3Provider>
+        <div>
+          { this.renderNav() }
+          { this.renderTabContainer() }
+        </div>
+      </Web3Provider>
     );
   }
 }

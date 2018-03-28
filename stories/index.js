@@ -2,6 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
+import { Web3Provider } from 'react-web3';
 
 import Welcome from './Welcome';
 import StorageTab from '../src/StorageTab.jsx';
@@ -75,9 +76,11 @@ storiesOf('AnnotationList', module)
     const contractConfig = config.annotationStore;
     const WrappedComponent = withBlockchainAnnotations(AnnotationList, contractConfig);
     return (
-      <div style={{ margin: '40px' }}>
-        <WrappedComponent annotations={annotations} />
-      </div>
+        <div style={{ margin: '40px' }}>
+      <Web3Provider>
+          <WrappedComponent annotations={annotations} />
+      </Web3Provider>
+        </div>
     );
   })
 ;

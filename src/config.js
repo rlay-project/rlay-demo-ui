@@ -5,6 +5,6 @@ module.exports = {
 
   annotationStore: {
     abi: annotationStoreAbi,
-    address: '0x3d0f07fd208a8ccb6bfb7e268fbcd3b64af647ed',
+    address: '0xf0cd575450fc03b90eead03d65e79741a19665e4',
   },
 };

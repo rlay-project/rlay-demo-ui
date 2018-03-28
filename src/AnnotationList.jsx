@@ -92,8 +92,7 @@ const withBlockchainAnnotations = (
     }
 
     componentDidMount() {
-      // $FlowFixMe
-      const provider = web3.currentProvider; // eslint-disable-line
+      const provider = window.web3.currentProvider; // eslint-disable-line
 
       const StorageContract = truffleContract(contractConfig.abi);
       const contractAddress = contractConfig.address;

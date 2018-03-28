@@ -44,6 +44,7 @@
     "react-error-boundary": "^1.2.1",
     "react-json-graph": "^2.0.2",
     "react-select": "^1.2.1",
+    "react-web3": "^0.4.5",
     "reactstrap": "^5.0.0-beta",
     "storm-react-diagrams": "^4.0.0",
     "truffle-contract": "^3.0.4",
