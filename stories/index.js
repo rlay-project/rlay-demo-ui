@@ -4,10 +4,12 @@ import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 import { Web3Provider } from 'react-web3';
 
-import Welcome from './Welcome';
-import StorageTab from '../src/StorageTab.jsx';
 import AnnotationPropertyList from '../src/AnnotationPropertyList.jsx';
+import NetworkStatus from '../src/NetworkStatus.jsx';
+import StorageTab from '../src/StorageTab.jsx';
+import Welcome from './Welcome';
 import { AnnotationList, withBlockchainAnnotations } from '../src/AnnotationList.jsx';
+
 import config from '../src/config.js';
 
 storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
@@ -76,11 +78,21 @@ storiesOf('AnnotationList', module)
     const contractConfig = config.annotationStore;
     const WrappedComponent = withBlockchainAnnotations(AnnotationList, contractConfig);
     return (
-        <div style={{ margin: '40px' }}>
-      <Web3Provider>
-          <WrappedComponent annotations={annotations} />
-      </Web3Provider>
+        <div style={{ margin: '80px' }}>
+          <Web3Provider>
+            <WrappedComponent annotations={annotations} />
+          </Web3Provider>
         </div>
     );
-  })
-;
+  });
+
+storiesOf('NetworkStatus', module)
+  .add('default', () => {
+    return (
+      <div style={{ margin: '40px' }}>
+        <Web3Provider>
+          <NetworkStatus web3={window.web3} />
+        </Web3Provider>
+      </div>
+    );
+  });
