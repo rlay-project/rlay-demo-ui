@@ -8,6 +8,7 @@ import AnnotationPropertyList from '../src/AnnotationPropertyList.jsx';
 import NetworkStatus from '../src/NetworkStatus.jsx';
 import StorageTab from '../src/StorageTab.jsx';
 import Welcome from './Welcome';
+import { AddAnnotationForm, AddAnnotationContainer } from '../src/AddAnnotationModal.jsx';
 import { AnnotationList, withBlockchainAnnotations } from '../src/AnnotationList.jsx';
 
 import config from '../src/config.js';
@@ -93,6 +94,52 @@ storiesOf('NetworkStatus', module)
         <Web3Provider>
           <NetworkStatus web3={window.web3} />
         </Web3Provider>
+      </div>
+    );
+  });
+
+storiesOf('AddAnnotationForm', module)
+  .add('default', () => {
+    const annotationProperties = [
+      {
+        hash: 'zW1aUyiEVULyTsGHRAD1ERdZj8XG3B3PrLZokrZkNCdUKR2',
+        value: 'http://www.w3.org/2000/01/rdf-schema#label',
+      },
+      {
+        hash: 'zW1fiG75n55P1ix184atgmWHu6FhgKzQqtdiA1wQcnPhPSL',
+        value: 'http://www.w3.org/2000/01/rdf-schema#comment',
+      },
+    ];
+
+    return (
+      <div style={{ margin: '40px' }}>
+        <AddAnnotationForm
+          ontologyAnnotationProperties={annotationProperties}
+          onAnnotationChange={action('annotation-change')}
+        />
+      </div>
+    );
+  });
+
+storiesOf('AddAnnotationContainer', module)
+  .add('default', () => {
+    const annotationProperties = [
+      {
+        hash: 'zW1aUyiEVULyTsGHRAD1ERdZj8XG3B3PrLZokrZkNCdUKR2',
+        value: 'http://www.w3.org/2000/01/rdf-schema#label',
+      },
+      {
+        hash: 'zW1fiG75n55P1ix184atgmWHu6FhgKzQqtdiA1wQcnPhPSL',
+        value: 'http://www.w3.org/2000/01/rdf-schema#comment',
+      },
+    ];
+
+    return (
+      <div style={{ margin: '40px' }}>
+        <AddAnnotationContainer
+          ontologyAnnotationProperties={annotationProperties}
+          onSubmit={action('submit')}
+        />
       </div>
     );
   });
