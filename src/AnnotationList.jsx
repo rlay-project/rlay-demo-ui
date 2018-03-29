@@ -1,8 +1,9 @@
 // @flow
 import React from 'react';
-import { isEmpty } from 'lodash-es';
-import truffleContract from 'truffle-contract';
 import multibase from 'multibase';
+import truffleContract from 'truffle-contract';
+import { Button } from 'reactstrap';
+import { isEmpty } from 'lodash-es';
 
 import type { ComponentType } from 'react';
 import type { RsAnnotation, AnnotationCid, ContractConfig } from './types';
@@ -19,17 +20,35 @@ type BlockchainAnnotation = {
 
 type AnnotationListProps = {
   annotations: Array<CheckedAnnotation>,
+  onSubmitProposition: (Annotation) => void,
+};
+
+const b58ToSolidityBytes = (b58) => {
+  const bytesCid = multibase.decode(b58);
+  return `0x${multibase.encode('base16', bytesCid).toString().substring(1)}`;
 };
 
 class AnnotationList extends React.Component<AnnotationListProps> {
-  renderItem(item: CheckedAnnotation) {
+  handleUploadClick = (item: CheckedAnnotation) => {
+    this.props.onSubmitProposition(item);
+  }
+
+  renderItem = (item: CheckedAnnotation) => {
     const itemStyle = {
       display: 'flex',
       justifyContent: 'space-between',
+      alignItems: 'center',
     };
 
     return (
       <li className="list-group-item" style={itemStyle}>
+        {
+          !item.isAvailable ? (
+            <span style={{ position: 'relative', marginLeft: '-80px' }}>
+              <Button color="primary" onClick={() => this.handleUploadClick(item)}>⬆</Button>
+            </span>
+          ) : null
+        }
         <span style={{ minWidth: '20px' }}>
           { item.isAvailable ? '🌐' : null }
         </span>
@@ -92,8 +111,7 @@ const withBlockchainAnnotations = (
     }
 
     componentDidMount() {
-      // $FlowFixMe
-      const provider = web3.currentProvider; // eslint-disable-line
+      const provider = window.web3.currentProvider; // eslint-disable-line
 
       const StorageContract = truffleContract(contractConfig.abi);
       const contractAddress = contractConfig.address;
@@ -102,19 +120,48 @@ const withBlockchainAnnotations = (
 
       contract.then((ctr) => {
         this.props.annotations.forEach((ann) => {
-          const b58Cid = ann.cid;
-          const bytesCid = multibase.decode(b58Cid);
-          const ethCid = `0x${multibase.encode('base16', bytesCid).toString().substring(1)}`;
-
-          ctr.retrieveAnnotation.call(ethCid).then((exists) => {
-            this.setState({
-              annotationExists: {
-                ...this.state.annotationExists,
-                [b58Cid]: (exists[0] !== '0x'),
-              },
-            });
-          });
+          this.updateAnnotation(ctr, ann);
         });
+      });
+    }
+
+    updateAnnotation = (ctr: any, ann: Annotation) => {
+      const b58Cid = ann.cid;
+      const ethCid = b58ToSolidityBytes(b58Cid);
+
+      ctr.retrieveAnnotation.call(ethCid).then((exists) => {
+        this.setState({
+          annotationExists: {
+            ...this.state.annotationExists,
+            // $FlowFixMe
+            [b58Cid]: (exists[0] !== '0x'),
+          },
+        });
+      });
+    }
+
+    handleSubmitProposition = (item: Annotation) => {
+      const { web3 } = window;
+      const provider = web3.currentProvider; // eslint-disable-line
+
+      const StorageContract = truffleContract(contractConfig.abi);
+      StorageContract.defaults({
+        from: web3.eth.accounts[0],
+      });
+      const contractAddress = contractConfig.address;
+      StorageContract.setProvider(provider);
+      const contract = StorageContract.at(contractAddress);
+
+      contract.then((ctr) => {
+        const argProperty = b58ToSolidityBytes(item.property);
+
+        ctr.storeAnnotation(argProperty, item.value)
+          .then(() => {
+            this.updateAnnotation(ctr, item);
+          })
+          .catch((err) => {
+            console.error(err);
+          });
       });
     }
 
@@ -124,7 +171,11 @@ const withBlockchainAnnotations = (
         isAvailable: this.state.annotationExists[ann.cid],
       }));
 
-      return <WrappedComponent {...this.props} annotations={checkedAnnotations} />;
+      return <WrappedComponent
+        {...this.props}
+        annotations={checkedAnnotations}
+        onSubmitProposition={this.handleSubmitProposition}
+      />;
     }
   };
 };
