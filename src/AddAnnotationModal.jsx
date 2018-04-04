@@ -19,7 +19,22 @@ import {
   isNull,
 } from 'lodash-es';
 
-class AddAnnotationForm extends React.Component {
+import type { AnnotationProperty } from './AnnotationPropertyList.jsx';
+import type { RsAnnotation } from './types';
+
+type AddAnnotationFormProps = {
+  ontologyAnnotationProperties: Array<AnnotationProperty>,
+  resetCounter: number,
+  onAnnotationChange: (?RsAnnotation) => void,
+  onValidate: (boolean) => void,
+};
+
+type AddAnnotationFormState = {
+  valueValue: string,
+  valueProperty: ?AnnotationProperty,
+};
+
+class AddAnnotationForm extends React.Component<AddAnnotationFormProps, AddAnnotationFormState> {
   static defaultProps = {
     ontologyAnnotationProperties: [],
     resetCounter: 0,
@@ -37,27 +52,31 @@ class AddAnnotationForm extends React.Component {
     valueProperty: null,
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: AddAnnotationFormProps) {
     if (this.props.resetCounter != nextProps.resetCounter) {
       this.setState(AddAnnotationForm.defaultState,
         () => this.handleAnnotationChange());
     }
   }
 
-  handleValueValueChange = (e) => {
+  handleValueValueChange = (e: any) => {
     this.setState({
       valueValue: e.target.value,
     }, () => this.handleAnnotationChange());
   }
 
-  handlePropertySelectChange = (selectedOptions) => {
+  handlePropertySelectChange = (selectedOptions: any) => {
     this.setState({ valueProperty: selectedOptions },
       () => this.handleAnnotationChange());
   }
 
   buildAnnotation = () => {
+    if (!this.state.valueProperty) {
+      return null;
+    }
+
     return {
-      property: this.state.valueProperty ? this.state.valueProperty.hash : null,
+      property: this.state.valueProperty.hash,
       value: this.state.valueValue,
     };
   };
@@ -82,7 +101,7 @@ class AddAnnotationForm extends React.Component {
 
     const classOptions = ontologyAnnotationProperties.map(n => ({
       ...n,
-      label: `${n.hash} (${n.value})`,
+      label: `${(n.hash: any)} (${n.value})`,
     }));
 
     return (
@@ -112,7 +131,18 @@ class AddAnnotationForm extends React.Component {
   }
 }
 
-class AddAnnotationContainer extends React.Component {
+type AddAnnotationContainerProps = {
+  ontologyAnnotationProperties: Array<AnnotationProperty>,
+  onSubmit: (RsAnnotation) => void,
+};
+
+type AddAnnotationContainerState = {
+  formAnnotation: ?RsAnnotation,
+  formValid: boolean,
+  resetCounter: number,
+};
+
+class AddAnnotationContainer extends React.Component<AddAnnotationContainerProps, AddAnnotationContainerState> {
   static defaultProps = {
     ontologyAnnotationProperties: [],
     onSubmit: () => {},
@@ -130,6 +160,10 @@ class AddAnnotationContainer extends React.Component {
   }
 
   handleSubmitClick = () => {
+    if(!this.state.formAnnotation) {
+      return;
+    }
+
     const { ontologyAnnotationProperties } = this.props;
 
     this.props.onSubmit(this.state.formAnnotation);
@@ -139,17 +173,17 @@ class AddAnnotationContainer extends React.Component {
     });
   }
 
-  handleFormAnnotationChange = (formAnnotation) => {
+  handleFormAnnotationChange = (formAnnotation: ?RsAnnotation) => {
     this.setState({ formAnnotation });
   }
 
-  handleFormValidate = (valid) => {
+  handleFormValidate = (valid: boolean) => {
     this.setState({ formValid: valid });
   }
 
   render() {
     return (
-      <span className="border rounded" style={{ marginLeft: '20px', padding: '20px', display: 'block', width: '100%', height: '100%' }}>
+      <span className="border rounded" style={{ padding: '20px', display: 'block', width: '100%', height: '100%' }}>
         <h3>Add Annotation</h3>
         <AddAnnotationForm
           ontologyAnnotationProperties={this.props.ontologyAnnotationProperties}

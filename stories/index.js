@@ -81,7 +81,10 @@ storiesOf('AnnotationList', module)
     return (
         <div style={{ margin: '80px' }}>
           <Web3Provider>
-            <WrappedComponent annotations={annotations} />
+            <WrappedComponent
+              annotations={annotations}
+              web3={window.web3}
+            />
           </Web3Provider>
         </div>
     );

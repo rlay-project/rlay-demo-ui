@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash-es';
 
 import type { AnnotationPropertyHash } from './types';
 
-type AnnotationProperty = {
+export type AnnotationProperty = {
   hash: AnnotationPropertyHash,
   value: string,
 };

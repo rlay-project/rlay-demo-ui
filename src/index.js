@@ -10,7 +10,12 @@ import NetworkMarginals from './NetworkMarginals.jsx';
 import PropositionTab from './PropositionTab.jsx';
 import StorageTab from './StorageTab.jsx';
 import TruthTable from './TruthTable.jsx';
-import { exampleAnnotations, exampleClasses, exampleIndividuals } from './example_data';
+import {
+  exampleAnnotationProperties,
+  exampleAnnotations,
+  exampleClasses,
+  exampleIndividuals,
+} from './example_data';
 import { storageKey } from './config';
 import { Annotation } from './classes';
 
@@ -63,9 +68,11 @@ Rust.bay_web.then((module) => {
 
 class Page extends React.Component {
   state = {
-    activeTab: 'propositions',
+    activeTab: 'storage',
     ontologyClasses: exampleClasses,
     ontologyIndividuals: exampleIndividuals,
+    ontologyAnnotationProperties: exampleAnnotationProperties,
+    ontologyAnnotations: [],
   }
 
   componentDidMount() {
@@ -205,14 +212,29 @@ class Page extends React.Component {
   }
 
   renderTabStorage() {
+    const {
+      ontologyAnnotationProperties,
+      ontologyAnnotations,
+    } = this.state;
+
     const clearStorage = () => {
       window.localStorage.removeItem(storageKey);
       this.reloadStorage();
     };
+
+    const handleSubmitAnnotation = (annotation) => {
+      this.setState({
+        ontologyAnnotations: [...this.state.ontologyAnnotations, annotation],
+      });
+    };
+
     return (
       <ErrorBoundary>
         <StorageTab
+          onSubmitAnnotation={handleSubmitAnnotation}
           onTriggerReload={clearStorage}
+          ontologyAnnotationProperties={ontologyAnnotationProperties}
+          ontologyAnnotations={ontologyAnnotations}
         />
       </ErrorBoundary>
     );
