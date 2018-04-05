@@ -5,11 +5,11 @@ import classNames from 'classnames';
 import ErrorBoundary from 'react-error-boundary';
 import { Web3Provider } from 'react-web3';
 
-import NetworkCPT from './NetworkCPT.jsx';
-import NetworkMarginals from './NetworkMarginals.jsx';
-import PropositionTab from './PropositionTab.jsx';
-import StorageTab from './StorageTab.jsx';
-import TruthTable from './TruthTable.jsx';
+import NetworkCPT from './components/NetworkCPT.jsx';
+import NetworkMarginals from './components/NetworkMarginals.jsx';
+import PropositionTab from './components/PropositionTab.jsx';
+import StorageTab from './components/StorageTab.jsx';
+import TruthTable from './components/TruthTable.jsx';
 import {
   exampleAnnotationProperties,
   exampleAnnotations,

@@ -80,6 +80,9 @@
     "setupTestFrameworkScriptFile": "./node_modules/jest-enzyme/lib/index.js",
     "transform": {
       ".*": "<rootDir>/node_modules/babel-jest"
-    }
+    },
+    "transformIgnorePatterns": [
+        "<rootDir>/node_modules/(?!lodash-es)"
+    ]
   }
 }

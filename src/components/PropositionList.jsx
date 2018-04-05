@@ -8,13 +8,13 @@ import {
   ModalBody,
 } from 'reactstrap';
 
-import { canQuery, query, printProbability, hashAsJson } from './helpers';
+import { canQuery, query, printProbability, hashAsJson } from '../helpers';
 import type {
   BayModule,
   Individual,
   OntClass,
   Proposition,
-} from './types';
+} from '../types';
 
 type PropositionListProps = {
   bayModule: BayModule,

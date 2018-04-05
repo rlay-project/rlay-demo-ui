@@ -4,12 +4,12 @@ import {
   Button,
 } from 'reactstrap';
 
-import { storageKey, annotationStore } from './config';
+import { storageKey, annotationStore } from '../config'; // TODO: provide via props
 import AnnotationPropertyList from './AnnotationPropertyList.jsx';
 import { AnnotationList, withBlockchainAnnotations } from './AnnotationList.jsx';
 import { AddAnnotationContainer } from './AddAnnotationModal.jsx';
 
-import type { AnnotationPropertyHash } from './types';
+import type { AnnotationPropertyHash } from '../types';
 
 type StorageTabProps = {
   onTriggerClearStorage: () => void,

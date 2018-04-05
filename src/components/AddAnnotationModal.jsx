@@ -20,7 +20,7 @@ import {
 } from 'lodash-es';
 
 import type { AnnotationProperty } from './AnnotationPropertyList.jsx';
-import type { RsAnnotation } from './types';
+import type { RsAnnotation } from '../types';
 
 type AddAnnotationFormProps = {
   ontologyAnnotationProperties: Array<AnnotationProperty>,

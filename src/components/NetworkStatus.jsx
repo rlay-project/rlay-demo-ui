@@ -2,7 +2,7 @@
 import React from 'react';
 import truffleContract from 'truffle-contract';
 
-import config from './config.js';
+import config from '../config.js'; // TODO: provide via props
 
 type NetworkStatusProps = {
   web3: Object,

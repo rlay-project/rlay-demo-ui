@@ -2,7 +2,7 @@
 import React from 'react';
 import { isEmpty } from 'lodash-es';
 
-import type { AnnotationPropertyHash } from './types';
+import type { AnnotationPropertyHash } from '../types';
 
 export type AnnotationProperty = {
   hash: AnnotationPropertyHash,

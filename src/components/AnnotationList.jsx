@@ -7,7 +7,7 @@ import { isEmpty } from 'lodash-es';
 import abiDecoder from 'abi-decoder';
 
 import type { ComponentType } from 'react';
-import type { RsAnnotation, AnnotationCid, ContractConfig } from './types';
+import type { RsAnnotation, AnnotationCid, ContractConfig } from '../types';
 
 type Annotation = RsAnnotation & {
   cid: AnnotationCid,
