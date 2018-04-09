@@ -15,9 +15,15 @@ export type ContractConfig = {
   address: string,
 };
 
+// TODO: deprecate and move towards RsClass
 type RsOntClass = {
   label: AnnotationCid,
   parents: Array<ClassCid>,
+};
+
+export type RsClass = {
+  annotations: Array<AnnotationCid>,
+  sub_class_of_class: Array<ClassCid>,
 };
 
 type RsIndividual = {
@@ -33,6 +39,7 @@ export type RsAnnotation = {
 export type BayModule = {
   annotation_property_label: () => AnnotationPropertyHash,
   hash_annotation: (RsAnnotation) => AnnotationCid,
+  hash_class: (RsClass) => ClassCid,
   can_query: (Array<RsOntClass>, Array<RsIndividual>, RsIndividual) => boolean,
   query: (Array<RsOntClass>, Array<RsIndividual>, RsIndividual) => TruthTables,
 };

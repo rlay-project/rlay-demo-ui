@@ -15,7 +15,7 @@
     "watch:cargo": "cd vendor/bay/bay-wasm && cargo web start --target wasm32-unknown-unknown --bin bay_web --host 127.0.0.1",
     "watch:webpack": "webpack --config webpack.config.js --watch",
     "server": "node ./src/server.js",
-    "storybook": "start-storybook -s ./public -p 6006",
+    "storybook": "start-storybook -s ./build -p 6006",
     "build-storybook": "build-storybook"
   },
   "author": "",

@@ -160,7 +160,7 @@ class AddAnnotationContainer extends React.Component<AddAnnotationContainerProps
   }
 
   handleSubmitClick = () => {
-    if(!this.state.formAnnotation) {
+    if (!this.state.formAnnotation) {
       return;
     }
 
