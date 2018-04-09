@@ -14,10 +14,7 @@ import {
   ModalHeader,
 } from 'reactstrap';
 import Select from 'react-select';
-import {
-  uniq,
-  isNull,
-} from 'lodash-es';
+import { uniq, isNull } from 'lodash-es';
 
 import type { AnnotationProperty } from './AnnotationPropertyList.jsx';
 import type { RsAnnotation } from '../types';
@@ -26,7 +23,7 @@ type AddAnnotationFormProps = {
   ontologyAnnotationProperties: Array<AnnotationProperty>,
   resetCounter: number,
   onAnnotationChange: (?RsAnnotation) => void,
-  onValidate: (boolean) => void,
+  onValidate: boolean => void,
 };
 
 type AddAnnotationFormState = {
@@ -34,41 +31,49 @@ type AddAnnotationFormState = {
   valueProperty: ?AnnotationProperty,
 };
 
-class AddAnnotationForm extends React.Component<AddAnnotationFormProps, AddAnnotationFormState> {
+class AddAnnotationForm extends React.Component<
+  AddAnnotationFormProps,
+  AddAnnotationFormState,
+> {
   static defaultProps = {
     ontologyAnnotationProperties: [],
     resetCounter: 0,
     onAnnotationChange: () => {},
     onValidate: () => {},
-  }
+  };
 
   static defaultState = {
     valueValue: '',
     valueProperty: null,
-  }
+  };
 
   state = {
     valueValue: '',
     valueProperty: null,
-  }
+  };
 
   componentWillReceiveProps(nextProps: AddAnnotationFormProps) {
     if (this.props.resetCounter != nextProps.resetCounter) {
-      this.setState(AddAnnotationForm.defaultState,
-        () => this.handleAnnotationChange());
+      this.setState(AddAnnotationForm.defaultState, () =>
+        this.handleAnnotationChange(),
+      );
     }
   }
 
   handleValueValueChange = (e: any) => {
-    this.setState({
-      valueValue: e.target.value,
-    }, () => this.handleAnnotationChange());
-  }
+    this.setState(
+      {
+        valueValue: e.target.value,
+      },
+      () => this.handleAnnotationChange(),
+    );
+  };
 
   handlePropertySelectChange = (selectedOptions: any) => {
-    this.setState({ valueProperty: selectedOptions },
-      () => this.handleAnnotationChange());
-  }
+    this.setState({ valueProperty: selectedOptions }, () =>
+      this.handleAnnotationChange(),
+    );
+  };
 
   buildAnnotation = () => {
     if (!this.state.valueProperty) {
@@ -84,7 +89,7 @@ class AddAnnotationForm extends React.Component<AddAnnotationFormProps, AddAnnot
   handleAnnotationChange = () => {
     this.props.onAnnotationChange(this.buildAnnotation());
     this.props.onValidate(this.validate());
-  }
+  };
 
   validate = () => {
     if (!this.state.valueProperty) {
@@ -94,7 +99,7 @@ class AddAnnotationForm extends React.Component<AddAnnotationFormProps, AddAnnot
       return false;
     }
     return true;
-  }
+  };
 
   render() {
     const { ontologyAnnotationProperties } = this.props;
@@ -133,7 +138,7 @@ class AddAnnotationForm extends React.Component<AddAnnotationFormProps, AddAnnot
 
 type AddAnnotationContainerProps = {
   ontologyAnnotationProperties: Array<AnnotationProperty>,
-  onSubmit: (RsAnnotation) => void,
+  onSubmit: RsAnnotation => void,
 };
 
 type AddAnnotationContainerState = {
@@ -142,22 +147,25 @@ type AddAnnotationContainerState = {
   resetCounter: number,
 };
 
-class AddAnnotationContainer extends React.Component<AddAnnotationContainerProps, AddAnnotationContainerState> {
+class AddAnnotationContainer extends React.Component<
+  AddAnnotationContainerProps,
+  AddAnnotationContainerState,
+> {
   static defaultProps = {
     ontologyAnnotationProperties: [],
     onSubmit: () => {},
-  }
+  };
 
   static defaultState = {
     formAnnotation: null,
     formValid: false,
-  }
+  };
 
   state = {
     formAnnotation: null,
     formValid: false,
     resetCounter: 0,
-  }
+  };
 
   handleSubmitClick = () => {
     if (!this.state.formAnnotation) {
@@ -171,19 +179,27 @@ class AddAnnotationContainer extends React.Component<AddAnnotationContainerProps
       ...AddAnnotationContainer.defaultState,
       resetCounter: this.state.resetCounter + 1,
     });
-  }
+  };
 
   handleFormAnnotationChange = (formAnnotation: ?RsAnnotation) => {
     this.setState({ formAnnotation });
-  }
+  };
 
   handleFormValidate = (valid: boolean) => {
     this.setState({ formValid: valid });
-  }
+  };
 
   render() {
     return (
-      <span className="border rounded" style={{ padding: '20px', display: 'block', width: '100%', height: '100%' }}>
+      <span
+        className="border rounded"
+        style={{
+          padding: '20px',
+          display: 'block',
+          width: '100%',
+          height: '100%',
+        }}
+      >
         <h3>Add Annotation</h3>
         <AddAnnotationForm
           ontologyAnnotationProperties={this.props.ontologyAnnotationProperties}
@@ -191,7 +207,13 @@ class AddAnnotationContainer extends React.Component<AddAnnotationContainerProps
           onValidate={this.handleFormValidate}
           resetCounter={this.state.resetCounter}
         />
-        <Button color="primary" onClick={this.handleSubmitClick} disabled={!this.state.formValid}>Submit</Button>{' '}
+        <Button
+          color="primary"
+          onClick={this.handleSubmitClick}
+          disabled={!this.state.formValid}
+        >
+          Submit
+        </Button>{' '}
       </span>
     );
   }

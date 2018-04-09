@@ -23,12 +23,10 @@ const VizGraph = ({ graphString }) => {
   const graphDot = graphString;
   const image = Viz(graphDot, { format: 'svg' });
 
-  return (
-    <span dangerouslySetInnerHTML={{ __html: image }} />
-  );
+  return <span dangerouslySetInnerHTML={{ __html: image }} />;
 };
 
-Rust.bay_web.then((module) => {
+Rust.bay_web.then(module => {
   const graphDot = module.print_graph();
   const graphMoralDot = module.print_moral_graph();
   const graphMaxCliquesDot = module.print_max_cliques();
@@ -52,19 +50,16 @@ Rust.bay_web.then((module) => {
         <p dangerouslySetInnerHTML={{ __html: graphJoinTreeDot }} />
       </span>
       <TruthTable tt={truthTable} />
-      { graphMaxCliquesDot.map(clique => (
-        <VizGraph graphString={clique} />
-    )) }
+      {graphMaxCliquesDot.map(clique => <VizGraph graphString={clique} />)}
       <span>
         {'Hash for AnnotationProperty <rdfs:label>'}
-        { annotationPropertyLabel }
+        {annotationPropertyLabel}
       </span>
     </span>
   );
 
   ReactDOM.render(main, window.document.getElementById('react'));
 });
-
 
 class Page extends React.Component {
   state = {
@@ -73,7 +68,7 @@ class Page extends React.Component {
     ontologyIndividuals: exampleIndividuals,
     ontologyAnnotationProperties: exampleAnnotationProperties,
     ontologyAnnotations: [],
-  }
+  };
 
   componentDidMount() {
     this.reloadStorage();
@@ -94,7 +89,7 @@ class Page extends React.Component {
     } catch (err) {
       console.error(err); // eslint-disable-line
     }
-  }
+  };
 
   updateStorage = () => {
     const data = {
@@ -103,19 +98,26 @@ class Page extends React.Component {
     };
 
     window.localStorage.setItem(storageKey, JSON.stringify(data));
-  }
+  };
 
-  handleAddProposition = (proposition) => {
-    this.setState({
-      ontologyIndividuals: [].concat(this.state.ontologyIndividuals, proposition),
-    }, () => this.updateStorage());
-  }
+  handleAddProposition = proposition => {
+    this.setState(
+      {
+        ontologyIndividuals: [].concat(
+          this.state.ontologyIndividuals,
+          proposition,
+        ),
+      },
+      () => this.updateStorage(),
+    );
+  };
 
-  handleDeleteProposition = (proposition) => {
-    const ontologyIndividuals = this.state.ontologyIndividuals
-      .filter(n => n.label !== proposition.label);
+  handleDeleteProposition = proposition => {
+    const ontologyIndividuals = this.state.ontologyIndividuals.filter(
+      n => n.label !== proposition.label,
+    );
     this.setState({ ontologyIndividuals }, () => this.updateStorage());
-  }
+  };
 
   renderNav() {
     const { activeTab } = this.state;
@@ -124,7 +126,10 @@ class Page extends React.Component {
       <ul className="nav nav-tabs">
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true, active: (activeTab === 'network_cpt') })}
+            className={classNames({
+              'nav-link': true,
+              active: activeTab === 'network_cpt',
+            })}
             onClick={() => this.setState({ activeTab: 'network_cpt' })}
           >
             Network (CPTs)
@@ -132,7 +137,10 @@ class Page extends React.Component {
         </li>
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true, active: (activeTab === 'propositions') })}
+            className={classNames({
+              'nav-link': true,
+              active: activeTab === 'propositions',
+            })}
             onClick={() => this.setState({ activeTab: 'propositions' })}
           >
             Propositions
@@ -140,7 +148,10 @@ class Page extends React.Component {
         </li>
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true, active: (activeTab === 'storage') })}
+            className={classNames({
+              'nav-link': true,
+              active: activeTab === 'storage',
+            })}
             onClick={() => this.setState({ activeTab: 'storage' })}
           >
             Storage
@@ -212,17 +223,14 @@ class Page extends React.Component {
   }
 
   renderTabStorage() {
-    const {
-      ontologyAnnotationProperties,
-      ontologyAnnotations,
-    } = this.state;
+    const { ontologyAnnotationProperties, ontologyAnnotations } = this.state;
 
     const clearStorage = () => {
       window.localStorage.removeItem(storageKey);
       this.reloadStorage();
     };
 
-    const handleSubmitAnnotation = (annotation) => {
+    const handleSubmitAnnotation = annotation => {
       this.setState({
         ontologyAnnotations: [...this.state.ontologyAnnotations, annotation],
       });
@@ -244,20 +252,18 @@ class Page extends React.Component {
     return (
       <Web3Provider>
         <div>
-          { this.renderNav() }
-          { this.renderTabContainer() }
+          {this.renderNav()}
+          {this.renderTabContainer()}
         </div>
       </Web3Provider>
     );
   }
 }
 
-Rust.bay_web.then((module) => {
-  const main = (
-    <Page bayModule={module} />
-  );
+Rust.bay_web.then(module => {
+  const main = <Page bayModule={module} />;
 
-  Object.keys(exampleAnnotations).forEach((storedHash) => {
+  Object.keys(exampleAnnotations).forEach(storedHash => {
     const val = new Annotation(exampleAnnotations[storedHash]);
     const calculatedHash = val.hash(module);
     console.log('ANN', storedHash, calculatedHash, val.value);

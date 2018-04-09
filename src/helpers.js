@@ -1,10 +1,5 @@
 // @flow
-import {
-  difference,
-  flatMap,
-  uniq,
-  flow,
-} from 'lodash-es';
+import { difference, flatMap, uniq, flow } from 'lodash-es';
 import multihash from 'multihashes';
 import { sha3_256 } from 'js-sha3'; // eslint-disable-line
 
@@ -24,13 +19,10 @@ type ToRsClassIn = {
 
 const toRsClass = (klass: ToRsClassIn) => ({
   label: klass.id || klass.label,
-  parents: (klass.parents || []),
+  parents: klass.parents || [],
 });
 
-const nodeFromClass = (
-  klass: OntClass,
-  truthTables: TruthTables,
-) => ({
+const nodeFromClass = (klass: OntClass, truthTables: TruthTables) => ({
   id: klass.id,
   label: {
     id: klass.id,
@@ -39,10 +31,11 @@ const nodeFromClass = (
   position: klass.graphPosition,
 });
 
-const edgesFromClass = (klass: OntClass) => (klass.parents || []).map(parentKlass => ({
-  source: parentKlass,
-  target: klass.id,
-}));
+const edgesFromClass = (klass: OntClass) =>
+  (klass.parents || []).map(parentKlass => ({
+    source: parentKlass,
+    target: klass.id,
+  }));
 
 const canQuery = (
   bayModule: BayModule,
@@ -50,7 +43,9 @@ const canQuery = (
   individuals: Array<Individual>,
   queryIndividual: Individual,
 ) => {
-  const otherIndividuals = individuals.filter(n => n.label !== queryIndividual.label);
+  const otherIndividuals = individuals.filter(
+    n => n.label !== queryIndividual.label,
+  );
 
   // TODO: get rid of typecast
   const rsClasses = (klasses.map(toRsClass): any);
@@ -63,14 +58,17 @@ const query = (
   individuals: Array<Individual>,
   queryIndividual: Individual,
 ) => {
-  const otherIndividuals = individuals.filter(n => n.label !== queryIndividual.label);
+  const otherIndividuals = individuals.filter(
+    n => n.label !== queryIndividual.label,
+  );
 
   // TODO: get rid of typecast
   const rsClasses = (klasses.map(toRsClass): any);
   return bayModule.query(rsClasses, otherIndividuals, queryIndividual);
 };
 
-const printProbability = (probability: number) => `${(probability * 100).toFixed(2)} %`;
+const printProbability = (probability: number) =>
+  `${(probability * 100).toFixed(2)} %`;
 
 // / Return all classes that can be inferred from the ontology for a single class
 const inferredClasses = (
@@ -82,7 +80,7 @@ const inferredClasses = (
     if (ontClass.parents === []) {
       return uniq(classes);
     }
-    ontClass.parents.forEach((parent) => {
+    ontClass.parents.forEach(parent => {
       const parentOntClass = ontologyClasses.find(n => n.id === parent);
       const pClasses = parentClasses(parentOntClass);
       classes = [].concat(classes, pClasses);
@@ -102,9 +100,9 @@ const enrichPropositionInference = (
   const proposition = Object.assign({}, plainProposition);
 
   const inferredKlasses = flow([
-    (_ => flatMap(_, klass => inferredClasses(ontologyClasses, klass))),
+    _ => flatMap(_, klass => inferredClasses(ontologyClasses, klass)),
     uniq,
-    (_ => difference(_, proposition.class_memberships)),
+    _ => difference(_, proposition.class_memberships),
   ])(proposition.class_memberships);
   proposition.inferred_class_memberships = inferredKlasses;
 
@@ -119,7 +117,7 @@ const compactProposition = (proposition: Proposition) => {
     compactPropo.class_memberships,
     compactPropo.inferred_class_memberships,
   );
-  delete (compactPropo.inferred_class_memberships);
+  delete compactPropo.inferred_class_memberships;
 
   return compactPropo;
 };
@@ -141,19 +139,26 @@ const explainProposition = (
   }
   // TODO: replace with real hash function from Rust core
   const propositionHash = hashAsJson(plainProposition);
-  const proposition = enrichPropositionInference(plainProposition, ontologyClasses);
+  const proposition = enrichPropositionInference(
+    plainProposition,
+    ontologyClasses,
+  );
 
   const asserted = [];
   const assertedRdf = [];
   if (proposition.label !== '') {
-    asserted.push(`There is a entity named ${proposition.label}. (The name does not have any influence on the reasoning.)`);
+    asserted.push(
+      `There is a entity named ${
+        proposition.label
+      }. (The name does not have any influence on the reasoning.)`,
+    );
     assertedRdf.push({
       subject: `spread://${propositionHash}`,
       predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#label',
       object: `"${proposition.label}"^^en`,
     });
   }
-  proposition.class_memberships.forEach((klass) => {
+  proposition.class_memberships.forEach(klass => {
     asserted.push(`${proposition.label} is a ${klass}`);
     assertedRdf.push({
       subject: `spread://${propositionHash}`,
@@ -163,7 +168,7 @@ const explainProposition = (
   });
 
   const inferred = [];
-  proposition.inferred_class_memberships.forEach((klass) => {
+  proposition.inferred_class_memberships.forEach(klass => {
     inferred.push(`${proposition.label} is a ${klass}`);
   });
 

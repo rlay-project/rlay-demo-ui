@@ -14,11 +14,7 @@ import {
   ModalHeader,
 } from 'reactstrap';
 import Select from 'react-select';
-import {
-  uniq,
-  isNull,
-  isEmpty,
-} from 'lodash-es';
+import { uniq, isNull, isEmpty } from 'lodash-es';
 
 import { Annotation, Class as Klass } from '../classes';
 import type { AnnotationProperty } from './AnnotationPropertyList.jsx';
@@ -29,7 +25,7 @@ type AddClassFormProps = {
   ontologyClasses: Array<Klass>,
   resetCounter: number,
   onClassChange: (?Klass) => void,
-  onValidate: (boolean) => void,
+  onValidate: boolean => void,
 };
 
 type AddClassFormState = {
@@ -37,38 +33,42 @@ type AddClassFormState = {
   valueSubClassOfClass: Array<any>,
 };
 
-class AddClassForm extends React.Component<AddClassFormProps, AddClassFormState> {
+class AddClassForm extends React.Component<
+  AddClassFormProps,
+  AddClassFormState,
+> {
   static defaultProps = {
     ontologyAnnotations: [],
     ontologyClasses: [],
     resetCounter: 0,
     onClassChange: () => {},
     onValidate: () => {},
-  }
+  };
 
   static defaultState = {
     valueAnnotations: [],
     valueSubClassOfClass: [],
-  }
+  };
 
-  state = AddClassForm.defaultState
+  state = AddClassForm.defaultState;
 
   componentWillReceiveProps(nextProps: AddClassFormProps) {
     if (this.props.resetCounter != nextProps.resetCounter) {
-      this.setState(AddClassForm.defaultState,
-        () => this.handleClassChange());
+      this.setState(AddClassForm.defaultState, () => this.handleClassChange());
     }
   }
 
   handleAnnotationsSelectChange = (selectedOptions: any) => {
-    this.setState({ valueAnnotations: selectedOptions },
-      () => this.handleClassChange());
-  }
+    this.setState({ valueAnnotations: selectedOptions }, () =>
+      this.handleClassChange(),
+    );
+  };
 
   handleSubClassOfClassSelectChange = (selectedOptions: any) => {
-    this.setState({ valueSubClassOfClass: selectedOptions },
-      () => this.handleClassChange());
-  }
+    this.setState({ valueSubClassOfClass: selectedOptions }, () =>
+      this.handleClassChange(),
+    );
+  };
 
   buildClass = () => {
     if (!this.validate()) {
@@ -87,15 +87,18 @@ class AddClassForm extends React.Component<AddClassFormProps, AddClassFormState>
     this.props.onValidate(valid);
     const klass = valid ? this.buildClass() : null;
     this.props.onClassChange(klass);
-  }
+  };
 
   validate = () => {
-    if (isEmpty(this.state.valueAnnotations) && isEmpty(this.state.valueSubClassOfClass)) {
+    if (
+      isEmpty(this.state.valueAnnotations) &&
+      isEmpty(this.state.valueSubClassOfClass)
+    ) {
       return false;
     }
 
     return true;
-  }
+  };
 
   render() {
     const { ontologyAnnotations, ontologyClasses } = this.props;
@@ -140,69 +143,69 @@ class AddClassForm extends React.Component<AddClassFormProps, AddClassFormState>
 }
 
 // type AddClassContainerProps = {
-  // ontologyAnnotations: Array<AnnotationProperty>,
-  // onSubmit: (RsAnnotation) => void,
+// ontologyAnnotations: Array<AnnotationProperty>,
+// onSubmit: (RsAnnotation) => void,
 // };
 
 // type AddClassContainerState = {
-  // formAnnotation: ?RsAnnotation,
-  // formValid: boolean,
-  // resetCounter: number,
+// formAnnotation: ?RsAnnotation,
+// formValid: boolean,
+// resetCounter: number,
 // };
 
 // class AddClassContainer extends React.Component<AddClassContainerProps, AddClassContainerState> {
-  // static defaultProps = {
-    // ontologyAnnotations: [],
-    // onSubmit: () => {},
-  // }
+// static defaultProps = {
+// ontologyAnnotations: [],
+// onSubmit: () => {},
+// }
 
-  // static defaultState = {
-    // formAnnotation: null,
-    // formValid: false,
-  // }
+// static defaultState = {
+// formAnnotation: null,
+// formValid: false,
+// }
 
-  // state = {
-    // formAnnotation: null,
-    // formValid: false,
-    // resetCounter: 0,
-  // }
+// state = {
+// formAnnotation: null,
+// formValid: false,
+// resetCounter: 0,
+// }
 
-  // handleSubmitClick = () => {
-    // if (!this.state.formAnnotation) {
-      // return;
-    // }
+// handleSubmitClick = () => {
+// if (!this.state.formAnnotation) {
+// return;
+// }
 
-    // const { ontologyAnnotations } = this.props;
+// const { ontologyAnnotations } = this.props;
 
-    // this.props.onSubmit(this.state.formAnnotation);
-    // this.setState({
-      // ...AddClassContainer.defaultState,
-      // resetCounter: this.state.resetCounter + 1,
-    // });
-  // }
+// this.props.onSubmit(this.state.formAnnotation);
+// this.setState({
+// ...AddClassContainer.defaultState,
+// resetCounter: this.state.resetCounter + 1,
+// });
+// }
 
-  // handleFormAnnotationChange = (formAnnotation: ?RsAnnotation) => {
-    // this.setState({ formAnnotation });
-  // }
+// handleFormAnnotationChange = (formAnnotation: ?RsAnnotation) => {
+// this.setState({ formAnnotation });
+// }
 
-  // handleFormValidate = (valid: boolean) => {
-    // this.setState({ formValid: valid });
-  // }
+// handleFormValidate = (valid: boolean) => {
+// this.setState({ formValid: valid });
+// }
 
-  // render() {
-    // return (
-      // <span className="border rounded" style={{ padding: '20px', display: 'block', width: '100%', height: '100%' }}>
-        // <h3>Add Class</h3>
-        // <AddClassForm
-          // ontologyAnnotations={this.props.ontologyAnnotations}
-          // onClassChange={this.handleFormAnnotationChange}
-          // onValidate={this.handleFormValidate}
-          // resetCounter={this.state.resetCounter}
-        // />
-        // <Button color="primary" onClick={this.handleSubmitClick} disabled={!this.state.formValid}>Submit</Button>{' '}
-      // </span>
-    // );
-  // }
+// render() {
+// return (
+// <span className="border rounded" style={{ padding: '20px', display: 'block', width: '100%', height: '100%' }}>
+// <h3>Add Class</h3>
+// <AddClassForm
+// ontologyAnnotations={this.props.ontologyAnnotations}
+// onClassChange={this.handleFormAnnotationChange}
+// onValidate={this.handleFormValidate}
+// resetCounter={this.state.resetCounter}
+// />
+// <Button color="primary" onClick={this.handleSubmitClick} disabled={!this.state.formValid}>Submit</Button>{' '}
+// </span>
+// );
+// }
 // }
 
 module.exports = {

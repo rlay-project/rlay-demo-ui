@@ -13,11 +13,14 @@ type NetworkStatusState = {
   contractDeployed: Object,
 };
 
-export default class NetworkStatus extends React.Component<NetworkStatusProps, NetworkStatusState> {
+export default class NetworkStatus extends React.Component<
+  NetworkStatusProps,
+  NetworkStatusState,
+> {
   state = {
     network: null,
     contractDeployed: {},
-  }
+  };
 
   componentDidMount() {
     const { web3 } = this.props;
@@ -72,9 +75,7 @@ export default class NetworkStatus extends React.Component<NetworkStatusProps, N
   render() {
     return (
       <div>
-        <div>
-          Network: {this.renderNetworkName()}
-        </div>
+        <div>Network: {this.renderNetworkName()}</div>
         <div>
           Storage Contract: {this.state.contractDeployed.storage ? '✓' : '✗'}
         </div>

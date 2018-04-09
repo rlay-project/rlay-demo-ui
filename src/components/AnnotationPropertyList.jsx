@@ -13,7 +13,9 @@ type AnnotationPropertyListProps = {
   annotationProperties: Array<AnnotationProperty>,
 };
 
-export default class AnnotationPropertyList extends React.Component<AnnotationPropertyListProps> {
+export default class AnnotationPropertyList extends React.Component<
+  AnnotationPropertyListProps,
+> {
   renderItem(item: AnnotationProperty) {
     const itemStyle = {
       display: 'flex',
@@ -23,11 +25,9 @@ export default class AnnotationPropertyList extends React.Component<AnnotationPr
     return (
       <li className="list-group-item" style={itemStyle}>
         <span>
-          <code>{ ((item.hash: any): string) }</code>
+          <code>{((item.hash: any): string)}</code>
         </span>
-        <span>
-          { item.value }
-        </span>
+        <span>{item.value}</span>
       </li>
     );
   }
@@ -50,11 +50,9 @@ export default class AnnotationPropertyList extends React.Component<AnnotationPr
 
     return (
       <ul className="list-group">
-        {
-          !isEmpty(annotationProperties) ?
-            annotationProperties.map(this.renderItem)
-            : this.renderPlaceholder()
-        }
+        {!isEmpty(annotationProperties)
+          ? annotationProperties.map(this.renderItem)
+          : this.renderPlaceholder()}
       </ul>
     );
   }

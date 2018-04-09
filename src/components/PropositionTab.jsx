@@ -1,16 +1,14 @@
 import React from 'react';
 import { isNumber } from 'lodash-es';
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-} from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
 
 import { canQuery, query, printProbability } from './helpers';
 import NetworkMarginals from './NetworkMarginals.jsx';
 import PropositionList from './PropositionList.jsx';
-import { AddPropositionModal, AddPropositionContainer } from './AddPropositionModal.jsx';
+import {
+  AddPropositionModal,
+  AddPropositionContainer,
+} from './AddPropositionModal.jsx';
 
 export default class PropositionTab extends React.Component {
   static defaultProps = {
@@ -19,11 +17,11 @@ export default class PropositionTab extends React.Component {
 
     onAddProposition: () => {},
     onDeleteProposition: () => {},
-  }
+  };
 
   state = {
     addIndividualModalOpen: false,
-  }
+  };
 
   render() {
     const {
@@ -54,8 +52,15 @@ export default class PropositionTab extends React.Component {
 
     return (
       <div style={containerStyle}>
-        <div style={{ marginLeft: 'auto', marginRight: 'auto', display: 'flex', justifyContent: 'center' }}>
-          <NetworkMarginals {...this.props} height={400} width={800}/>
+        <div
+          style={{
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <NetworkMarginals {...this.props} height={400} width={800} />
         </div>
         <div style={{ display: 'flex' }}>
           <div style={{ flex: '0.65' }}>
@@ -72,12 +77,13 @@ export default class PropositionTab extends React.Component {
           <AddPropositionModal
             isOpen={this.state.addIndividualModalOpen}
             ontologyClasses={ontologyClasses}
-            onChangeOpen={(open) => this.setState({ addIndividualModalOpen: open })}
+            onChangeOpen={open =>
+              this.setState({ addIndividualModalOpen: open })
+            }
             onSubmit={onAddProposition}
           />
-         }
+        }
       </div>
     );
   }
 }
-

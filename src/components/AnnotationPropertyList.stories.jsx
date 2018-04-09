@@ -10,7 +10,7 @@ storiesOf('AnnotationPropertyList', module)
     const annotations = [];
     return (
       <div style={{ margin: '40px' }}>
-        <AnnotationPropertyList annotations={annotations}/>
+        <AnnotationPropertyList annotations={annotations} />
       </div>
     );
   })
@@ -27,7 +27,7 @@ storiesOf('AnnotationPropertyList', module)
     ];
     return (
       <div style={{ margin: '40px' }}>
-        <AnnotationPropertyList annotationProperties={annotationProperties}/>
+        <AnnotationPropertyList annotationProperties={annotationProperties} />
       </div>
     );
   });

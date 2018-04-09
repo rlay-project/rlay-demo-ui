@@ -29,17 +29,17 @@ export type RsClass = {
 type RsIndividual = {
   label: string,
   class_memberships: Array<string>,
-}
+};
 
 export type RsAnnotation = {
   property: AnnotationPropertyHash,
   value: string,
-}
+};
 
 export type BayModule = {
   annotation_property_label: () => AnnotationPropertyHash,
-  hash_annotation: (RsAnnotation) => AnnotationCid,
-  hash_class: (RsClass) => ClassCid,
+  hash_annotation: RsAnnotation => AnnotationCid,
+  hash_class: RsClass => ClassCid,
   can_query: (Array<RsOntClass>, Array<RsIndividual>, RsIndividual) => boolean,
   query: (Array<RsOntClass>, Array<RsIndividual>, RsIndividual) => TruthTables,
 };

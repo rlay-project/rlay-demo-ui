@@ -3,9 +3,13 @@ module.exports = {
   extends: [
     'airbnb',
     'plugin:flowtype/recommended',
+    'plugin:prettier/recommended',
+    'prettier/flowtype',
+    'prettier/react',
   ],
   plugins: [
     'flowtype',
+    'prettier',
   ],
   globals: {
     "window": true,
@@ -18,6 +22,7 @@ module.exports = {
     "jsx-a11y/no-static-element-interactions": 0,
     "react/jsx-filename-extension": 0,
     "react/prop-types": 0,
+    "prettier/prettier": 0,
   },
   settings: {
     flowtype: {

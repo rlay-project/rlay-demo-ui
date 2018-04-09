@@ -4,7 +4,10 @@ import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 import { Web3Provider } from 'react-web3';
 
-import { AnnotationList, withBlockchainAnnotations } from './AnnotationList.jsx';
+import {
+  AnnotationList,
+  withBlockchainAnnotations,
+} from './AnnotationList.jsx';
 import config from '../config.js';
 
 storiesOf('AnnotationList', module)
@@ -12,7 +15,7 @@ storiesOf('AnnotationList', module)
     const annotations = [];
     return (
       <div style={{ margin: '40px' }}>
-        <AnnotationList annotations={annotations}/>
+        <AnnotationList annotations={annotations} />
       </div>
     );
   })
@@ -26,7 +29,7 @@ storiesOf('AnnotationList', module)
     ];
     return (
       <div style={{ margin: '40px' }}>
-        <AnnotationList annotations={annotations}/>
+        <AnnotationList annotations={annotations} />
       </div>
     );
   })
@@ -39,15 +42,15 @@ storiesOf('AnnotationList', module)
       },
     ];
     const contractConfig = config.annotationStore;
-    const WrappedComponent = withBlockchainAnnotations(AnnotationList, contractConfig);
+    const WrappedComponent = withBlockchainAnnotations(
+      AnnotationList,
+      contractConfig,
+    );
     return (
-        <div style={{ margin: '80px' }}>
-          <Web3Provider>
-            <WrappedComponent
-              annotations={annotations}
-              web3={window.web3}
-            />
-          </Web3Provider>
-        </div>
+      <div style={{ margin: '80px' }}>
+        <Web3Provider>
+          <WrappedComponent annotations={annotations} web3={window.web3} />
+        </Web3Provider>
+      </div>
     );
   });
