@@ -17,12 +17,7 @@ export default class PropositionList extends React.Component<
   PropositionListProps,
 > {
   render() {
-    const {
-      bayModule,
-      onDeleteProposition,
-      ontologyClasses,
-      ontologyIndividuals,
-    } = this.props;
+    const { bayModule, onDeleteProposition, ontologyIndividuals } = this.props;
 
     return (
       <ul className="list-group">

@@ -1,20 +1,7 @@
 // @flow
 import React from 'react';
-import {
-  Button,
-  Input,
-  InputGroup,
-  InputGroupAddon,
-  Form,
-  FormGroup,
-  FormFeedback,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from 'reactstrap';
+import { Button, Input, InputGroup, Form, FormGroup } from 'reactstrap';
 import Select from 'react-select';
-import { uniq, isNull } from 'lodash-es';
 
 import type { AnnotationProperty } from './AnnotationPropertyList.jsx';
 import type { RsAnnotation } from '../types';
@@ -53,7 +40,7 @@ class AddAnnotationForm extends React.Component<
   };
 
   componentWillReceiveProps(nextProps: AddAnnotationFormProps) {
-    if (this.props.resetCounter != nextProps.resetCounter) {
+    if (this.props.resetCounter !== nextProps.resetCounter) {
       this.setState(AddAnnotationForm.defaultState, () =>
         this.handleAnnotationChange(),
       );
@@ -171,8 +158,6 @@ class AddAnnotationContainer extends React.Component<
     if (!this.state.formAnnotation) {
       return;
     }
-
-    const { ontologyAnnotationProperties } = this.props;
 
     this.props.onSubmit(this.state.formAnnotation);
     this.setState({

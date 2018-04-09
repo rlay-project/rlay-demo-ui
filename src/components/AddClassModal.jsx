@@ -1,24 +1,10 @@
 // @flow
 import React from 'react';
-import {
-  Button,
-  Input,
-  InputGroup,
-  InputGroupAddon,
-  Form,
-  FormGroup,
-  FormFeedback,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from 'reactstrap';
+import { Form, FormGroup } from 'reactstrap';
 import Select from 'react-select';
-import { uniq, isNull, isEmpty } from 'lodash-es';
+import { isEmpty } from 'lodash-es';
 
 import { Annotation, Class as Klass } from '../classes';
-import type { AnnotationProperty } from './AnnotationPropertyList.jsx';
-import type { RsAnnotation } from '../types';
 
 type AddClassFormProps = {
   ontologyAnnotations: Array<Annotation>,
@@ -53,7 +39,7 @@ class AddClassForm extends React.Component<
   state = AddClassForm.defaultState;
 
   componentWillReceiveProps(nextProps: AddClassFormProps) {
-    if (this.props.resetCounter != nextProps.resetCounter) {
+    if (this.props.resetCounter !== nextProps.resetCounter) {
       this.setState(AddClassForm.defaultState, () => this.handleClassChange());
     }
   }
@@ -118,7 +104,7 @@ class AddClassForm extends React.Component<
         <FormGroup>
           <Select
             options={annotationOptions}
-            multi={true}
+            multi
             labelKey="label"
             value={this.state.valueAnnotations}
             onChange={this.handleAnnotationsSelectChange}
@@ -129,7 +115,7 @@ class AddClassForm extends React.Component<
         <FormGroup>
           <Select
             options={classOptions}
-            multi={true}
+            multi
             labelKey="label"
             value={this.state.valueSubClassOfClass}
             onChange={this.handleSubClassOfClassSelectChange}

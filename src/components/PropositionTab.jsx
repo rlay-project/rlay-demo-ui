@@ -1,8 +1,5 @@
 import React from 'react';
-import { isNumber } from 'lodash-es';
-import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
 
-import { canQuery, query, printProbability } from './helpers';
 import NetworkMarginals from './NetworkMarginals.jsx';
 import PropositionList from './PropositionList.jsx';
 import {
@@ -24,30 +21,13 @@ export default class PropositionTab extends React.Component {
   };
 
   render() {
-    const {
-      bayModule,
-      ontologyIndividuals,
-      ontologyClasses,
-      onAddProposition,
-      onDeleteProposition,
-    } = this.props;
+    const { ontologyClasses, onAddProposition } = this.props;
 
     const containerStyle = {
       maxWidth: '1000px',
       margin: '20px',
       marginLeft: 'auto',
       marginRight: 'auto',
-    };
-    const containerHeader = {
-      display: 'flex',
-      justifyContent: 'end',
-      marginBottom: '10px',
-    };
-
-    const toggleModal = () => {
-      this.setState({
-        addIndividualModalOpen: !this.state.addIndividualModalOpen,
-      });
     };
 
     return (

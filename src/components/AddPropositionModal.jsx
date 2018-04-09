@@ -3,23 +3,21 @@ import {
   Button,
   Input,
   InputGroup,
-  InputGroupAddon,
   Form,
   FormGroup,
-  FormFeedback,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
 } from 'reactstrap';
 import { Creatable } from 'react-select';
-import { uniq, isNull } from 'lodash-es';
+import { isNull } from 'lodash-es';
 
 import {
   compactProposition,
   enrichPropositionInference,
   explainProposition,
-} from './helpers';
+} from '../helpers';
 
 class AddPropositionModal extends React.Component {
   static defaultProps = {
@@ -198,7 +196,7 @@ class AddPropositionForm extends React.Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.resetCounter != nextProps.resetCounter) {
+    if (this.props.resetCounter !== nextProps.resetCounter) {
       this.setState(AddPropositionForm.defaultState, () =>
         this.handlePropositionChange(),
       );
@@ -226,12 +224,10 @@ class AddPropositionForm extends React.Component {
     }
   };
 
-  buildProposition = () => {
-    return {
-      label: this.state.valueLabel,
-      class_memberships: this.state.valueClasses.map(n => n.id),
-    };
-  };
+  buildProposition = () => ({
+    label: this.state.valueLabel,
+    class_memberships: this.state.valueClasses.map(n => n.id),
+  });
 
   handlePropositionChange = () => {
     this.props.onPropositionChange(this.buildProposition());
@@ -281,7 +277,7 @@ class AddPropositionForm extends React.Component {
         <FormGroup>
           <Creatable
             options={classOptions}
-            multi={true}
+            multi
             labelKey="id"
             value={this.state.valueClasses}
             onChange={this.handleClassSelectChange}

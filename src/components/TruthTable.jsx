@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import React from 'react';
 
 export default class TruthTable extends React.Component {
@@ -5,7 +6,7 @@ export default class TruthTable extends React.Component {
     const { tt } = this.props;
 
     return (
-      <table class="table table-bordered">
+      <table className="table table-bordered">
         <thead>
           {tt[0].key.map((vari, i) => (
             <td key={i}>
@@ -19,8 +20,8 @@ export default class TruthTable extends React.Component {
         <tbody>
           {tt.map((entry, i) => (
             <tr key={i}>
-              {entry.key.map((vari, i) => (
-                <td key={i}>{vari.value.toString()}</td>
+              {entry.key.map((vari, j) => (
+                <td key={j}>{vari.value.toString()}</td>
               ))}
               <td>{entry.value}</td>
             </tr>

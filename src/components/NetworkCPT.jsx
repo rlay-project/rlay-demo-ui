@@ -8,8 +8,8 @@ export default class NetworkCPT extends React.Component {
   render() {
     const { bayModule, ontologyClasses, ontologyIndividuals } = this.props;
 
-    let rsClasses = ontologyClasses.map(toRsClass);
-    let truth_tables = bayModule.js_build_domain_probabilities(
+    const rsClasses = ontologyClasses.map(toRsClass);
+    const truth_tables = bayModule.js_build_domain_probabilities(
       rsClasses,
       ontologyIndividuals,
     );
@@ -31,8 +31,8 @@ export default class NetworkCPT extends React.Component {
           edges,
         }}
         Node={BayesianNode}
-        isVertical={true}
-        isDirected={true}
+        isVertical
+        isDirected
         scale={0.5}
         onChange={newGraphJSON => console.log(newGraphJSON)}
       />

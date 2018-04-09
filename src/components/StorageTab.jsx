@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from 'reactstrap';
 
-import { storageKey, annotationStore } from '../config'; // TODO: provide via props
+import { annotationStore } from '../config'; // TODO: provide via props
 import AnnotationPropertyList from './AnnotationPropertyList.jsx';
 import {
   AnnotationList,

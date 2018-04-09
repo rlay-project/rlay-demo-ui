@@ -13,11 +13,11 @@ type Annotation = RsAnnotation & {
   cid: AnnotationCid,
 };
 
-type CheckedAnnotation = Annotation & BlockchainAnnotation;
-
 type BlockchainAnnotation = {
   isAvailable: boolean,
 };
+
+type CheckedAnnotation = Annotation & BlockchainAnnotation;
 
 type AnnotationListProps = {
   annotations: Array<CheckedAnnotation>,
@@ -64,7 +64,13 @@ class AnnotationList extends React.Component<AnnotationListProps> {
         ) : null}
         <span style={{ minWidth: '20px' }}>
           {item.isAvailable ? (
-            <span title="Stored on blockchain">🌐</span>
+            <span
+              role="img"
+              title="Stored on blockchain"
+              aria-label="Stored on blockchain"
+            >
+              🌐
+            </span>
           ) : null}
         </span>
         <span>

@@ -6,8 +6,7 @@ import { linkTo } from '@storybook/addon-links';
 import { AddClassForm, AddClassContainer } from './AddClassModal.jsx';
 import { Annotation, Class } from '../classes';
 
-const withBayModuleAnnotations = (WrappedComponent, bayModulePromise) => {
-  return class extends React.Component {
+const withBayModuleAnnotations = (WrappedComponent, bayModulePromise) => class extends React.Component {
     state = {
       loaded: false,
     };
@@ -43,7 +42,6 @@ const withBayModuleAnnotations = (WrappedComponent, bayModulePromise) => {
       );
     }
   };
-};
 
 storiesOf('AddClassForm', module).add('default', () => {
   const ontologyAnnotations = [
