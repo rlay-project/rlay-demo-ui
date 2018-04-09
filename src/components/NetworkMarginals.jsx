@@ -8,7 +8,7 @@ import {
   query,
   toRsClass,
   printProbability,
-} from './helpers';
+} from '../helpers';
 
 export default class NetworkMarginals extends React.Component {
   static defaultProps = {

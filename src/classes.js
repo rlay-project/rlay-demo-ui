@@ -66,7 +66,7 @@ class Class {
   sub_class_of_class: Array<ClassCid>; // eslint-disable-line camelcase
   cachedCid: ?ClassCid;
 
-  constructor(data: ClassData) {
+  constructor(data?: ClassData = {}) {
     this.annotations = data.annotations || [];
     this.sub_class_of_class = data.sub_class_of_class || [];
   }

@@ -1,17 +1,17 @@
 // @flow
 import React from 'react';
-import { Form, FormGroup } from 'reactstrap';
+import { Button, Form, FormGroup } from 'reactstrap';
 import Select from 'react-select';
 import { isEmpty } from 'lodash-es';
 
 import { Annotation, Class as Klass } from '../classes';
 
 type AddClassFormProps = {
+  onClassChange: (?Klass) => void,
+  onValidate: boolean => void,
   ontologyAnnotations: Array<Annotation>,
   ontologyClasses: Array<Klass>,
   resetCounter: number,
-  onClassChange: (?Klass) => void,
-  onValidate: boolean => void,
 };
 
 type AddClassFormState = {
@@ -24,11 +24,11 @@ class AddClassForm extends React.Component<
   AddClassFormState,
 > {
   static defaultProps = {
+    onClassChange: () => {},
+    onValidate: () => {},
     ontologyAnnotations: [],
     ontologyClasses: [],
     resetCounter: 0,
-    onClassChange: () => {},
-    onValidate: () => {},
   };
 
   static defaultState = {
@@ -128,73 +128,91 @@ class AddClassForm extends React.Component<
   }
 }
 
-// type AddClassContainerProps = {
-// ontologyAnnotations: Array<AnnotationProperty>,
-// onSubmit: (RsAnnotation) => void,
-// };
+type AddClassContainerProps = {
+  ontologyAnnotations: Array<Annotation>,
+  ontologyClasses: Array<Klass>,
+  onSubmit: Klass => void,
+};
 
-// type AddClassContainerState = {
-// formAnnotation: ?RsAnnotation,
-// formValid: boolean,
-// resetCounter: number,
-// };
+type AddClassContainerState = {
+  formClass: ?Klass,
+  formValid: boolean,
+  resetCounter: number,
+};
 
-// class AddClassContainer extends React.Component<AddClassContainerProps, AddClassContainerState> {
-// static defaultProps = {
-// ontologyAnnotations: [],
-// onSubmit: () => {},
-// }
+class AddClassContainer extends React.Component<
+  AddClassContainerProps,
+  AddClassContainerState,
+> {
+  static defaultProps = {
+    ontologyAnnotations: [],
+    ontologyClasses: [],
+    onSubmit: () => {},
+  };
 
-// static defaultState = {
-// formAnnotation: null,
-// formValid: false,
-// }
+  static defaultState = {
+    formClass: null,
+    formValid: false,
+  };
 
-// state = {
-// formAnnotation: null,
-// formValid: false,
-// resetCounter: 0,
-// }
+  state = {
+    formClass: null,
+    formValid: false,
+    resetCounter: 0,
+  };
 
-// handleSubmitClick = () => {
-// if (!this.state.formAnnotation) {
-// return;
-// }
+  handleSubmitClick = () => {
+    if (!this.state.formClass) {
+      return;
+    }
 
-// const { ontologyAnnotations } = this.props;
+    this.props.onSubmit(this.state.formClass);
+    this.setState({
+      ...this.constructor.defaultState,
+      resetCounter: this.state.resetCounter + 1,
+    });
+  };
 
-// this.props.onSubmit(this.state.formAnnotation);
-// this.setState({
-// ...AddClassContainer.defaultState,
-// resetCounter: this.state.resetCounter + 1,
-// });
-// }
+  handleFormClassChange = (formClass: ?Klass) => {
+    this.setState({ formClass });
+  };
 
-// handleFormAnnotationChange = (formAnnotation: ?RsAnnotation) => {
-// this.setState({ formAnnotation });
-// }
+  handleFormValidate = (valid: boolean) => {
+    this.setState({ formValid: valid });
+  };
 
-// handleFormValidate = (valid: boolean) => {
-// this.setState({ formValid: valid });
-// }
-
-// render() {
-// return (
-// <span className="border rounded" style={{ padding: '20px', display: 'block', width: '100%', height: '100%' }}>
-// <h3>Add Class</h3>
-// <AddClassForm
-// ontologyAnnotations={this.props.ontologyAnnotations}
-// onClassChange={this.handleFormAnnotationChange}
-// onValidate={this.handleFormValidate}
-// resetCounter={this.state.resetCounter}
-// />
-// <Button color="primary" onClick={this.handleSubmitClick} disabled={!this.state.formValid}>Submit</Button>{' '}
-// </span>
-// );
-// }
-// }
+  render() {
+    return (
+      <span
+        className="border rounded"
+        style={{
+          padding: '20px',
+          display: 'block',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <h3>Add Class</h3>
+        <AddClassForm
+          ontologyAnnotations={this.props.ontologyAnnotations}
+          ontologyClasses={this.props.ontologyClasses}
+          onClassChange={this.handleFormClassChange}
+          onValidate={this.handleFormValidate}
+          resetCounter={this.state.resetCounter}
+        />
+        <Button
+          color="primary"
+          onClick={this.handleSubmitClick}
+          disabled={!this.state.formValid}
+        >
+          Submit
+        </Button>{' '}
+      </span>
+    );
+  }
+}
 
 module.exports = {
   AddClassForm,
-  // AddClassContainer,
+  AddClassContainer,
 };

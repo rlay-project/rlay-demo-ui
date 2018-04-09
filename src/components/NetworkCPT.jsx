@@ -2,7 +2,7 @@ import React from 'react';
 import JsonGraph, { Node as JsonGraphNode } from 'react-json-graph';
 
 import TruthTable from './TruthTable.jsx';
-import { nodeFromClass, edgesFromClass, toRsClass } from './helpers';
+import { nodeFromClass, edgesFromClass, toRsClass } from '../helpers';
 
 export default class NetworkCPT extends React.Component {
   render() {

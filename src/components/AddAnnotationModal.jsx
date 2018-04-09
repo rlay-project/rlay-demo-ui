@@ -161,7 +161,7 @@ class AddAnnotationContainer extends React.Component<
 
     this.props.onSubmit(this.state.formAnnotation);
     this.setState({
-      ...AddAnnotationContainer.defaultState,
+      ...this.constructor.defaultState,
       resetCounter: this.state.resetCounter + 1,
     });
   };

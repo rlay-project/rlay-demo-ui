@@ -4,8 +4,8 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: './src/index.js',
   output: {
-      filename: 'app.js',
-      path: path.resolve(__dirname, 'build/js')
+    filename: 'app.js',
+    path: path.resolve(__dirname, 'build/js'),
   },
   module: {
     rules: [
@@ -14,22 +14,29 @@ module.exports = {
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: 'babel-loader',
-        }
+        },
       },
       {
         test: /\.wasm$/,
         use: {
           loader: 'wasm-loader',
-        }
-      }
-    ]
+        },
+      },
+    ],
   },
   plugins: [
-      new CopyWebpackPlugin([
-          { from: 'public', to: '../' }
-      ]),
-      new CopyWebpackPlugin([
-          { from: 'vendor/bay/target/wasm32-unknown-unknown/release/bay_web.wasm', to: '../' }
-      ]),
-  ]
-}
+    new CopyWebpackPlugin([{ from: 'public', to: '../' }]),
+    new CopyWebpackPlugin([
+      {
+        from: 'vendor/bay/target/wasm32-unknown-unknown/release/bay_web.wasm',
+        to: '../',
+      },
+    ]),
+    new CopyWebpackPlugin([
+      {
+        from: 'vendor/bay/target/wasm32-unknown-unknown/release/bay_web.js',
+        to: '../',
+      },
+    ]),
+  ],
+};

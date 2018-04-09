@@ -7,9 +7,9 @@ import { Web3Provider } from 'react-web3';
 import NetworkStatus from './NetworkStatus.jsx';
 
 storiesOf('NetworkStatus', module).add('default', () => (
-    <div style={{ margin: '40px' }}>
-      <Web3Provider>
-        <NetworkStatus web3={window.web3} />
-      </Web3Provider>
-    </div>
-  ));
+  <div style={{ margin: '40px' }}>
+    <Web3Provider>
+      <NetworkStatus web3={window.web3} />
+    </Web3Provider>
+  </div>
+));
