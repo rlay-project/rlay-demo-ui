@@ -4,12 +4,12 @@ import { Button, Input, InputGroup, Form, FormGroup } from 'reactstrap';
 import Select from 'react-select';
 
 import type { AnnotationProperty } from './AnnotationPropertyList.jsx';
-import type { RsAnnotation } from '../types';
+import { Annotation } from '../classes';
 
 type AddAnnotationFormProps = {
   ontologyAnnotationProperties: Array<AnnotationProperty>,
   resetCounter: number,
-  onAnnotationChange: (?RsAnnotation) => void,
+  onAnnotationChange: (?Annotation) => void,
   onValidate: boolean => void,
 };
 
@@ -67,10 +67,10 @@ class AddAnnotationForm extends React.Component<
       return null;
     }
 
-    return {
+    return new Annotation({
       property: this.state.valueProperty.hash,
       value: this.state.valueValue,
-    };
+    });
   };
 
   handleAnnotationChange = () => {
@@ -125,11 +125,11 @@ class AddAnnotationForm extends React.Component<
 
 type AddAnnotationContainerProps = {
   ontologyAnnotationProperties: Array<AnnotationProperty>,
-  onSubmit: RsAnnotation => void,
+  onSubmit: Annotation => void,
 };
 
 type AddAnnotationContainerState = {
-  formAnnotation: ?RsAnnotation,
+  formAnnotation: ?Annotation,
   formValid: boolean,
   resetCounter: number,
 };
@@ -166,7 +166,7 @@ class AddAnnotationContainer extends React.Component<
     });
   };
 
-  handleFormAnnotationChange = (formAnnotation: ?RsAnnotation) => {
+  handleFormAnnotationChange = (formAnnotation: ?Annotation) => {
     this.setState({ formAnnotation });
   };
 
