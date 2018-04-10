@@ -236,13 +236,19 @@ class Page extends React.Component {
       });
     };
 
+    const annotations = ontologyAnnotations.map(ann => {
+      const newAnn = ann.clone();
+      newAnn.cid(this.props.bayModule);
+      return newAnn;
+    });
+
     return (
       <ErrorBoundary>
         <StorageTab
           onSubmitAnnotation={handleSubmitAnnotation}
           onTriggerReload={clearStorage}
           ontologyAnnotationProperties={ontologyAnnotationProperties}
-          ontologyAnnotations={ontologyAnnotations}
+          ontologyAnnotations={annotations}
         />
       </ErrorBoundary>
     );

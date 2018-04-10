@@ -1,17 +1,12 @@
 // @flow
-import React from 'react';
-import multibase from 'multibase';
+import React, { type ComponentType } from 'react';
 import truffleContract from 'truffle-contract';
 import { Button } from 'reactstrap';
 import { isEmpty } from 'lodash-es';
-import abiDecoder from 'abi-decoder';
 
-import type { ComponentType } from 'react';
-import type { RsAnnotation, AnnotationCid, ContractConfig } from '../types';
+import { Annotation } from '../classes';
 
-type Annotation = RsAnnotation & {
-  cid: AnnotationCid,
-};
+import type { ContractConfig } from '../types';
 
 type BlockchainAnnotation = {
   isAvailable: boolean,
@@ -21,26 +16,12 @@ type CheckedAnnotation = Annotation & BlockchainAnnotation;
 
 type AnnotationListProps = {
   annotations: Array<CheckedAnnotation>,
-  onSubmitProposition: Annotation => void,
-};
-
-const b58ToSolidityBytes = b58 => {
-  const bytesCid = multibase.decode(b58);
-  return `0x${multibase
-    .encode('base16', bytesCid)
-    .toString()
-    .substring(1)}`;
-};
-
-const solidityBytesToB58 = solidityBytes => {
-  const bytes = solidityBytes.substring(2);
-  const decoded = multibase.decode(`f${bytes}`);
-  return multibase.encode('base58btc', decoded).toString();
+  onSubmitAnnotation: Annotation => void,
 };
 
 class AnnotationList extends React.Component<AnnotationListProps> {
   handleUploadClick = (item: CheckedAnnotation) => {
-    this.props.onSubmitProposition(item);
+    this.props.onSubmitAnnotation(item);
   };
 
   renderItem = (item: CheckedAnnotation) => {
@@ -74,7 +55,7 @@ class AnnotationList extends React.Component<AnnotationListProps> {
           ) : null}
         </span>
         <span>
-          <code>{((item.cid: any): string)}</code>
+          <code>{((item.cid(): any): string)}</code>
         </span>
         <span>
           <code>{((item.property: any): string)}</code>
@@ -140,21 +121,11 @@ const withBlockchainAnnotations = (
       const contract = StorageContract.at(contractAddress);
 
       contract.then(ctr => {
-        web3.eth
-          .filter({
-            address: contractAddress,
-            fromBlock: 1,
-            toBlock: 'latest',
-          })
-          .get((err, result) => {
-            abiDecoder.addABI(contract.abi);
-            const decoded = abiDecoder.decodeLogs(result);
-            const annCids = decoded
-              .filter(n => n.name === 'AnnotationStored')
-              .map(n => n.events[0].value);
-
-            annCids.forEach(annCid => this.retrieveAnnotation(ctr, annCid));
-          });
+        Annotation.getAllStored(ctr, web3).then(annCids => {
+          annCids.forEach(annCid =>
+            this.retrieveAnnotation(ctr, (annCid: any)),
+          );
+        });
 
         this.props.annotations.forEach(ann => {
           this.updateAnnotation(ctr, ann);
@@ -163,44 +134,31 @@ const withBlockchainAnnotations = (
     }
 
     retrieveAnnotation = (ctr: any, annCidBytes: String) => {
-      const ethCid = annCidBytes;
-      const b58Cid = solidityBytesToB58(ethCid);
-
-      ctr.retrieveAnnotation.call(ethCid).then(res => {
-        const [ethPropertyHash, value] = res;
-
-        const annotation = {
-          cid: b58Cid,
-          property: solidityBytesToB58(ethPropertyHash),
-          value,
-        };
+      Annotation.retrieve(ctr, annCidBytes).then(annotation => {
         this.setState({
           networkAnnotations: [...this.state.networkAnnotations, annotation],
           annotationExists: {
             ...this.state.annotationExists,
             // $FlowFixMe
-            [b58Cid]: true,
+            [annotation.cid()]: true,
           },
         });
       });
     };
 
     updateAnnotation = (ctr: any, ann: Annotation) => {
-      const b58Cid = ann.cid;
-      const ethCid = b58ToSolidityBytes(b58Cid);
-
-      ctr.retrieveAnnotation.call(ethCid).then(exists => {
+      ann.isStored(ctr).then(exists => {
         this.setState({
           annotationExists: {
             ...this.state.annotationExists,
             // $FlowFixMe
-            [b58Cid]: exists[0] !== '0x',
+            [ann.cid()]: exists[0] !== '0x',
           },
         });
       });
     };
 
-    handleSubmitProposition = (item: Annotation) => {
+    handleSubmitAnnotation = (item: Annotation) => {
       const { web3 } = this.props;
       const provider = web3.currentProvider; // eslint-disable-line
 
@@ -213,10 +171,8 @@ const withBlockchainAnnotations = (
       const contract = StorageContract.at(contractAddress);
 
       contract.then(ctr => {
-        const argProperty = b58ToSolidityBytes(item.property);
-
-        ctr
-          .storeAnnotation(argProperty, item.value)
+        item
+          .store(ctr)
           .then(() => {
             this.updateAnnotation(ctr, item);
           })
@@ -231,16 +187,17 @@ const withBlockchainAnnotations = (
         ...this.props.annotations,
         ...this.state.networkAnnotations,
       ];
-      const checkedAnnotations = annotations.map(ann => ({
-        ...ann,
-        isAvailable: this.state.annotationExists[ann.cid],
-      }));
+      const checkedAnnotations = annotations.map(ann => {
+        const checkedAnn = ann.clone();
+        checkedAnn.isAvailable = this.state.annotationExists[checkedAnn.cid()];
+        return checkedAnn;
+      });
 
       return (
         <WrappedComponent
           {...this.props}
           annotations={checkedAnnotations}
-          onSubmitProposition={this.handleSubmitProposition}
+          onSubmitAnnotation={this.handleSubmitAnnotation}
         />
       );
     }

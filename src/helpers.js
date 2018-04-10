@@ -1,6 +1,7 @@
 // @flow
 import { difference, flatMap, uniq, flow } from 'lodash-es';
 import multihash from 'multihashes';
+import multibase from 'multibase';
 import { sha3_256 } from 'js-sha3'; // eslint-disable-line
 
 import type {
@@ -179,7 +180,22 @@ const explainProposition = (
   };
 };
 
+const b58ToSolidityBytes = (b58: any) => {
+  const bytesCid = multibase.decode(b58);
+  return `0x${multibase
+    .encode('base16', bytesCid)
+    .toString()
+    .substring(1)}`;
+};
+
+const solidityBytesToB58 = (solidityBytes: any) => {
+  const bytes = solidityBytes.substring(2);
+  const decoded = multibase.decode(`f${bytes}`);
+  return multibase.encode('base58btc', decoded).toString();
+};
+
 module.exports = {
+  b58ToSolidityBytes,
   canQuery,
   compactProposition,
   edgesFromClass,
@@ -189,5 +205,6 @@ module.exports = {
   nodeFromClass,
   printProbability,
   query,
+  solidityBytesToB58,
   toRsClass,
 };

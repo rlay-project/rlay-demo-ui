@@ -4,6 +4,7 @@ import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 import { Web3Provider } from 'react-web3';
 
+import { Annotation } from '../classes';
 import {
   AnnotationList,
   withBlockchainAnnotations,
@@ -21,11 +22,11 @@ storiesOf('AnnotationList', module)
   })
   .add('one item', () => {
     const annotations = [
-      {
-        cid: 'z4mSmMHNfcHxm7GjmrVZi8KRosUXr7qKdjHGWMqgTKJxN5s3aZR',
+      new Annotation({
+        cachedCid: 'z4mSmMHNfcHxm7GjmrVZi8KRosUXr7qKdjHGWMqgTKJxN5s3aZR',
         property: 'zW1aUyiEVULyTsGHRAD1ERdZj8XG3B3PrLZokrZkNCdUKR2',
         value: 'Organization',
-      },
+      }),
     ];
     return (
       <div style={{ margin: '40px' }}>
@@ -35,11 +36,11 @@ storiesOf('AnnotationList', module)
   })
   .add('one item (with blockchain)', () => {
     const annotations = [
-      {
-        cid: 'z4mSmMHNfcHxm7GjmrVZi8KRosUXr7qKdjHGWMqgTKJxN5s3aZR',
+      new Annotation({
+        cachedCid: 'z4mSmMHNfcHxm7GjmrVZi8KRosUXr7qKdjHGWMqgTKJxN5s3aZR',
         property: 'zW1aUyiEVULyTsGHRAD1ERdZj8XG3B3PrLZokrZkNCdUKR2',
         value: 'Organization',
-      },
+      }),
     ];
     const contractConfig = config.annotationStore;
     const WrappedComponent = withBlockchainAnnotations(

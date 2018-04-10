@@ -1,4 +1,7 @@
 // @flow
+import abiDecoder from 'abi-decoder';
+
+import { solidityBytesToB58, b58ToSolidityBytes } from './helpers';
 import type {
   AnnotationPropertyHash,
   AnnotationCid,
@@ -9,6 +12,7 @@ import type {
 type AnnotationData = {
   property: AnnotationPropertyHash,
   value: string,
+  cachedCid?: ?AnnotationCid,
 };
 
 class Annotation {
@@ -19,6 +23,69 @@ class Annotation {
   constructor(data: AnnotationData) {
     this.property = data.property;
     this.value = data.value;
+    this.cachedCid = data.cachedCid;
+  }
+
+  static retrieve(ctr: any, annCidBytes: String): Promise<?Annotation> {
+    const ethCid = annCidBytes;
+    const b58Cid = solidityBytesToB58(ethCid);
+
+    return ctr.retrieveAnnotation.call(ethCid).then(res => {
+      const [ethPropertyHash, value] = res;
+
+      const annotation = new Annotation({
+        property: solidityBytesToB58(ethPropertyHash),
+        value,
+      });
+      annotation.cachedCid = b58Cid;
+
+      return annotation;
+    });
+  }
+
+  static getAllStored(ctr: any, web3: any): Promise<Array<AnnotationCid>> {
+    return new Promise((resolve, reject) => {
+      web3.eth
+        .filter({
+          address: ctr.address,
+          fromBlock: 1,
+          toBlock: 'latest',
+        })
+        .get((err, result) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          abiDecoder.addABI(ctr.abi);
+          const decoded = abiDecoder.decodeLogs(result);
+          const annCids = decoded
+            .filter(n => n.name === 'AnnotationStored')
+            .map(n => n.events[0].value);
+
+          resolve(annCids);
+        });
+    });
+  }
+
+  isStored(ctr: any): Promise<boolean> {
+    const b58Cid = this.cid();
+    const ethCid = b58ToSolidityBytes(b58Cid);
+
+    return ctr.retrieveAnnotation.call(ethCid);
+  }
+
+  store(ctr: any): Promise<void> {
+    const argProperty = b58ToSolidityBytes(this.property);
+
+    return ctr.storeAnnotation(argProperty, this.value);
+  }
+
+  clone() {
+    const clone = Object.assign({}, this);
+    Object.setPrototypeOf(clone, this.constructor.prototype);
+
+    return clone;
   }
 
   hash(bayModule?: BayModule): AnnotationCid {
@@ -35,6 +102,10 @@ class Annotation {
     };
     this.cachedCid = bayModule.hash_annotation(rsValue);
     return this.cachedCid;
+  }
+
+  cid(bayModule?: BayModule): AnnotationCid {
+    return this.hash(bayModule);
   }
 
   readableProperty(): ?string {
