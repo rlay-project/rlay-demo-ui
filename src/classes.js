@@ -19,7 +19,6 @@ class Annotation {
   property: AnnotationPropertyHash;
   value: string;
   cachedCid: ?AnnotationCid;
-  labelRes: ?string;
 
   constructor(data: AnnotationData) {
     this.property = data.property;
@@ -120,7 +119,7 @@ class Annotation {
     }
   }
 
-  label(): string {
+  get label(): string {
     const hash = this.hash();
     const readableProperty = this.readableProperty();
     const propertyPart = readableProperty ? `${readableProperty}: ` : '';
@@ -138,7 +137,6 @@ class Class {
   annotations: Array<AnnotationCid>;
   sub_class_of_class: Array<ClassCid>; // eslint-disable-line camelcase
   cachedCid: ?ClassCid;
-  labelRes: ?string;
 
   constructor(data?: ClassData = {}) {
     this.annotations = data.annotations || [];
@@ -173,7 +171,7 @@ class Class {
     return this.hash(bayModule);
   }
 
-  label(): string {
+  get label(): string {
     return (this.hash(): any);
   }
 }

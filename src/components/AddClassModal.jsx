@@ -89,25 +89,13 @@ class AddClassForm extends React.Component<
   render() {
     const { ontologyAnnotations, ontologyClasses } = this.props;
 
-    const annotationOptions = ontologyAnnotations.map(item => {
-      const newItem = item.clone();
-      newItem.labelRes = newItem.label();
-      return newItem;
-    });
-
-    const classOptions = ontologyClasses.map(item => {
-      const newItem = item.clone();
-      newItem.labelRes = newItem.label();
-      return newItem;
-    });
-
     return (
       <Form>
         <FormGroup>
           <Select
-            options={annotationOptions}
+            options={ontologyAnnotations}
             multi
-            labelKey="labelRes"
+            labelKey="label"
             value={this.state.valueAnnotations}
             onChange={this.handleAnnotationsSelectChange}
             isOptionUnique={() => true}
@@ -116,9 +104,9 @@ class AddClassForm extends React.Component<
         </FormGroup>
         <FormGroup>
           <Select
-            options={classOptions}
+            options={ontologyClasses}
             multi
-            labelKey="labelRes"
+            labelKey="label"
             value={this.state.valueSubClassOfClass}
             onChange={this.handleSubClassOfClassSelectChange}
             isOptionUnique={() => true}
