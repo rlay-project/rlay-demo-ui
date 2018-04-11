@@ -34,6 +34,25 @@ storiesOf('AnnotationList', module)
       </div>
     );
   })
+  .add('two items', () => {
+    const annotations = [
+      new Annotation({
+        cachedCid: 'z4mSmMHNfcHxm7GjmrVZi8KRosUXr7qKdjHGWMqgTKJxN5s3aZR',
+        property: 'zW1aUyiEVULyTsGHRAD1ERdZj8XG3B3PrLZokrZkNCdUKR2',
+        value: 'Organization',
+      }),
+      new Annotation({
+        cachedCid: 'z4mSmMHV19MDZ2y1VJf3GXoLZy3wFJbLapsu23gcjKfSLWwGUYA',
+        property: 'zW1fiG75n55P1ix184atgmWHu6FhgKzQqtdiA1wQcnPhPSL',
+        value: 'A structured group of people',
+      }),
+    ];
+    return (
+      <div style={{ margin: '40px' }}>
+        <AnnotationList annotations={annotations} />
+      </div>
+    );
+  })
   .add('one item (with blockchain)', () => {
     const annotations = [
       new Annotation({

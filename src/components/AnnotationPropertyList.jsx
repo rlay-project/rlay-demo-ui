@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import { isEmpty } from 'lodash-es';
+import { Col } from 'reactstrap';
 
 import type { AnnotationPropertyHash } from '../types';
 
@@ -24,10 +25,10 @@ export default class AnnotationPropertyList extends React.Component<
 
     return (
       <li className="list-group-item" style={itemStyle}>
-        <span>
+        <Col>
           <code>{((item.hash: any): string)}</code>
-        </span>
-        <span>{item.value}</span>
+        </Col>
+        <Col>{item.value}</Col>
       </li>
     );
   }

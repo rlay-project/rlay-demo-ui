@@ -8,6 +8,7 @@ import {
   AnnotationList,
   withBlockchainAnnotations,
 } from './AnnotationList.jsx';
+import { ClassList } from './ClassList.jsx';
 import { AddAnnotationContainer } from './AddAnnotationModal.jsx';
 import { AddClassContainer } from './AddClassModal.jsx';
 import { Annotation, Class as Klass } from '../classes';
@@ -43,9 +44,11 @@ export default class StorageTab extends React.Component<StorageTabProps> {
     return (
       <Fragment>
         <h4>AnnotationProperties</h4>
-        <AnnotationPropertyList
-          annotationProperties={this.props.ontologyAnnotationProperties}
-        />
+        <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+          <AnnotationPropertyList
+            annotationProperties={this.props.ontologyAnnotationProperties}
+          />
+        </div>
       </Fragment>
     );
   };
@@ -78,15 +81,22 @@ export default class StorageTab extends React.Component<StorageTabProps> {
 
   renderClassesBlock = () => {
     const { web3 } = window; // eslint-disable-line
+
     return (
       <Fragment>
         <h4>Classes</h4>
         <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-          <AddClassContainer
-            ontologyAnnotations={this.props.ontologyAnnotations}
-            ontologyClasses={this.props.ontologyClasses}
-            onSubmit={this.props.onSubmitClass}
+          <ClassList
+            classes={this.props.ontologyClasses}
+            onSubmitClass={() => console.log('Upload class')}
           />
+          <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+            <AddClassContainer
+              ontologyAnnotations={this.props.ontologyAnnotations}
+              ontologyClasses={this.props.ontologyClasses}
+              onSubmit={this.props.onSubmitClass}
+            />
+          </div>
         </div>
       </Fragment>
     );
@@ -98,8 +108,9 @@ export default class StorageTab extends React.Component<StorageTabProps> {
         <Button id="clear-storage-button" onClick={this.handleClearStoragClick}>
           Clear storage
         </Button>
-        <div style={{ marginLeft: '80px', marginRight: '80px' }} />
-        {this.renderAnnotationPropertiesBlock()}
+        <div style={{ marginLeft: '80px', marginRight: '80px' }}>
+          {this.renderAnnotationPropertiesBlock()}
+        </div>
         <div
           style={{ marginTop: '80px', marginLeft: '80px', marginRight: '80px' }}
         >

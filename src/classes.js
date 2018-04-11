@@ -19,6 +19,7 @@ class Annotation {
   property: AnnotationPropertyHash;
   value: string;
   cachedCid: ?AnnotationCid;
+  labelRes: ?string;
 
   constructor(data: AnnotationData) {
     this.property = data.property;
@@ -130,16 +131,26 @@ class Annotation {
 type ClassData = {
   annotations?: Array<AnnotationCid>,
   sub_class_of_class?: Array<ClassCid>,
+  cachedCid?: ?ClassCid,
 };
 
 class Class {
   annotations: Array<AnnotationCid>;
   sub_class_of_class: Array<ClassCid>; // eslint-disable-line camelcase
   cachedCid: ?ClassCid;
+  labelRes: ?string;
 
   constructor(data?: ClassData = {}) {
     this.annotations = data.annotations || [];
     this.sub_class_of_class = data.sub_class_of_class || [];
+    this.cachedCid = data.cachedCid;
+  }
+
+  clone() {
+    const clone = Object.assign({}, this);
+    Object.setPrototypeOf(clone, this.constructor.prototype);
+
+    return clone;
   }
 
   hash(bayModule?: BayModule): ClassCid {
@@ -156,6 +167,10 @@ class Class {
     };
     this.cachedCid = bayModule.hash_class(rsValue);
     return this.cachedCid;
+  }
+
+  cid(bayModule?: BayModule): ClassCid {
+    return this.hash(bayModule);
   }
 
   label(): string {

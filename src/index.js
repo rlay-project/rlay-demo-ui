@@ -13,7 +13,7 @@ import TruthTable from './components/TruthTable.jsx';
 import {
   exampleAnnotationProperties,
   exampleAnnotations,
-  exampleClasses,
+  // exampleClasses,
   exampleIndividuals,
 } from './example_data';
 import { storageKey } from './config';
@@ -64,10 +64,11 @@ Rust.bay_web.then(module => {
 class Page extends React.Component {
   state = {
     activeTab: 'storage',
-    ontologyClasses: exampleClasses,
+    // ontologyClasses: exampleClasses,
     ontologyIndividuals: exampleIndividuals,
     ontologyAnnotationProperties: exampleAnnotationProperties,
     ontologyAnnotations: [],
+    ontologyClasses: [],
   };
 
   componentDidMount() {
@@ -83,7 +84,7 @@ class Page extends React.Component {
       const data = JSON.parse(rawData);
 
       this.setState({
-        ontologyClasses: data.classes,
+        // ontologyClasses: data.classes,
         ontologyIndividuals: data.propositions,
       });
     } catch (err) {
@@ -223,7 +224,11 @@ class Page extends React.Component {
   }
 
   renderTabStorage() {
-    const { ontologyAnnotationProperties, ontologyAnnotations } = this.state;
+    const {
+      ontologyAnnotationProperties,
+      ontologyAnnotations,
+      ontologyClasses,
+    } = this.state;
 
     const clearStorage = () => {
       window.localStorage.removeItem(storageKey);
@@ -236,19 +241,33 @@ class Page extends React.Component {
       });
     };
 
-    const annotations = ontologyAnnotations.map(ann => {
-      const newAnn = ann.clone();
-      newAnn.cid(this.props.bayModule);
-      return newAnn;
+    const handleSubmitClass = klass => {
+      this.setState({
+        ontologyClasses: [...this.state.ontologyClasses, klass],
+      });
+    };
+
+    const annotations = ontologyAnnotations.map(item => {
+      const newItem = item.clone();
+      newItem.cid(this.props.bayModule);
+      return newItem;
+    });
+
+    const classes = ontologyClasses.map(item => {
+      const newItem = item.clone();
+      newItem.cid(this.props.bayModule);
+      return newItem;
     });
 
     return (
       <ErrorBoundary>
         <StorageTab
           onSubmitAnnotation={handleSubmitAnnotation}
+          onSubmitClass={handleSubmitClass}
           onTriggerReload={clearStorage}
           ontologyAnnotationProperties={ontologyAnnotationProperties}
           ontologyAnnotations={annotations}
+          ontologyClasses={classes}
         />
       </ErrorBoundary>
     );

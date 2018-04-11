@@ -1,7 +1,7 @@
 // @flow
 import React, { type ComponentType } from 'react';
 import truffleContract from 'truffle-contract';
-import { Button } from 'reactstrap';
+import { Col, Button } from 'reactstrap';
 import { isEmpty } from 'lodash-es';
 
 import { Annotation } from '../classes';
@@ -43,7 +43,7 @@ class AnnotationList extends React.Component<AnnotationListProps> {
             </Button>
           </span>
         ) : null}
-        <span style={{ minWidth: '20px' }}>
+        <Col xs="1">
           {item.isAvailable ? (
             <span
               role="img"
@@ -53,14 +53,14 @@ class AnnotationList extends React.Component<AnnotationListProps> {
               🌐
             </span>
           ) : null}
-        </span>
-        <span>
+        </Col>
+        <Col>
           <code>{((item.cid(): any): string)}</code>
-        </span>
-        <span>
+        </Col>
+        <Col>
           <code>{((item.property: any): string)}</code>
-        </span>
-        <span>{item.value}</span>
+        </Col>
+        <Col>{item.value}</Col>
       </li>
     );
   };

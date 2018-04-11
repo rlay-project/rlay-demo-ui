@@ -62,8 +62,8 @@ class AddClassForm extends React.Component<
     }
 
     const klass = new Klass({
-      annotations: this.state.valueAnnotations.map(n => n.hash),
-      sub_class_of_class: this.state.valueSubClassOfClass.map(n => n.hash),
+      annotations: this.state.valueAnnotations.map(n => n.cid()),
+      sub_class_of_class: this.state.valueSubClassOfClass.map(n => n.cid()),
     });
     return klass;
   };
@@ -89,15 +89,17 @@ class AddClassForm extends React.Component<
   render() {
     const { ontologyAnnotations, ontologyClasses } = this.props;
 
-    const annotationOptions = ontologyAnnotations.map(n => ({
-      ...n,
-      label: n.label(),
-    }));
+    const annotationOptions = ontologyAnnotations.map(item => {
+      const newItem = item.clone();
+      newItem.labelRes = newItem.label();
+      return newItem;
+    });
 
-    const classOptions = ontologyClasses.map(n => ({
-      ...n,
-      label: n.label(),
-    }));
+    const classOptions = ontologyClasses.map(item => {
+      const newItem = item.clone();
+      newItem.labelRes = newItem.label();
+      return newItem;
+    });
 
     return (
       <Form>
@@ -105,7 +107,7 @@ class AddClassForm extends React.Component<
           <Select
             options={annotationOptions}
             multi
-            labelKey="label"
+            labelKey="labelRes"
             value={this.state.valueAnnotations}
             onChange={this.handleAnnotationsSelectChange}
             isOptionUnique={() => true}
@@ -116,7 +118,7 @@ class AddClassForm extends React.Component<
           <Select
             options={classOptions}
             multi
-            labelKey="label"
+            labelKey="labelRes"
             value={this.state.valueSubClassOfClass}
             onChange={this.handleSubClassOfClassSelectChange}
             isOptionUnique={() => true}
