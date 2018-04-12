@@ -40,6 +40,8 @@
     "express": "^4.16.2",
     "js-sha3": "^0.7.0",
     "lodash-es": "^4.17.5",
+    "mobx": "^4.1.1",
+    "mobx-react": "^5.0.0",
     "multibase": "^0.4.0",
     "multihashes": "^0.4.13",
     "node-fetch": "^2.1.2",
@@ -58,6 +60,7 @@
     "webpack-livereload-plugin": "^1.0.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.0.0-beta.40",
     "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.40",
     "@babel/preset-flow": "^7.0.0-beta.40",
     "@storybook/react": "^3.3.15",

@@ -20,6 +20,8 @@ class Annotation {
   value: string;
   cachedCid: ?AnnotationCid;
 
+  isAvailable: boolean;
+
   constructor(data: AnnotationData) {
     this.property = data.property;
     this.value = data.value;
@@ -81,11 +83,11 @@ class Annotation {
     return ctr.storeAnnotation(argProperty, this.value);
   }
 
-  clone() {
+  clone(): Annotation {
     const clone = Object.assign({}, this);
     Object.setPrototypeOf(clone, this.constructor.prototype);
 
-    return clone;
+    return (clone: any);
   }
 
   hash(bayModule?: BayModule): AnnotationCid {
@@ -127,13 +129,18 @@ class Annotation {
   }
 }
 
+export type BlockchainAnnotationExt = {
+  isAvailable: boolean,
+};
+export type BlockchainAnnotation = Annotation & BlockchainAnnotationExt;
+
 type ClassData = {
   annotations?: Array<AnnotationCid>,
   sub_class_of_class?: Array<ClassCid>,
   cachedCid?: ?ClassCid,
 };
 
-class Class {
+class Klass {
   annotations: Array<AnnotationCid>;
   sub_class_of_class: Array<ClassCid>; // eslint-disable-line camelcase
   cachedCid: ?ClassCid;
@@ -144,11 +151,11 @@ class Class {
     this.cachedCid = data.cachedCid;
   }
 
-  clone() {
+  clone(): Klass {
     const clone = Object.assign({}, this);
     Object.setPrototypeOf(clone, this.constructor.prototype);
 
-    return clone;
+    return (clone: any);
   }
 
   hash(bayModule?: BayModule): ClassCid {
@@ -178,5 +185,6 @@ class Class {
 
 module.exports = {
   Annotation,
-  Class,
+  Class: Klass,
+  Klass,
 };

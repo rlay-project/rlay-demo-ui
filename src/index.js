@@ -4,7 +4,9 @@ import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import ErrorBoundary from 'react-error-boundary';
 import { Web3Provider } from 'react-web3';
+import { observer } from 'mobx-react';
 
+import OntologyStore from './OntologyStore';
 import NetworkCPT from './components/NetworkCPT.jsx';
 import NetworkMarginals from './components/NetworkMarginals.jsx';
 import PropositionTab from './components/PropositionTab.jsx';
@@ -16,7 +18,7 @@ import {
   // exampleClasses,
   exampleIndividuals,
 } from './example_data';
-import { storageKey } from './config';
+import { storageKey, annotationStore as ontologyStoreConfig } from './config';
 import { Annotation } from './classes';
 
 const VizGraph = ({ graphString }) => {
@@ -61,15 +63,21 @@ Rust.bay_web.then(module => {
   ReactDOM.render(main, window.document.getElementById('react'));
 });
 
+@observer
 class Page extends React.Component {
   state = {
     activeTab: 'storage',
     // ontologyClasses: exampleClasses,
     ontologyIndividuals: exampleIndividuals,
     ontologyAnnotationProperties: exampleAnnotationProperties,
-    ontologyAnnotations: [],
     ontologyClasses: [],
   };
+
+  componentWillMount() {
+    const ontologyStore = new OntologyStore(window.web3, ontologyStoreConfig);
+    ontologyStore.fetchNetworkAnnotations();
+    this.ontologyStore = ontologyStore;
+  }
 
   componentDidMount() {
     this.reloadStorage();
@@ -224,21 +232,11 @@ class Page extends React.Component {
   }
 
   renderTabStorage() {
-    const {
-      ontologyAnnotationProperties,
-      ontologyAnnotations,
-      ontologyClasses,
-    } = this.state;
+    const { ontologyAnnotationProperties, ontologyClasses } = this.state;
 
     const clearStorage = () => {
       window.localStorage.removeItem(storageKey);
       this.reloadStorage();
-    };
-
-    const handleSubmitAnnotation = annotation => {
-      this.setState({
-        ontologyAnnotations: [...this.state.ontologyAnnotations, annotation],
-      });
     };
 
     const handleSubmitClass = klass => {
@@ -247,7 +245,7 @@ class Page extends React.Component {
       });
     };
 
-    const annotations = ontologyAnnotations.map(item => {
+    const annotations = this.ontologyStore.listableAnnotations.map(item => {
       const newItem = item.clone();
       newItem.cid(this.props.bayModule);
       return newItem;
@@ -262,7 +260,8 @@ class Page extends React.Component {
     return (
       <ErrorBoundary>
         <StorageTab
-          onSubmitAnnotation={handleSubmitAnnotation}
+          onSubmitAnnotation={this.ontologyStore.createLocalAnnotation}
+          onUploadAnnotation={this.ontologyStore.uploadAnnotation}
           onSubmitClass={handleSubmitClass}
           onTriggerReload={clearStorage}
           ontologyAnnotationProperties={ontologyAnnotationProperties}
