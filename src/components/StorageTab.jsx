@@ -9,6 +9,7 @@ import { IndividualList } from './IndividualList.jsx';
 import { AddAnnotationContainer } from './AddAnnotationModal.jsx';
 import { AddClassContainer } from './AddClassModal.jsx';
 import { AddIndividualContainer } from './AddIndividualModal.jsx';
+import TokenBalance from './TokenBalance.jsx';
 import { Annotation, Class as Klass, Individual } from '../classes';
 
 import type { BlockchainAnnotation } from '../classes';
@@ -119,6 +120,8 @@ export default class StorageTab extends React.Component<StorageTabProps> {
     );
   };
 
+  renderTokenAccount = () => <TokenBalance account={this.props.tokenAccount} onSetAllowance={this.props.onSetAllowance}/>;
+
   render() {
     const containerStyle = {
       marginTop: '80px',
@@ -130,6 +133,7 @@ export default class StorageTab extends React.Component<StorageTabProps> {
         <Button id="clear-storage-button" onClick={this.handleClearStoragClick}>
           Clear storage
         </Button>
+        <div style={containerStyle}>{this.renderTokenAccount()}</div>
         <div style={containerStyle}>{this.renderStatementsBlock()}</div>
         <div style={containerStyle}>{this.renderClassesBlock()}</div>
         <div style={containerStyle}>{this.renderAnnotationBlock()}</div>

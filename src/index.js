@@ -7,6 +7,7 @@ import { Web3Provider } from 'react-web3';
 import { observer } from 'mobx-react';
 
 import OntologyStore from './OntologyStore';
+import PropositionLedger from './PropositionLedger';
 import NetworkCPT from './components/NetworkCPT.jsx';
 import NetworkMarginals from './components/NetworkMarginals.jsx';
 import PropositionTab from './components/PropositionTab.jsx';
@@ -18,7 +19,12 @@ import {
   // exampleClasses,
   exampleIndividuals,
 } from './example_data';
-import { storageKey, annotationStore as ontologyStoreConfig } from './config';
+import {
+  storageKey,
+  annotationStore as ontologyStoreConfig,
+  tokenContract,
+  propositionLedgerContract,
+} from './config';
 import { Annotation } from './classes';
 
 const VizGraph = ({ graphString }) => {
@@ -79,6 +85,14 @@ class Page extends React.Component {
     ontologyStore.fetchNetworkClasses();
     ontologyStore.fetchNetworkIndividuals();
     this.ontologyStore = ontologyStore;
+
+    const propositionLedger = new PropositionLedger(
+      window.web3,
+      propositionLedgerContract,
+      tokenContract,
+    );
+    propositionLedger.updateTokenAccount();
+    this.propositionLedger = propositionLedger;
   }
 
   componentDidMount() {
@@ -276,6 +290,8 @@ class Page extends React.Component {
           ontologyAnnotations={annotations}
           ontologyClasses={classes}
           ontologyIndividuals={individuals}
+          tokenAccount={this.propositionLedger.tokenAccount}
+          onSetAllowance={this.propositionLedger.setAllowance}
         />
       </ErrorBoundary>
     );
