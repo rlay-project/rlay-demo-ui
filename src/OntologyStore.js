@@ -1,13 +1,21 @@
 // @flow
 import { action, observable, computed, configure } from 'mobx';
 import truffleContract from 'truffle-contract';
+import ethers from 'ethers';
 import { b58ToSolidityBytes } from './helpers';
 
-import { Annotation, type BlockchainAnnotation } from './classes';
+import {
+  Annotation,
+  Class as Klass,
+  type BlockchainAnnotation,
+  type BlockchainClass,
+} from './classes';
 
-import type { AnnotationCid, ContractConfig } from './types';
+import type { AnnotationCid, ClassCid, ContractConfig } from './types';
 
 configure({ enforceActions: true });
+
+export opaque type EthersContract = any;
 
 export default class OntologyStore {
   web3: any;
@@ -15,21 +23,12 @@ export default class OntologyStore {
 
   @observable annotations = [];
   @observable annotationExists: Map<AnnotationCid, boolean> = new Map();
+  @observable classes = [];
+  @observable classExists: Map<ClassCid, boolean> = new Map();
 
   constructor(web3: any, contractConfig: ContractConfig) {
     this.web3 = web3;
     this.contractConfig = contractConfig;
-  }
-
-  @computed
-  get listableAnnotations(): Array<BlockchainAnnotation> {
-    const checkedAnnotations = this.annotations.map(ann => {
-      const checkedAnn = ann.clone();
-      checkedAnn.isAvailable =
-        this.annotationExists.get(checkedAnn.cid()) || false;
-      return checkedAnn;
-    });
-    return checkedAnnotations;
   }
 
   storageContract() {
@@ -45,6 +44,36 @@ export default class OntologyStore {
     const contract = StorageContract.at(contractAddress);
 
     return contract;
+  }
+
+  storageContractEthers(): EthersContract {
+    const { abi, address } = this.contractConfig;
+    const StorageContract = truffleContract(abi);
+    const provider = new ethers.providers.Web3Provider(
+      this.web3.currentProvider,
+    );
+    const contract = new ethers.Contract(
+      address,
+      StorageContract.abi,
+      provider,
+    );
+
+    return contract;
+  }
+
+  //
+  // Annotation
+  //
+
+  @computed
+  get listableAnnotations(): Array<BlockchainAnnotation> {
+    const checkedAnnotations = this.annotations.map(ann => {
+      const checkedAnn = ann.clone();
+      checkedAnn.isAvailable =
+        this.annotationExists.get(checkedAnn.cid()) || false;
+      return checkedAnn;
+    });
+    return checkedAnnotations;
   }
 
   @action.bound
@@ -86,7 +115,7 @@ export default class OntologyStore {
   updateAnnotationStored(ctr: any, ann: Annotation) {
     ann.isStored(ctr).then(
       action('isStoredAnnotationSuccess', exists => {
-        this.annotationExists.set(ann.cid(), exists[0] !== '0x');
+        this.annotationExists.set(ann.cid(), exists);
       }),
     );
   }
@@ -114,6 +143,92 @@ export default class OntologyStore {
   createLocalAnnotation(item: Annotation) {
     if (!this.annotationExists.get(item.cid())) {
       this.annotations.push(item);
+    }
+  }
+
+  //
+  // Class
+  //
+  @computed
+  get listableClasses(): Array<BlockchainClass> {
+    const checkItems = this.classes.map(ann => {
+      const checkedItem = ann.clone();
+      checkedItem.isAvailable =
+        this.classExists.get(checkedItem.cid()) || false;
+      return checkedItem;
+    });
+    return checkItems;
+  }
+
+  @action.bound
+  fetchNetworkClasses() {
+    const { web3 } = this;
+    const contract = this.storageContract();
+    const ethersContract = this.storageContractEthers();
+
+    contract.then(
+      action('contractFound', ctr => {
+        Klass.getAllStored(ctr, web3).then(
+          action('getAllStoredClassesSuccess', itemCids => {
+            itemCids.forEach(itemCid =>
+              this.fetchNetworkClass(ethersContract, (itemCid: any)),
+            );
+          }),
+        );
+
+        this.classes.forEach(item => {
+          this.updateClassStored(ctr, item);
+        });
+      }),
+    );
+  }
+
+  @action.bound
+  fetchNetworkClass(ctr: EthersContract, itemCidBytes: String) {
+    Klass.retrieve(ctr, itemCidBytes).then(
+      action('retrieveClassSuccess', item => {
+        // avoid duplicates
+        if (!this.classes.find(n => n.cachedCid === item.cid())) {
+          this.classes.push(item);
+        }
+        this.classExists.set(item.cid(), true);
+      }),
+    );
+  }
+
+  @action.bound
+  updateClassStored(ctr: any, item: Klass) {
+    item.isStored(ctr).then(
+      action('isStoredClassSuccess', exists => {
+        this.classExists.set(item.cid(), exists);
+      }),
+    );
+  }
+
+  @action.bound
+  uploadClass(item: Klass) {
+    const contract = this.storageContract();
+    const ethersContract = this.storageContractEthers();
+
+    contract.then(ctr => {
+      item
+        .store(ctr)
+        .then(() => {
+          this.fetchNetworkClass(
+            ethersContract,
+            (b58ToSolidityBytes(item.cid()): any),
+          );
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    });
+  }
+
+  @action.bound
+  createLocalClass(item: Klass) {
+    if (!this.classExists.get(item.cid())) {
+      this.classes.push(item);
     }
   }
 }

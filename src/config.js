@@ -1,4 +1,4 @@
-const annotationStoreAbi = require('./contracts/AnnotationStore.json');
+const annotationStoreAbi = require('./contracts/OntologyStorage.json');
 
 module.exports = {
   storageKey: 'knowledge_base',

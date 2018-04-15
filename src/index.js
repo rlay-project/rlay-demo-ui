@@ -76,6 +76,7 @@ class Page extends React.Component {
   componentWillMount() {
     const ontologyStore = new OntologyStore(window.web3, ontologyStoreConfig);
     ontologyStore.fetchNetworkAnnotations();
+    ontologyStore.fetchNetworkClasses();
     this.ontologyStore = ontologyStore;
   }
 
@@ -232,38 +233,37 @@ class Page extends React.Component {
   }
 
   renderTabStorage() {
-    const { ontologyAnnotationProperties, ontologyClasses } = this.state;
+    const { ontologyAnnotationProperties } = this.state;
 
     const clearStorage = () => {
       window.localStorage.removeItem(storageKey);
       this.reloadStorage();
     };
 
-    const handleSubmitClass = klass => {
-      this.setState({
-        ontologyClasses: [...this.state.ontologyClasses, klass],
-      });
+    const calculateHash = item => {
+      const newItem = item.clone();
+      newItem.cid(this.props.bayModule);
+      return newItem;
     };
 
-    const annotations = this.ontologyStore.listableAnnotations.map(item => {
-      const newItem = item.clone();
-      newItem.cid(this.props.bayModule);
-      return newItem;
-    });
+    const annotations = this.ontologyStore.listableAnnotations.map(
+      calculateHash,
+    );
+    const classes = this.ontologyStore.listableClasses.map(calculateHash);
 
-    const classes = ontologyClasses.map(item => {
-      const newItem = item.clone();
-      newItem.cid(this.props.bayModule);
-      return newItem;
-    });
+    const handleSubmitAnnotation = item =>
+      this.ontologyStore.createLocalAnnotation(calculateHash(item));
+    const handleSubmitClass = item =>
+      this.ontologyStore.createLocalClass(calculateHash(item));
 
     return (
       <ErrorBoundary>
         <StorageTab
-          onSubmitAnnotation={this.ontologyStore.createLocalAnnotation}
-          onUploadAnnotation={this.ontologyStore.uploadAnnotation}
+          onSubmitAnnotation={handleSubmitAnnotation}
           onSubmitClass={handleSubmitClass}
           onTriggerReload={clearStorage}
+          onUploadAnnotation={this.ontologyStore.uploadAnnotation}
+          onUploadClass={this.ontologyStore.uploadClass}
           ontologyAnnotationProperties={ontologyAnnotationProperties}
           ontologyAnnotations={annotations}
           ontologyClasses={classes}

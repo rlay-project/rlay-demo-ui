@@ -3,25 +3,19 @@ import React, { Fragment } from 'react';
 import { Col, Button } from 'reactstrap';
 import { isEmpty, isBoolean } from 'lodash-es';
 
-import { Class as Klass } from '../classes';
-
-type BlockchainClass = {
-  isAvailable?: ?boolean,
-};
-
-type CheckedClass = Klass & BlockchainClass;
+import { Class as Klass, type BlockchainClass } from '../classes';
 
 type ClassListProps = {
-  classes: Array<CheckedClass>,
-  onSubmitClass: Klass => void,
+  classes: Array<BlockchainClass>,
+  onUploadClass: Klass => void,
 };
 
 class ClassList extends React.Component<ClassListProps> {
-  handleUploadClick = (item: CheckedClass) => {
-    this.props.onSubmitClass(item);
+  handleUploadClick = (item: BlockchainClass) => {
+    this.props.onUploadClass(item);
   };
 
-  renderItem = (item: CheckedClass) => {
+  renderItem = (item: BlockchainClass) => {
     const itemStyle = {
       display: 'flex',
       justifyContent: 'space-between',

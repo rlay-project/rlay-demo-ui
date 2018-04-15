@@ -8,11 +8,23 @@ import type {
   BayModule,
   ClassCid,
 } from './types';
+import type { EthersContract } from './OntologyStore.js';
+
+export type BlockchainCheckedExt = {
+  isAvailable: boolean,
+};
 
 type AnnotationData = {
   property: AnnotationPropertyHash,
   value: string,
   cachedCid?: ?AnnotationCid,
+};
+
+const encodeOptionalArrayArg = items => {
+  if (!items[0]) {
+    return '0x0000000000000000';
+  }
+  return b58ToSolidityBytes(items[0]);
 };
 
 class Annotation {
@@ -74,7 +86,7 @@ class Annotation {
     const b58Cid = this.cid();
     const ethCid = b58ToSolidityBytes(b58Cid);
 
-    return ctr.retrieveAnnotation.call(ethCid);
+    return ctr.isStoredAnnotation.call(ethCid);
   }
 
   store(ctr: any): Promise<void> {
@@ -129,10 +141,7 @@ class Annotation {
   }
 }
 
-export type BlockchainAnnotationExt = {
-  isAvailable: boolean,
-};
-export type BlockchainAnnotation = Annotation & BlockchainAnnotationExt;
+export type BlockchainAnnotation = Annotation & BlockchainCheckedExt;
 
 type ClassData = {
   annotations?: Array<AnnotationCid>,
@@ -145,10 +154,71 @@ class Klass {
   sub_class_of_class: Array<ClassCid>; // eslint-disable-line camelcase
   cachedCid: ?ClassCid;
 
+  isAvailable: boolean;
+
   constructor(data?: ClassData = {}) {
     this.annotations = data.annotations || [];
     this.sub_class_of_class = data.sub_class_of_class || [];
     this.cachedCid = data.cachedCid;
+  }
+
+  static retrieve(ctr: EthersContract, itemCidBytes: String): Promise<?Klass> {
+    /* eslint-disable camelcase */
+    const ethCid = itemCidBytes;
+    const b58Cid = solidityBytesToB58(ethCid);
+
+    return (ctr: any).retrieveClass(ethCid).then(res => {
+      let [annotations, sub_class_of_class] = res;
+      annotations = annotations.map(solidityBytesToB58);
+      sub_class_of_class = sub_class_of_class.map(solidityBytesToB58);
+
+      const item = new Klass({
+        annotations,
+        sub_class_of_class,
+      });
+      item.cachedCid = b58Cid;
+
+      return item;
+    });
+  }
+
+  static getAllStored(ctr: any, web3: any): Promise<Array<ClassCid>> {
+    return new Promise((resolve, reject) => {
+      web3.eth
+        .filter({
+          address: ctr.address,
+          fromBlock: 1,
+          toBlock: 'latest',
+        })
+        .get((err, result) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          abiDecoder.addABI(ctr.abi);
+          const decoded = abiDecoder.decodeLogs(result);
+          const itemCids = decoded
+            .filter(n => n.name === 'ClassStored')
+            .map(n => n.events[0].value);
+
+          resolve(itemCids);
+        });
+    });
+  }
+
+  isStored(ctr: any): Promise<boolean> {
+    const b58Cid = this.cid();
+    const ethCid = b58ToSolidityBytes(b58Cid);
+
+    return ctr.isStoredClass.call(ethCid);
+  }
+
+  store(ctr: any): Promise<void> {
+    const argAnnotations = encodeOptionalArrayArg(this.annotations);
+    const argSubClassOfClass = encodeOptionalArrayArg(this.sub_class_of_class);
+
+    return ctr.storeClass(argAnnotations, argSubClassOfClass);
   }
 
   clone(): Klass {
@@ -182,6 +252,8 @@ class Klass {
     return (this.hash(): any);
   }
 }
+
+export type BlockchainClass = Klass & BlockchainCheckedExt;
 
 module.exports = {
   Annotation,

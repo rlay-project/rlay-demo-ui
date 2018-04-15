@@ -18,11 +18,12 @@ type StorageTabProps = {
     hash: AnnotationPropertyHash,
     value: string,
   }>,
+  onSubmitAnnotation: Annotation => void,
+  onSubmitClass: Klass => void,
+  onUploadAnnotation: Annotation => void,
+  onUploadClass: Klass => void,
   ontologyAnnotations: Array<BlockchainAnnotation>,
   ontologyClasses: Array<Klass>,
-  onSubmitAnnotation: Annotation => void,
-  onUploadAnnotation: Annotation => void,
-  onSubmitClass: Klass => void,
 };
 
 export default class StorageTab extends React.Component<StorageTabProps> {
@@ -76,7 +77,7 @@ export default class StorageTab extends React.Component<StorageTabProps> {
         <div style={{ marginTop: '20px', marginBottom: '20px' }}>
           <ClassList
             classes={this.props.ontologyClasses}
-            onSubmitClass={() => console.log('Upload class')}
+            onUploadClass={this.props.onUploadClass}
           />
           <div style={{ marginTop: '20px', marginBottom: '20px' }}>
             <AddClassContainer
