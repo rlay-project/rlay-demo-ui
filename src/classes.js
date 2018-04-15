@@ -3,10 +3,11 @@ import abiDecoder from 'abi-decoder';
 
 import { solidityBytesToB58, b58ToSolidityBytes } from './helpers';
 import type {
-  AnnotationPropertyHash,
   AnnotationCid,
+  AnnotationPropertyHash,
   BayModule,
   ClassCid,
+  IndividualCid,
 } from './types';
 import type { EthersContract } from './OntologyStore.js';
 
@@ -255,8 +256,139 @@ class Klass {
 
 export type BlockchainClass = Klass & BlockchainCheckedExt;
 
+type IndividualData = {
+  annotations?: Array<AnnotationCid>,
+  class_assertions?: Array<ClassCid>,
+  negative_class_assertions?: Array<ClassCid>,
+  cachedCid?: ?IndividualCid,
+};
+
+class Individual {
+  annotations: Array<AnnotationCid>;
+  class_assertions: Array<ClassCid>;
+  negative_class_assertions: Array<ClassCid>;
+  cachedCid: ?IndividualCid;
+
+  isAvailable: boolean;
+
+  constructor(data?: IndividualData = {}) {
+    this.annotations = data.annotations || [];
+    this.class_assertions = data.class_assertions || [];
+    this.negative_class_assertions = data.negative_class_assertions || [];
+    this.cachedCid = data.cachedCid;
+  }
+
+  static retrieve(
+    ctr: EthersContract,
+    itemCidBytes: String,
+  ): Promise<?Individual> {
+    /* eslint-disable camelcase */
+    const ethCid = itemCidBytes;
+    const b58Cid = solidityBytesToB58(ethCid);
+
+    return (ctr: any).retrieveIndividual(ethCid).then(res => {
+      let [annotations, class_assertions, negative_class_assertions] = res;
+      annotations = annotations.map(solidityBytesToB58);
+      class_assertions = class_assertions.map(solidityBytesToB58);
+      negative_class_assertions = negative_class_assertions.map(
+        solidityBytesToB58,
+      );
+
+      const item = new Individual({
+        annotations,
+        class_assertions,
+        negative_class_assertions,
+      });
+      item.cachedCid = b58Cid;
+
+      return item;
+    });
+  }
+
+  static getAllStored(ctr: any, web3: any): Promise<Array<IndividualCid>> {
+    return new Promise((resolve, reject) => {
+      web3.eth
+        .filter({
+          address: ctr.address,
+          fromBlock: 1,
+          toBlock: 'latest',
+        })
+        .get((err, result) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          abiDecoder.addABI(ctr.abi);
+          const decoded = abiDecoder.decodeLogs(result);
+          const itemCids = decoded
+            .filter(n => n.name === 'IndividualStored')
+            .map(n => n.events[0].value);
+
+          resolve(itemCids);
+        });
+    });
+  }
+
+  isStored(ctr: any): Promise<boolean> {
+    const b58Cid = this.cid();
+    const ethCid = b58ToSolidityBytes(b58Cid);
+
+    return ctr.isStoredIndividual.call(ethCid);
+  }
+
+  store(ctr: any): Promise<void> {
+    const argAnnotations = encodeOptionalArrayArg(this.annotations);
+    const argClassAssertions = encodeOptionalArrayArg(this.class_assertions);
+    const argNegativeClassAssertions = encodeOptionalArrayArg(
+      this.negative_class_assertions,
+    );
+
+    return ctr.storeIndividual(
+      argAnnotations,
+      argClassAssertions,
+      argNegativeClassAssertions,
+    );
+  }
+
+  clone(): Individual {
+    const clone = Object.assign({}, this);
+    Object.setPrototypeOf(clone, this.constructor.prototype);
+
+    return (clone: any);
+  }
+
+  hash(bayModule?: BayModule): IndividualCid {
+    if (this.cachedCid) {
+      return this.cachedCid;
+    }
+    if (!bayModule) {
+      throw new Error('Can not hash Individual without bayModule');
+    }
+
+    const rsValue = {
+      annotations: this.annotations,
+      class_assertions: this.class_assertions,
+      negative_class_assertions: this.negative_class_assertions,
+    };
+    this.cachedCid = bayModule.hash_individual(rsValue);
+    return this.cachedCid;
+  }
+
+  cid(bayModule?: BayModule): IndividualCid {
+    return this.hash(bayModule);
+  }
+
+  get label(): string {
+    return (this.hash(): any);
+  }
+}
+
+export type BlockchainIndividual = Individual & BlockchainCheckedExt;
+
 module.exports = {
   Annotation,
   Class: Klass,
   Klass,
+  Individual,
 };

@@ -3,6 +3,7 @@
 export opaque type AnnotationPropertyHash = string;
 export opaque type AnnotationCid = string;
 export opaque type ClassCid = string;
+export opaque type IndividualCid = string;
 
 export type OntClass = any;
 export type Individual = any;
@@ -26,9 +27,16 @@ export type RsClass = {
   sub_class_of_class: Array<ClassCid>,
 };
 
-type RsIndividual = {
+// TODO: deprecate and move towards RsIndividual
+type OldRsIndividual = {
   label: string,
   class_memberships: Array<string>,
+};
+
+export type RsIndividual = {
+  annotations: Array<AnnotationCid>,
+  class_assertions: Array<ClassCid>,
+  negative_class_assertions: Array<ClassCid>,
 };
 
 export type RsAnnotation = {
@@ -40,6 +48,15 @@ export type BayModule = {
   annotation_property_label: () => AnnotationPropertyHash,
   hash_annotation: RsAnnotation => AnnotationCid,
   hash_class: RsClass => ClassCid,
-  can_query: (Array<RsOntClass>, Array<RsIndividual>, RsIndividual) => boolean,
-  query: (Array<RsOntClass>, Array<RsIndividual>, RsIndividual) => TruthTables,
+  hash_individual: RsIndividual => IndividualCid,
+  can_query: (
+    Array<RsOntClass>,
+    Array<OldRsIndividual>,
+    OldRsIndividual,
+  ) => boolean,
+  query: (
+    Array<RsOntClass>,
+    Array<OldRsIndividual>,
+    OldRsIndividual,
+  ) => TruthTables,
 };

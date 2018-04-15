@@ -77,6 +77,7 @@ class Page extends React.Component {
     const ontologyStore = new OntologyStore(window.web3, ontologyStoreConfig);
     ontologyStore.fetchNetworkAnnotations();
     ontologyStore.fetchNetworkClasses();
+    ontologyStore.fetchNetworkIndividuals();
     this.ontologyStore = ontologyStore;
   }
 
@@ -250,23 +251,31 @@ class Page extends React.Component {
       calculateHash,
     );
     const classes = this.ontologyStore.listableClasses.map(calculateHash);
+    const individuals = this.ontologyStore.listableIndividuals.map(
+      calculateHash,
+    );
 
     const handleSubmitAnnotation = item =>
       this.ontologyStore.createLocalAnnotation(calculateHash(item));
     const handleSubmitClass = item =>
       this.ontologyStore.createLocalClass(calculateHash(item));
+    const handleSubmitIndividual = item =>
+      this.ontologyStore.createLocalIndividual(calculateHash(item));
 
     return (
       <ErrorBoundary>
         <StorageTab
           onSubmitAnnotation={handleSubmitAnnotation}
           onSubmitClass={handleSubmitClass}
+          onSubmitIndividual={handleSubmitIndividual}
           onTriggerReload={clearStorage}
           onUploadAnnotation={this.ontologyStore.uploadAnnotation}
           onUploadClass={this.ontologyStore.uploadClass}
+          onUploadIndividual={this.ontologyStore.uploadIndividual}
           ontologyAnnotationProperties={ontologyAnnotationProperties}
           ontologyAnnotations={annotations}
           ontologyClasses={classes}
+          ontologyIndividuals={individuals}
         />
       </ErrorBoundary>
     );

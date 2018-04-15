@@ -5,7 +5,7 @@ import { linkTo } from '@storybook/addon-links';
 import { Web3Provider } from 'react-web3';
 
 import { Class as Klass } from '../classes';
-import { ClassList, withBlockchainAnnotations } from './ClassList.jsx';
+import { ClassList } from './ClassList.jsx';
 import config from '../config.js';
 
 storiesOf('ClassList', module)

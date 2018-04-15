@@ -5,9 +5,11 @@ import { Button } from 'reactstrap';
 import AnnotationPropertyList from './AnnotationPropertyList.jsx';
 import { AnnotationList } from './AnnotationList.jsx';
 import { ClassList } from './ClassList.jsx';
+import { IndividualList } from './IndividualList.jsx';
 import { AddAnnotationContainer } from './AddAnnotationModal.jsx';
 import { AddClassContainer } from './AddClassModal.jsx';
-import { Annotation, Class as Klass } from '../classes';
+import { AddIndividualContainer } from './AddIndividualModal.jsx';
+import { Annotation, Class as Klass, Individual } from '../classes';
 
 import type { BlockchainAnnotation } from '../classes';
 import type { AnnotationPropertyHash } from '../types';
@@ -20,10 +22,13 @@ type StorageTabProps = {
   }>,
   onSubmitAnnotation: Annotation => void,
   onSubmitClass: Klass => void,
+  onSubmitIndividual: Individual => void,
   onUploadAnnotation: Annotation => void,
   onUploadClass: Klass => void,
+  onUploadIndividual: Individual => void,
   ontologyAnnotations: Array<BlockchainAnnotation>,
   ontologyClasses: Array<Klass>,
+  ontologyIndividuals: Array<Individual>,
 };
 
 export default class StorageTab extends React.Component<StorageTabProps> {
@@ -91,24 +96,45 @@ export default class StorageTab extends React.Component<StorageTabProps> {
     );
   };
 
+  renderStatementsBlock = () => {
+    const { web3 } = window; // eslint-disable-line
+
+    return (
+      <Fragment>
+        <h4>Statements</h4>
+        <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+          <IndividualList
+            individuals={this.props.ontologyIndividuals}
+            onUploadIndividual={this.props.onUploadIndividual}
+          />
+          <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+            <AddIndividualContainer
+              ontologyAnnotations={this.props.ontologyAnnotations}
+              ontologyClasses={this.props.ontologyClasses}
+              onSubmit={this.props.onSubmitIndividual}
+            />
+          </div>
+        </div>
+      </Fragment>
+    );
+  };
+
   render() {
+    const containerStyle = {
+      marginTop: '80px',
+      marginLeft: '80px',
+      marginRight: '80px',
+    };
     return (
       <div>
         <Button id="clear-storage-button" onClick={this.handleClearStoragClick}>
           Clear storage
         </Button>
-        <div style={{ marginLeft: '80px', marginRight: '80px' }}>
+        <div style={containerStyle}>{this.renderStatementsBlock()}</div>
+        <div style={containerStyle}>{this.renderClassesBlock()}</div>
+        <div style={containerStyle}>{this.renderAnnotationBlock()}</div>
+        <div style={containerStyle}>
           {this.renderAnnotationPropertiesBlock()}
-        </div>
-        <div
-          style={{ marginTop: '80px', marginLeft: '80px', marginRight: '80px' }}
-        >
-          {this.renderAnnotationBlock()}
-        </div>
-        <div
-          style={{ marginTop: '80px', marginLeft: '80px', marginRight: '80px' }}
-        >
-          {this.renderClassesBlock()}
         </div>
       </div>
     );
