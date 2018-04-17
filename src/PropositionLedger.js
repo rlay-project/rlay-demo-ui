@@ -1,8 +1,8 @@
 // @flow
-import { action, observable, computed, configure } from 'mobx';
+import { action, observable, configure } from 'mobx';
 import truffleContract from 'truffle-contract';
 
-import type { IndividualCid, ContractConfig } from './types';
+import type { ContractConfig } from './types';
 
 configure({ enforceActions: true });
 

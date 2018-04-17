@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button, Input, InputGroup, Form, FormGroup } from 'reactstrap';
 import Select from 'react-select';
+import { stateLink } from '../ValueLink';
 
 import type { AnnotationProperty } from './AnnotationPropertyList.jsx';
 import { Annotation } from '../classes';
@@ -34,6 +35,18 @@ class AddAnnotationForm extends React.Component<
     valueProperty: null,
   };
 
+  constructor(props: AddAnnotationFormProps) {
+    super(props);
+    this.propertyLink = stateLink
+      .call(this, 'valueProperty')
+      .onChangeEventMapper(e => e)
+      .afterChange(this.handleAnnotationChange);
+
+    this.valueLink = stateLink
+      .call(this, 'valueValue')
+      .afterChange(this.handleAnnotationChange);
+  }
+
   state = {
     valueValue: '',
     valueProperty: null,
@@ -47,20 +60,8 @@ class AddAnnotationForm extends React.Component<
     }
   }
 
-  handleValueValueChange = (e: any) => {
-    this.setState(
-      {
-        valueValue: e.target.value,
-      },
-      () => this.handleAnnotationChange(),
-    );
-  };
-
-  handlePropertySelectChange = (selectedOptions: any) => {
-    this.setState({ valueProperty: selectedOptions }, () =>
-      this.handleAnnotationChange(),
-    );
-  };
+  valueLink: any;
+  propertyLink: any;
 
   buildAnnotation = () => {
     if (!this.state.valueProperty) {
@@ -100,22 +101,17 @@ class AddAnnotationForm extends React.Component<
       <Form>
         <FormGroup>
           <Select
+            {...this.propertyLink.props}
             options={classOptions}
             multi={false}
             labelKey="label"
-            value={this.state.valueProperty}
-            onChange={this.handlePropertySelectChange}
             isOptionUnique={() => true}
             placeholder="Select AnnotationProperty..."
           />
         </FormGroup>
         <FormGroup>
           <InputGroup style={{ marginBottom: '10px' }}>
-            <Input
-              placeholder="Value"
-              value={this.state.valueValue}
-              onChange={this.handleValueValueChange}
-            />
+            <Input {...this.valueLink.props} placeholder="Value" />
           </InputGroup>
         </FormGroup>
       </Form>

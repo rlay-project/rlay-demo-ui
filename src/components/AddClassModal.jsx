@@ -3,6 +3,7 @@ import React from 'react';
 import { Button, Form, FormGroup } from 'reactstrap';
 import Select from 'react-select';
 import { isEmpty } from 'lodash-es';
+import { stateLink } from '../ValueLink';
 
 import { Annotation, Class as Klass } from '../classes';
 
@@ -36,6 +37,19 @@ class AddClassForm extends React.Component<
     valueSubClassOfClass: [],
   };
 
+  constructor(props: AddClassFormProps) {
+    super(props);
+
+    this.annotationsLink = stateLink
+      .call(this, 'valueAnnotations')
+      .onChangeEventMapper(e => e)
+      .afterChange(this.handleClassChange);
+    this.subClassOfClassLink = stateLink
+      .call(this, 'valueSubClassOfClass')
+      .onChangeEventMapper(e => e)
+      .afterChange(this.handleClassChange);
+  }
+
   state = AddClassForm.defaultState;
 
   componentWillReceiveProps(nextProps: AddClassFormProps) {
@@ -44,17 +58,8 @@ class AddClassForm extends React.Component<
     }
   }
 
-  handleAnnotationsSelectChange = (selectedOptions: any) => {
-    this.setState({ valueAnnotations: selectedOptions }, () =>
-      this.handleClassChange(),
-    );
-  };
-
-  handleSubClassOfClassSelectChange = (selectedOptions: any) => {
-    this.setState({ valueSubClassOfClass: selectedOptions }, () =>
-      this.handleClassChange(),
-    );
-  };
+  annotationsLink: any;
+  subClassOfClassLink: any;
 
   buildClass = () => {
     if (!this.validate()) {
@@ -93,22 +98,20 @@ class AddClassForm extends React.Component<
       <Form>
         <FormGroup>
           <Select
+            {...this.annotationsLink.props}
             options={ontologyAnnotations}
             multi
             labelKey="label"
-            value={this.state.valueAnnotations}
-            onChange={this.handleAnnotationsSelectChange}
             isOptionUnique={() => true}
             placeholder="Select Annotations..."
           />
         </FormGroup>
         <FormGroup>
           <Select
+            {...this.subClassOfClassLink.props}
             options={ontologyClasses}
             multi
             labelKey="label"
-            value={this.state.valueSubClassOfClass}
-            onChange={this.handleSubClassOfClassSelectChange}
             isOptionUnique={() => true}
             placeholder="Select SubClassOf classes..."
           />

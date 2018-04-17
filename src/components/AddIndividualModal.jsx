@@ -3,6 +3,7 @@ import React from 'react';
 import { Button, Form, FormGroup } from 'reactstrap';
 import Select from 'react-select';
 import { isEmpty } from 'lodash-es';
+import { stateLink } from '../ValueLink';
 
 import { Annotation, Class as Klass, Individual } from '../classes';
 
@@ -38,6 +39,21 @@ class AddIndividualForm extends React.Component<
     valueNegativeClassAssertions: [],
   };
 
+  constructor(props: AddIndividualFormProps) {
+    super(props);
+
+    const primitiveLink = key =>
+      stateLink
+        .call(this, key)
+        .onChangeEventMapper(e => e)
+        .afterChange(this.handleClassChange);
+    this.annotationsLink = primitiveLink('valueAnnotations');
+    this.classAssertionsLink = primitiveLink('valueClassAssertions');
+    this.negativeClassAssertionsLink = primitiveLink(
+      'valueNegativeClassAssertions',
+    );
+  }
+
   state = AddIndividualForm.defaultState;
 
   componentWillReceiveProps(nextProps: AddIndividualFormProps) {
@@ -48,23 +64,9 @@ class AddIndividualForm extends React.Component<
     }
   }
 
-  handleAnnotationsSelectChange = (selectedOptions: any) => {
-    this.setState({ valueAnnotations: selectedOptions }, () =>
-      this.handleClassChange(),
-    );
-  };
-
-  handleClassAssertionsChange = (selectedOptions: any) => {
-    this.setState({ valueClassAssertions: selectedOptions }, () =>
-      this.handleClassChange(),
-    );
-  };
-
-  handleNegativeClassAssertionsChange = (selectedOptions: any) => {
-    this.setState({ valueNegativeClassAssertions: selectedOptions }, () =>
-      this.handleClassChange(),
-    );
-  };
+  annotationsLink: any;
+  classAssertionsLink: any;
+  negativeClassAssertionsLink: any;
 
   buildIndividual = () => {
     if (!this.validate()) {
@@ -107,33 +109,30 @@ class AddIndividualForm extends React.Component<
       <Form>
         <FormGroup>
           <Select
+            {...this.annotationsLink.props}
             options={ontologyAnnotations}
             multi
             labelKey="label"
-            value={this.state.valueAnnotations}
-            onChange={this.handleAnnotationsSelectChange}
             isOptionUnique={() => true}
             placeholder="Select Annotations..."
           />
         </FormGroup>
         <FormGroup>
           <Select
+            {...this.classAssertionsLink.props}
             options={ontologyClasses}
             multi
             labelKey="label"
-            value={this.state.valueClassAssertions}
-            onChange={this.handleClassAssertionsChange}
             isOptionUnique={() => true}
             placeholder="Select Class assertions..."
           />
         </FormGroup>
         <FormGroup>
           <Select
+            {...this.negativeClassAssertionsLink.props}
             options={ontologyClasses}
             multi
             labelKey="label"
-            value={this.state.valueNegativeClassAssertions}
-            onChange={this.handleNegativeClassAssertionsChange}
             isOptionUnique={() => true}
             placeholder="Select Negative class assertions..."
           />

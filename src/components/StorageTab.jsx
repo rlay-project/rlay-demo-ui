@@ -30,6 +30,8 @@ type StorageTabProps = {
   ontologyAnnotations: Array<BlockchainAnnotation>,
   ontologyClasses: Array<Klass>,
   ontologyIndividuals: Array<Individual>,
+  tokenAccount: any,
+  onSetAllowance: number => void,
 };
 
 export default class StorageTab extends React.Component<StorageTabProps> {
@@ -120,7 +122,12 @@ export default class StorageTab extends React.Component<StorageTabProps> {
     );
   };
 
-  renderTokenAccount = () => <TokenBalance account={this.props.tokenAccount} onSetAllowance={this.props.onSetAllowance}/>;
+  renderTokenAccount = () => (
+    <TokenBalance
+      account={this.props.tokenAccount}
+      onSetAllowance={this.props.onSetAllowance}
+    />
+  );
 
   render() {
     const containerStyle = {
