@@ -40,7 +40,7 @@ export default class OntologyStore {
     this.contractConfig = contractConfig;
   }
 
-  storageContract() {
+  buildStorageContract() {
     const { web3, contractConfig } = this;
     const provider = web3.currentProvider; // eslint-disable-line
 
@@ -48,8 +48,16 @@ export default class OntologyStore {
     StorageContract.defaults({
       from: web3.eth.accounts[0],
     });
-    const contractAddress = contractConfig.address;
     StorageContract.setProvider(provider);
+
+    return StorageContract;
+  }
+
+  storageContract() {
+    const { web3, contractConfig } = this;
+
+    const StorageContract = this.buildStorageContract();
+    const contractAddress = contractConfig.address;
     const contract = StorageContract.at(contractAddress);
 
     return contract;

@@ -9,6 +9,7 @@
     "build": "npm run build:bay && npm run build:webpack",
     "build:bay": "cd vendor/bay/bay-wasm && cargo web build --target wasm32-unknown-unknown --bin bay_web",
     "build:webpack": "webpack --config webpack.config.js",
+    "seed": "webpack --config webpack.seed.config.js && node build/seed.js",
     "lint": "npm run lint:eslint && npm run lint:flow && npm run lint:prettier",
     "lint:eslint": "node_modules/.bin/eslint --ext .js --ext .jsx src",
     "lint:flow": "node_modules/.bin/flow src",
@@ -57,7 +58,7 @@
     "truffle-contract": "^3.0.4",
     "viz.js": "^1.8.0",
     "wasm-loader": "^1.1.0",
-    "web3": "^1.0.0-beta.34",
+    "web3": "^0.20.6",
     "webpack": "^3.10.0",
     "webpack-livereload-plugin": "^1.0.0"
   },
