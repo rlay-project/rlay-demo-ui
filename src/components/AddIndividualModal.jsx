@@ -114,7 +114,7 @@ class AddIndividualForm extends React.Component<
             multi
             labelKey="label"
             isOptionUnique={() => true}
-            placeholder="Select Annotations..."
+            placeholder="Select Subject identifiers..."
           />
         </FormGroup>
         <FormGroup>

@@ -2,9 +2,10 @@
 import { action, observable, configure } from 'mobx';
 import truffleContract from 'truffle-contract';
 
+import { Proposition } from './classes';
 import type { ContractConfig } from './types';
 
-configure({ enforceActions: true });
+configure(({ enforceActions: true }: any));
 
 export default class PropositionLedger {
   web3: any;
@@ -12,6 +13,7 @@ export default class PropositionLedger {
   tokenConfig: ContractConfig;
 
   @observable tokenAccount = {};
+  @observable propositions = [];
 
   constructor(
     web3: any,
@@ -86,6 +88,38 @@ export default class PropositionLedger {
             this.updateTokenAccount();
           });
       },
+    );
+  }
+
+  @action.bound
+  fetchNetworkPropositions() {
+    const { web3 } = this;
+    const contract = this.propositionLedgerContract();
+
+    contract.then(
+      action('contractFound', ctr => {
+        Proposition.getAllStored(ctr, web3).then(
+          action('getAllStoredPropositionsSuccess', propositions => {
+            (this.propositions: any).replace(propositions);
+          }),
+        );
+      }),
+    );
+  }
+
+  @action.bound
+  addWeight(cid: any, amount: number) {
+    const contract = this.propositionLedgerContract();
+
+    contract.then(
+      action('contractFound', ctr => {
+        Proposition.submit(ctr, cid, amount).then(
+          action('addWeightSuccess', () => {
+            this.fetchNetworkPropositions();
+            setTimeout(() => this.fetchNetworkPropositions(), 1000);
+          }),
+        );
+      }),
     );
   }
 }

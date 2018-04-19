@@ -1,5 +1,6 @@
 // @flow
 import abiDecoder from 'abi-decoder';
+import { uniq, maxBy, groupBy } from 'lodash-es';
 
 import { solidityBytesToB58, b58ToSolidityBytes } from './helpers';
 import type {
@@ -134,6 +135,10 @@ class Annotation {
     }
   }
 
+  isLabel(): boolean {
+    return this.property === 'zW1aUyiEVULyTsGHRAD1ERdZj8XG3B3PrLZokrZkNCdUKR2';
+  }
+
   get label(): string {
     const hash = this.hash();
     const readableProperty = this.readableProperty();
@@ -154,6 +159,8 @@ class Klass {
   annotations: Array<AnnotationCid>;
   sub_class_of_class: Array<ClassCid>; // eslint-disable-line camelcase
   cachedCid: ?ClassCid;
+
+  cachedAnnotationLabel: ?string;
 
   isAvailable: boolean;
 
@@ -249,8 +256,29 @@ class Klass {
     return this.hash(bayModule);
   }
 
+  enrichWithLabel(ontologyAnnotations: Array<Annotation>) {
+    if (this.cachedAnnotationLabel) {
+      return;
+    }
+
+    const annotations = ontologyAnnotations.filter(n =>
+      this.annotations.includes(n.cid()),
+    );
+    const primaryLabelAnnotation = annotations.find(n => n.isLabel());
+    if (primaryLabelAnnotation) {
+      this.cachedAnnotationLabel = primaryLabelAnnotation.value;
+    }
+  }
+
+  get annotationLabel(): ?string {
+    return this.cachedAnnotationLabel;
+  }
+
   get label(): string {
-    return (this.hash(): any);
+    const labelPart = this.cachedAnnotationLabel
+      ? this.cachedAnnotationLabel
+      : '';
+    return `${(this.hash(): any)}${labelPart.toString()}`;
   }
 }
 
@@ -268,6 +296,9 @@ class Individual {
   class_assertions: Array<ClassCid>;
   negative_class_assertions: Array<ClassCid>;
   cachedCid: ?IndividualCid;
+
+  cachedAnnotationLabel: ?string;
+  cachedClassLabel: ?string;
 
   isAvailable: boolean;
 
@@ -379,6 +410,42 @@ class Individual {
     return this.hash(bayModule);
   }
 
+  enrichWithLabel(ontologyAnnotations: Array<Annotation>) {
+    if (this.cachedAnnotationLabel) {
+      return;
+    }
+
+    const annotations = ontologyAnnotations.filter(n =>
+      this.annotations.includes(n.cid()),
+    );
+    const primaryLabelAnnotation = annotations.find(n => n.isLabel());
+    if (primaryLabelAnnotation) {
+      this.cachedAnnotationLabel = primaryLabelAnnotation.value;
+    }
+  }
+
+  enrichWithClassLabel(ontologyClasses: Array<Klass>) {
+    if (this.cachedClassLabel) {
+      return;
+    }
+
+    const assertionCid =
+      this.class_assertions[0] || this.negative_class_assertions[0];
+    const class_assertion = ontologyClasses.find(n => n.cid() === assertionCid);
+
+    if (class_assertion) {
+      this.cachedClassLabel = class_assertion.annotationLabel;
+    }
+  }
+
+  get annotationLabel(): ?string {
+    return this.cachedAnnotationLabel;
+  }
+
+  get classLabel(): ?string {
+    return this.cachedClassLabel;
+  }
+
   get label(): string {
     return (this.hash(): any);
   }
@@ -386,9 +453,113 @@ class Individual {
 
 export type BlockchainIndividual = Individual & BlockchainCheckedExt;
 
+type PropositionData = {
+  individualCid: IndividualCid,
+  amount: number,
+};
+
+class Proposition {
+  individualCid: IndividualCid;
+  amount: number;
+
+  cachedAnnotationLabel: ?string;
+
+  constructor(data: PropositionData) {
+    this.individualCid = data.individualCid;
+    this.amount = data.amount;
+  }
+
+  static getAllStored(ctr: any, web3: any): Promise<Array<Proposition>> {
+    return new Promise((resolve, reject) => {
+      web3.eth
+        .filter({
+          address: ctr.address,
+          fromBlock: 1,
+          toBlock: 'latest',
+        })
+        .get((err, result) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          abiDecoder.addABI(ctr.abi);
+          const decoded = abiDecoder.decodeLogs(result);
+          const propositionData = decoded
+            .filter(n => n.name === 'PropositionWeightNewTotal')
+            .map(n => ({
+              individualCid: solidityBytesToB58(n.events[0].value),
+              amount: parseInt(n.events[1].value, 10),
+            }));
+
+          const cids = uniq(propositionData.map(n => n.individualCid));
+          const lastestPropositions = cids.map(cid =>
+            maxBy(
+              propositionData.filter(n => n.individualCid === cid),
+              'amount',
+            ),
+          );
+          const propositions = lastestPropositions.map(
+            data => new Proposition(data),
+          );
+
+          resolve(propositions);
+        });
+    });
+  }
+
+  static groupContradicting(
+    statements: Array<Individual>,
+  ): Array<Array<Array<Individual>>> {
+    // filter out groups where only one of the opposing statements is present
+    const filterFullGroups = groups =>
+      groups
+        .map(subjectGroup =>
+          subjectGroup.filter(
+            contradictionGroup => contradictionGroup.length === 2,
+          ),
+        )
+        .filter(subjectGroup => subjectGroup.length !== 0);
+
+    const subjectGroups = Object.values(groupBy(statements, 'annotations'));
+    let groups = subjectGroups.map(
+      subjectGroup =>
+        (Object.values(
+          groupBy(
+            subjectGroup,
+            item =>
+              item.class_assertions[0] || item.negative_class_assertions[0],
+          ),
+        ): any),
+    );
+    groups = filterFullGroups(groups);
+
+    return groups;
+  }
+
+  static submit(ctr: any, cid: any, amount: any): Promise<void> {
+    return ctr.submitProposition(b58ToSolidityBytes(cid), amount);
+  }
+
+  enrichWithLabel(ontologyIndividuals: Array<Individual>) {
+    if (this.cachedAnnotationLabel) {
+      return;
+    }
+
+    const individual = ontologyIndividuals.find(
+      n => n.cid() === this.individualCid,
+    );
+    if (individual) {
+      this.cachedAnnotationLabel = individual.annotationLabel;
+    }
+  }
+}
+
 module.exports = {
   Annotation,
   Class: Klass,
   Klass,
   Individual,
+
+  Proposition,
 };

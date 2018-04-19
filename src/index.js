@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import ErrorBoundary from 'react-error-boundary';
 import { Web3Provider } from 'react-web3';
+import { computed } from 'mobx';
 import { observer } from 'mobx-react';
 
 import OntologyStore from './OntologyStore';
@@ -25,7 +26,7 @@ import {
   tokenContract,
   propositionLedgerContract,
 } from './config';
-import { Annotation } from './classes';
+import { Annotation, Proposition } from './classes';
 
 const VizGraph = ({ graphString }) => {
   const graphDot = graphString;
@@ -69,17 +70,12 @@ Rust.bay_web.then(module => {
   ReactDOM.render(main, window.document.getElementById('react'));
 });
 
-@observer
-class Page extends React.Component {
-  state = {
-    activeTab: 'storage',
-    // ontologyClasses: exampleClasses,
-    ontologyIndividuals: exampleIndividuals,
-    ontologyAnnotationProperties: exampleAnnotationProperties,
-    ontologyClasses: [],
-  };
+class RootStore {
+  calculateHash = null;
 
-  componentWillMount() {
+  constructor(calculateHash) {
+    this.calculateHash = calculateHash;
+
     const ontologyStore = new OntologyStore(window.web3, ontologyStoreConfig);
     ontologyStore.fetchNetworkAnnotations();
     ontologyStore.fetchNetworkClasses();
@@ -92,12 +88,104 @@ class Page extends React.Component {
       tokenContract,
     );
     propositionLedger.updateTokenAccount();
+    propositionLedger.fetchNetworkPropositions();
     this.propositionLedger = propositionLedger;
   }
 
-  componentDidMount() {
-    this.reloadStorage();
+  @computed
+  get annotations() {
+    const annotations = this.ontologyStore.listableAnnotations.map(
+      this.calculateHash,
+    );
+    return annotations;
   }
+
+  @computed
+  get classes() {
+    const classes = this.ontologyStore.listableClasses.map(this.calculateHash);
+    classes.forEach(item => item.enrichWithLabel(this.annotations));
+    return classes;
+  }
+
+  @computed
+  get individuals() {
+    const individuals = this.ontologyStore.listableIndividuals.map(
+      this.calculateHash,
+    );
+    individuals.forEach(item => item.enrichWithLabel(this.annotations));
+    individuals.forEach(item => item.enrichWithClassLabel(this.classes));
+    return individuals;
+  }
+
+  @computed
+  get propositionGroups() {
+    const findLabelAnnotation = (individual, annotations) => {
+      let containedAnnotations = individual.annotations.map(cid =>
+        annotations.find(item => item.cid() === cid),
+      );
+      containedAnnotations = containedAnnotations.filter(Boolean);
+      return (
+        containedAnnotations.find(n => n.isLabel()) || { annotationLabel: '' }
+      );
+    };
+
+    const enrichIndividualWithProposition = (individual, propositions) => {
+      const propositon = propositions.find(
+        n => n.individualCid === individual.cid(),
+      );
+
+      const item = individual.clone();
+      if (propositon) {
+        item.amount = propositon.amount;
+      } else {
+        item.amount = 0;
+      }
+      return item;
+    };
+
+    const enrichGroupWithProposition = (group, propositions) =>
+      group.map(subGroup =>
+        subGroup.map(individual =>
+          enrichIndividualWithProposition(individual, propositions),
+        ),
+      );
+
+    const groups = Proposition.groupContradicting(this.individuals).map(group =>
+      enrichGroupWithProposition(group, this.propositionLedger.propositions),
+    );
+
+    const propositionGroups = groups.map(group => ({
+      groups: {
+        class_assertions: group,
+      },
+      subject: findLabelAnnotation(group[0][0], this.annotations),
+    }));
+
+    return propositionGroups;
+  }
+}
+
+@observer
+class Page extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const calculateHash = item => {
+      const newItem = item.clone();
+      newItem.cid(this.props.bayModule);
+      return newItem;
+    };
+
+    this.store = new RootStore(calculateHash);
+  }
+
+  state = {
+    activeTab: 'storage',
+    // ontologyClasses: exampleClasses,
+    ontologyIndividuals: exampleIndividuals,
+    ontologyAnnotationProperties: exampleAnnotationProperties,
+    ontologyClasses: [],
+  };
 
   reloadStorage = () => {
     try {
@@ -249,6 +337,7 @@ class Page extends React.Component {
 
   renderTabStorage() {
     const { ontologyAnnotationProperties } = this.state;
+    const { ontologyStore, propositionLedger } = this.store;
 
     const clearStorage = () => {
       window.localStorage.removeItem(storageKey);
@@ -261,20 +350,12 @@ class Page extends React.Component {
       return newItem;
     };
 
-    const annotations = this.ontologyStore.listableAnnotations.map(
-      calculateHash,
-    );
-    const classes = this.ontologyStore.listableClasses.map(calculateHash);
-    const individuals = this.ontologyStore.listableIndividuals.map(
-      calculateHash,
-    );
-
     const handleSubmitAnnotation = item =>
-      this.ontologyStore.createLocalAnnotation(calculateHash(item));
+      ontologyStore.createLocalAnnotation(calculateHash(item));
     const handleSubmitClass = item =>
-      this.ontologyStore.createLocalClass(calculateHash(item));
+      ontologyStore.createLocalClass(calculateHash(item));
     const handleSubmitIndividual = item =>
-      this.ontologyStore.createLocalIndividual(calculateHash(item));
+      ontologyStore.createLocalIndividual(calculateHash(item));
 
     return (
       <ErrorBoundary>
@@ -283,15 +364,17 @@ class Page extends React.Component {
           onSubmitClass={handleSubmitClass}
           onSubmitIndividual={handleSubmitIndividual}
           onTriggerReload={clearStorage}
-          onUploadAnnotation={this.ontologyStore.uploadAnnotation}
-          onUploadClass={this.ontologyStore.uploadClass}
-          onUploadIndividual={this.ontologyStore.uploadIndividual}
+          onUploadAnnotation={ontologyStore.uploadAnnotation}
+          onUploadClass={ontologyStore.uploadClass}
+          onUploadIndividual={ontologyStore.uploadIndividual}
           ontologyAnnotationProperties={ontologyAnnotationProperties}
-          ontologyAnnotations={annotations}
-          ontologyClasses={classes}
-          ontologyIndividuals={individuals}
-          tokenAccount={this.propositionLedger.tokenAccount}
-          onSetAllowance={this.propositionLedger.setAllowance}
+          ontologyAnnotations={this.store.annotations}
+          ontologyClasses={this.store.classes}
+          ontologyIndividuals={this.store.individuals}
+          tokenAccount={propositionLedger.tokenAccount}
+          propositionGroups={this.store.propositionGroups}
+          onSetAllowance={propositionLedger.setAllowance}
+          onAddWeight={propositionLedger.addWeight}
         />
       </ErrorBoundary>
     );

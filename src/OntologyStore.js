@@ -20,7 +20,7 @@ import type {
   ContractConfig,
 } from './types';
 
-configure({ enforceActions: true });
+configure(({ enforceActions: true }: any));
 
 export opaque type EthersContract = any;
 

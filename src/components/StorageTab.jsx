@@ -3,6 +3,9 @@ import React, { Fragment } from 'react';
 import { Button } from 'reactstrap';
 
 import AnnotationPropertyList from './AnnotationPropertyList.jsx';
+import RelatedAggregationsContainer, {
+  type RelatedAggregations,
+} from './RelatedAggregations.jsx';
 import { AnnotationList } from './AnnotationList.jsx';
 import { ClassList } from './ClassList.jsx';
 import { IndividualList } from './IndividualList.jsx';
@@ -13,7 +16,7 @@ import TokenBalance from './TokenBalance.jsx';
 import { Annotation, Class as Klass, Individual } from '../classes';
 
 import type { BlockchainAnnotation } from '../classes';
-import type { AnnotationPropertyHash } from '../types';
+import type { AnnotationPropertyHash, IndividualCid } from '../types';
 
 type StorageTabProps = {
   onTriggerClearStorage: () => void,
@@ -32,6 +35,8 @@ type StorageTabProps = {
   ontologyIndividuals: Array<Individual>,
   tokenAccount: any,
   onSetAllowance: number => void,
+  onAddWeight: (IndividualCid, number) => void,
+  propositionGroups: Array<RelatedAggregations>,
 };
 
 export default class StorageTab extends React.Component<StorageTabProps> {
@@ -122,6 +127,26 @@ export default class StorageTab extends React.Component<StorageTabProps> {
     );
   };
 
+  renderAggregationResults = () => {
+    const { web3 } = window; // eslint-disable-line
+
+    return (
+      <Fragment>
+        <h4>Aggregation results:</h4>
+        <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+          {this.props.propositionGroups.map(propositionGroup => (
+            <div className="border" style={{ padding: '20px' }}>
+              <RelatedAggregationsContainer
+                {...propositionGroup}
+                onAddWeight={this.props.onAddWeight}
+              />
+            </div>
+          ))}
+        </div>
+      </Fragment>
+    );
+  };
+
   renderTokenAccount = () => (
     <TokenBalance
       account={this.props.tokenAccount}
@@ -137,10 +162,15 @@ export default class StorageTab extends React.Component<StorageTabProps> {
     };
     return (
       <div>
-        <Button id="clear-storage-button" onClick={this.handleClearStoragClick}>
+        <Button
+          id="clear-storage-button"
+          style={{ display: 'none' }}
+          onClick={this.handleClearStoragClick}
+        >
           Clear storage
         </Button>
         <div style={containerStyle}>{this.renderTokenAccount()}</div>
+        <div style={containerStyle}>{this.renderAggregationResults()}</div>
         <div style={containerStyle}>{this.renderStatementsBlock()}</div>
         <div style={containerStyle}>{this.renderClassesBlock()}</div>
         <div style={containerStyle}>{this.renderAnnotationBlock()}</div>
