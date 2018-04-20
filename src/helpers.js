@@ -194,6 +194,13 @@ const solidityBytesToB58 = (solidityBytes: any) => {
   return multibase.encode('base58btc', decoded).toString();
 };
 
+const callEthersFunction = (contract: any, fnName: string, args: Array<any>) =>
+  contract[fnName](...args)
+    .then(res => contract.provider.getTransactionReceipt(res.hash))
+    .then(res =>
+      contract.interface.functions[fnName].parseResult(res.logs[0].data),
+    );
+
 module.exports = {
   b58ToSolidityBytes,
   canQuery,
@@ -207,4 +214,5 @@ module.exports = {
   query,
   solidityBytesToB58,
   toRsClass,
+  callEthersFunction,
 };

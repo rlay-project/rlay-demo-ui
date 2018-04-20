@@ -72,7 +72,7 @@ export default class OntologyStore {
     const contract = new ethers.Contract(
       address,
       StorageContract.abi,
-      provider,
+      provider.getSigner(),
     );
 
     return contract;
@@ -139,21 +139,19 @@ export default class OntologyStore {
 
   @action.bound
   uploadAnnotation(item: Annotation) {
-    const contract = this.storageContract();
+    const ethersContract = this.storageContractEthers();
 
-    contract.then(ctr => {
-      item
-        .store(ctr)
-        .then(() => {
-          this.fetchNetworkAnnotation(
-            ctr,
-            (b58ToSolidityBytes(item.cid()): any),
-          );
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    });
+    return item
+      .store(ethersContract)
+      .then(() => {
+        this.fetchNetworkAnnotation(
+          ethersContract,
+          (b58ToSolidityBytes(item.cid()): any),
+        );
+      })
+      .catch(err => {
+        console.error(err);
+      });
   }
 
   @action.bound
@@ -224,22 +222,19 @@ export default class OntologyStore {
 
   @action.bound
   uploadClass(item: Klass) {
-    const contract = this.storageContract();
     const ethersContract = this.storageContractEthers();
 
-    contract.then(ctr => {
-      item
-        .store(ctr)
-        .then(() => {
-          this.fetchNetworkClass(
-            ethersContract,
-            (b58ToSolidityBytes(item.cid()): any),
-          );
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    });
+    return item
+      .store(ethersContract)
+      .then(() => {
+        this.fetchNetworkClass(
+          ethersContract,
+          (b58ToSolidityBytes(item.cid()): any),
+        );
+      })
+      .catch(err => {
+        console.error(err);
+      });
   }
 
   @action.bound
@@ -310,22 +305,19 @@ export default class OntologyStore {
 
   @action.bound
   uploadIndividual(item: Individual) {
-    const contract = this.storageContract();
     const ethersContract = this.storageContractEthers();
 
-    contract.then(ctr => {
-      item
-        .store(ctr)
-        .then(() => {
-          this.fetchNetworkIndividual(
-            ethersContract,
-            (b58ToSolidityBytes(item.cid()): any),
-          );
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    });
+    return item
+      .store(ethersContract)
+      .then(() => {
+        this.fetchNetworkIndividual(
+          ethersContract,
+          (b58ToSolidityBytes(item.cid()): any),
+        );
+      })
+      .catch(err => {
+        console.error(err);
+      });
   }
 
   @action.bound
