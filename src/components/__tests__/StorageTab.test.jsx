@@ -3,7 +3,7 @@ import { shallow, mount, render } from 'enzyme';
 
 import StorageTab from '../StorageTab.jsx';
 
-test('click on "Clear Storage" button triggers callback', () => {
+test.skip('click on "Clear Storage" button triggers callback', () => {
   const mockClearStorage = jest.fn();
   const wrapper = shallow(
     <StorageTab onTriggerClearStorage={mockClearStorage} />,
