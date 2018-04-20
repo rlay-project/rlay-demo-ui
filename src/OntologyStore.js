@@ -54,7 +54,7 @@ export default class OntologyStore {
   }
 
   storageContract() {
-    const { web3, contractConfig } = this;
+    const { contractConfig } = this;
 
     const StorageContract = this.buildStorageContract();
     const contractAddress = contractConfig.address;
