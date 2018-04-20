@@ -16,3 +16,8 @@
 code {
   font-size: 75%;
 }
+
+/* Make tabs disappear */
+.nav-item {
+  display: none;
+}

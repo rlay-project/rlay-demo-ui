@@ -9,24 +9,28 @@
     "build": "npm run build:bay && npm run build:webpack",
     "build:bay": "cd vendor/bay/bay-wasm && cargo web build --target wasm32-unknown-unknown --bin bay_web",
     "build:webpack": "webpack --config webpack.config.js",
-    "lint": "npm run lint:eslint && npm run lint:flow",
-    "lint:eslint": "./node_modules/.bin/eslint src",
-    "lint:flow": "./node_modules/.bin/flow src",
+    "seed": "webpack --config webpack.seed.config.js && node build/seed.js",
+    "lint": "npm run lint:eslint && npm run lint:flow && npm run lint:prettier",
+    "lint:eslint": "node_modules/.bin/eslint --ext .js --ext .jsx src",
+    "lint:flow": "node_modules/.bin/flow src",
+    "lint:prettier": "node_modules/.bin/prettier -l src/**/*.{js,jsx}",
     "watch:cargo": "cd vendor/bay/bay-wasm && cargo web start --target wasm32-unknown-unknown --bin bay_web --host 127.0.0.1",
     "watch:webpack": "webpack --config webpack.config.js --watch",
     "server": "node ./src/server.js",
-    "storybook": "start-storybook -s ./public -p 6006",
-    "build-storybook": "build-storybook"
+    "storybook": "start-storybook -s ./build -p 6006",
+    "build-storybook": "build-storybook",
+    "prettier": "node_modules/.bin/prettier --write src/**/*.{js,jsx}"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@babel/core": "^7.0.0-beta.40",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.40",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.40",
-    "@babel/plugin-proposal-pipeline-operator": "^7.0.0-beta.40",
-    "@babel/preset-env": "^7.0.0-beta.40",
-    "@babel/preset-react": "^7.0.0-beta.40",
+    "@babel/core": "7.0.0-beta.44",
+    "@babel/plugin-proposal-class-properties": "7.0.0-beta.44",
+    "@babel/plugin-proposal-object-rest-spread": "7.0.0-beta.44",
+    "@babel/plugin-proposal-pipeline-operator": "7.0.0-beta.44",
+    "@babel/preset-env": "7.0.0-beta.44",
+    "@babel/preset-react": "7.0.0-beta.44",
+    "abi-decoder": "^1.1.0",
     "babel-cli": "^6.26.0",
     "babel-loader": "^8.0.0-beta.0",
     "babel-preset-env": "^1.6.1",
@@ -34,11 +38,15 @@
     "cids": "^0.5.2",
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.3.1",
+    "ethers": "^3.0.9",
     "express": "^4.16.2",
     "js-sha3": "^0.7.0",
     "lodash-es": "^4.17.5",
+    "mobx": "^4.1.1",
+    "mobx-react": "^5.0.0",
     "multibase": "^0.4.0",
     "multihashes": "^0.4.13",
+    "node-fetch": "^2.1.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-error-boundary": "^1.2.1",
@@ -50,12 +58,16 @@
     "truffle-contract": "^3.0.4",
     "viz.js": "^1.8.0",
     "wasm-loader": "^1.1.0",
+    "web3": "^0.20.6",
     "webpack": "^3.10.0",
     "webpack-livereload-plugin": "^1.0.0"
   },
   "devDependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.40",
-    "@babel/preset-flow": "^7.0.0-beta.40",
+    "@babel/plugin-proposal-decorators": "7.0.0-beta.44",
+    "@babel/plugin-transform-modules-commonjs": "7.0.0-beta.44",
+    "@babel/preset-flow": "7.0.0-beta.44",
+    "@storybook/addon-knobs": "^3.4.1",
+    "@storybook/react": "^3.3.15",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.2",
     "babel-jest": "^22.4.1",
@@ -63,14 +75,17 @@
     "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.18.2",
     "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-flowtype": "^2.46.1",
-    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-import": "^2.10.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^7.7.0",
     "flow-bin": "^0.67.1",
     "jest": "^22.4.2",
     "jest-enzyme": "^6.0.0",
-    "@storybook/react": "^3.3.15"
+    "mobx-react-devtools": "^5.0.1",
+    "prettier": "1.11.1"
   },
   "jest": {
     "setupFiles": [
@@ -79,6 +94,9 @@
     "setupTestFrameworkScriptFile": "./node_modules/jest-enzyme/lib/index.js",
     "transform": {
       ".*": "<rootDir>/node_modules/babel-jest"
-    }
+    },
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!lodash-es)"
+    ]
   }
 }

@@ -4,26 +4,38 @@ import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import ErrorBoundary from 'react-error-boundary';
 import { Web3Provider } from 'react-web3';
+import { computed } from 'mobx';
+import { observer } from 'mobx-react';
 
-import NetworkCPT from './NetworkCPT.jsx';
-import NetworkMarginals from './NetworkMarginals.jsx';
-import PropositionTab from './PropositionTab.jsx';
-import StorageTab from './StorageTab.jsx';
-import TruthTable from './TruthTable.jsx';
-import { exampleAnnotations, exampleClasses, exampleIndividuals } from './example_data';
-import { storageKey } from './config';
-import { Annotation } from './classes';
+import OntologyStore from './OntologyStore';
+import PropositionLedger from './PropositionLedger';
+import NetworkCPT from './components/NetworkCPT.jsx';
+import NetworkMarginals from './components/NetworkMarginals.jsx';
+import PropositionTab from './components/PropositionTab.jsx';
+import StorageTab from './components/StorageTab.jsx';
+import TruthTable from './components/TruthTable.jsx';
+import {
+  exampleAnnotationProperties,
+  exampleAnnotations,
+  // exampleClasses,
+  exampleIndividuals,
+} from './example_data';
+import {
+  storageKey,
+  annotationStore as ontologyStoreConfig,
+  tokenContract,
+  propositionLedgerContract,
+} from './config';
+import { Annotation, Proposition } from './classes';
 
 const VizGraph = ({ graphString }) => {
   const graphDot = graphString;
   const image = Viz(graphDot, { format: 'svg' });
 
-  return (
-    <span dangerouslySetInnerHTML={{ __html: image }} />
-  );
+  return <span dangerouslySetInnerHTML={{ __html: image }} />;
 };
 
-Rust.bay_web.then((module) => {
+Rust.bay_web.then(module => {
   const graphDot = module.print_graph();
   const graphMoralDot = module.print_moral_graph();
   const graphMaxCliquesDot = module.print_max_cliques();
@@ -47,12 +59,10 @@ Rust.bay_web.then((module) => {
         <p dangerouslySetInnerHTML={{ __html: graphJoinTreeDot }} />
       </span>
       <TruthTable tt={truthTable} />
-      { graphMaxCliquesDot.map(clique => (
-        <VizGraph graphString={clique} />
-    )) }
+      {graphMaxCliquesDot.map(clique => <VizGraph graphString={clique} />)}
       <span>
         {'Hash for AnnotationProperty <rdfs:label>'}
-        { annotationPropertyLabel }
+        {annotationPropertyLabel}
       </span>
     </span>
   );
@@ -60,17 +70,122 @@ Rust.bay_web.then((module) => {
   ReactDOM.render(main, window.document.getElementById('react'));
 });
 
+class RootStore {
+  calculateHash = null;
 
+  constructor(calculateHash) {
+    this.calculateHash = calculateHash;
+
+    const ontologyStore = new OntologyStore(window.web3, ontologyStoreConfig);
+    ontologyStore.fetchNetworkAnnotations();
+    ontologyStore.fetchNetworkClasses();
+    ontologyStore.fetchNetworkIndividuals();
+    this.ontologyStore = ontologyStore;
+
+    const propositionLedger = new PropositionLedger(
+      window.web3,
+      propositionLedgerContract,
+      tokenContract,
+    );
+    propositionLedger.updateTokenAccount();
+    propositionLedger.fetchNetworkPropositions();
+    this.propositionLedger = propositionLedger;
+  }
+
+  @computed
+  get annotations() {
+    const annotations = this.ontologyStore.listableAnnotations.map(
+      this.calculateHash,
+    );
+    return annotations;
+  }
+
+  @computed
+  get classes() {
+    const classes = this.ontologyStore.listableClasses.map(this.calculateHash);
+    classes.forEach(item => item.enrichWithLabel(this.annotations));
+    return classes;
+  }
+
+  @computed
+  get individuals() {
+    const individuals = this.ontologyStore.listableIndividuals.map(
+      this.calculateHash,
+    );
+    individuals.forEach(item => item.enrichWithLabel(this.annotations));
+    individuals.forEach(item => item.enrichWithClassLabel(this.classes));
+    return individuals;
+  }
+
+  @computed
+  get propositionGroups() {
+    const findLabelAnnotation = (individual, annotations) => {
+      let containedAnnotations = individual.annotations.map(cid =>
+        annotations.find(item => item.cid() === cid),
+      );
+      containedAnnotations = containedAnnotations.filter(Boolean);
+      return (
+        containedAnnotations.find(n => n.isLabel()) || { annotationLabel: '' }
+      );
+    };
+
+    const enrichIndividualWithProposition = (individual, propositions) => {
+      const propositon = propositions.find(
+        n => n.individualCid === individual.cid(),
+      );
+
+      const item = individual.clone();
+      if (propositon) {
+        item.amount = propositon.amount;
+      } else {
+        item.amount = 0;
+      }
+      return item;
+    };
+
+    const enrichGroupWithProposition = (group, propositions) =>
+      group.map(subGroup =>
+        subGroup.map(individual =>
+          enrichIndividualWithProposition(individual, propositions),
+        ),
+      );
+
+    const groups = Proposition.groupContradicting(this.individuals).map(group =>
+      enrichGroupWithProposition(group, this.propositionLedger.propositions),
+    );
+
+    const propositionGroups = groups.map(group => ({
+      groups: {
+        class_assertions: group,
+      },
+      subject: findLabelAnnotation(group[0][0], this.annotations),
+    }));
+
+    return propositionGroups;
+  }
+}
+
+@observer
 class Page extends React.Component {
-  state = {
-    activeTab: 'propositions',
-    ontologyClasses: exampleClasses,
-    ontologyIndividuals: exampleIndividuals,
+  constructor(props) {
+    super(props);
+
+    const calculateHash = item => {
+      const newItem = item.clone();
+      newItem.cid(this.props.bayModule);
+      return newItem;
+    };
+
+    this.store = new RootStore(calculateHash);
   }
 
-  componentDidMount() {
-    this.reloadStorage();
-  }
+  state = {
+    activeTab: 'storage',
+    // ontologyClasses: exampleClasses,
+    ontologyIndividuals: exampleIndividuals,
+    ontologyAnnotationProperties: exampleAnnotationProperties,
+    ontologyClasses: [],
+  };
 
   reloadStorage = () => {
     try {
@@ -81,13 +196,13 @@ class Page extends React.Component {
       const data = JSON.parse(rawData);
 
       this.setState({
-        ontologyClasses: data.classes,
+        // ontologyClasses: data.classes,
         ontologyIndividuals: data.propositions,
       });
     } catch (err) {
       console.error(err); // eslint-disable-line
     }
-  }
+  };
 
   updateStorage = () => {
     const data = {
@@ -96,19 +211,26 @@ class Page extends React.Component {
     };
 
     window.localStorage.setItem(storageKey, JSON.stringify(data));
-  }
+  };
 
-  handleAddProposition = (proposition) => {
-    this.setState({
-      ontologyIndividuals: [].concat(this.state.ontologyIndividuals, proposition),
-    }, () => this.updateStorage());
-  }
+  handleAddProposition = proposition => {
+    this.setState(
+      {
+        ontologyIndividuals: [].concat(
+          this.state.ontologyIndividuals,
+          proposition,
+        ),
+      },
+      () => this.updateStorage(),
+    );
+  };
 
-  handleDeleteProposition = (proposition) => {
-    const ontologyIndividuals = this.state.ontologyIndividuals
-      .filter(n => n.label !== proposition.label);
+  handleDeleteProposition = proposition => {
+    const ontologyIndividuals = this.state.ontologyIndividuals.filter(
+      n => n.label !== proposition.label,
+    );
     this.setState({ ontologyIndividuals }, () => this.updateStorage());
-  }
+  };
 
   renderNav() {
     const { activeTab } = this.state;
@@ -117,7 +239,10 @@ class Page extends React.Component {
       <ul className="nav nav-tabs">
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true, active: (activeTab === 'network_cpt') })}
+            className={classNames({
+              'nav-link': true,
+              active: activeTab === 'network_cpt',
+            })}
             onClick={() => this.setState({ activeTab: 'network_cpt' })}
           >
             Network (CPTs)
@@ -125,7 +250,10 @@ class Page extends React.Component {
         </li>
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true, active: (activeTab === 'propositions') })}
+            className={classNames({
+              'nav-link': true,
+              active: activeTab === 'propositions',
+            })}
             onClick={() => this.setState({ activeTab: 'propositions' })}
           >
             Propositions
@@ -133,7 +261,10 @@ class Page extends React.Component {
         </li>
         <li className="nav-item">
           <a
-            className={classNames({ 'nav-link': true, active: (activeTab === 'storage') })}
+            className={classNames({
+              'nav-link': true,
+              active: activeTab === 'storage',
+            })}
             onClick={() => this.setState({ activeTab: 'storage' })}
           >
             Storage
@@ -205,14 +336,45 @@ class Page extends React.Component {
   }
 
   renderTabStorage() {
+    const { ontologyAnnotationProperties } = this.state;
+    const { ontologyStore, propositionLedger } = this.store;
+
     const clearStorage = () => {
       window.localStorage.removeItem(storageKey);
       this.reloadStorage();
     };
+
+    const calculateHash = item => {
+      const newItem = item.clone();
+      newItem.cid(this.props.bayModule);
+      return newItem;
+    };
+
+    const handleSubmitAnnotation = item =>
+      ontologyStore.createLocalAnnotation(calculateHash(item));
+    const handleSubmitClass = item =>
+      ontologyStore.createLocalClass(calculateHash(item));
+    const handleSubmitIndividual = item =>
+      ontologyStore.createLocalIndividual(calculateHash(item));
+
     return (
       <ErrorBoundary>
         <StorageTab
+          onSubmitAnnotation={handleSubmitAnnotation}
+          onSubmitClass={handleSubmitClass}
+          onSubmitIndividual={handleSubmitIndividual}
           onTriggerReload={clearStorage}
+          onUploadAnnotation={ontologyStore.uploadAnnotation}
+          onUploadClass={ontologyStore.uploadClass}
+          onUploadIndividual={ontologyStore.uploadIndividual}
+          ontologyAnnotationProperties={ontologyAnnotationProperties}
+          ontologyAnnotations={this.store.annotations}
+          ontologyClasses={this.store.classes}
+          ontologyIndividuals={this.store.individuals}
+          tokenAccount={propositionLedger.tokenAccount}
+          propositionGroups={this.store.propositionGroups}
+          onSetAllowance={propositionLedger.setAllowance}
+          onAddWeight={propositionLedger.addWeight}
         />
       </ErrorBoundary>
     );
@@ -222,20 +384,18 @@ class Page extends React.Component {
     return (
       <Web3Provider>
         <div>
-          { this.renderNav() }
-          { this.renderTabContainer() }
+          {this.renderNav()}
+          {this.renderTabContainer()}
         </div>
       </Web3Provider>
     );
   }
 }
 
-Rust.bay_web.then((module) => {
-  const main = (
-    <Page bayModule={module} />
-  );
+Rust.bay_web.then(module => {
+  const main = <Page bayModule={module} />;
 
-  Object.keys(exampleAnnotations).forEach((storedHash) => {
+  Object.keys(exampleAnnotations).forEach(storedHash => {
     const val = new Annotation(exampleAnnotations[storedHash]);
     const calculatedHash = val.hash(module);
     console.log('ANN', storedHash, calculatedHash, val.value);
