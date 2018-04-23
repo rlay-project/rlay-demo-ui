@@ -141,11 +141,15 @@ class Annotation {
     return this.property === 'zW1aUyiEVULyTsGHRAD1ERdZj8XG3B3PrLZokrZkNCdUKR2';
   }
 
+  isComment(): boolean {
+    return this.property === 'zW1fiG75n55P1ix184atgmWHu6FhgKzQqtdiA1wQcnPhPSL';
+  }
+
   get label(): string {
     const hash = this.hash();
     const readableProperty = this.readableProperty();
     const propertyPart = readableProperty ? `${readableProperty}: ` : '';
-    return `${(hash: any)} (${propertyPart}${this.value})`;
+    return `${propertyPart}"${this.value}" (${(hash: any)})`;
   }
 }
 
@@ -162,7 +166,7 @@ class Klass {
   sub_class_of_class: Array<ClassCid>; // eslint-disable-line camelcase
   cachedCid: ?ClassCid;
 
-  cachedAnnotationLabel: ?string;
+  enrichedAnnotations: ?Array<Annotation>;
 
   isAvailable: boolean;
 
@@ -261,29 +265,50 @@ class Klass {
     return this.hash(bayModule);
   }
 
-  enrichWithLabel(ontologyAnnotations: Array<Annotation>) {
-    if (this.cachedAnnotationLabel) {
-      return;
-    }
-
-    const annotations = ontologyAnnotations.filter(n =>
+  enrichWithAnnotations(ontologyAnnotations: Array<Annotation>) {
+    const containedAnnotations = ontologyAnnotations.filter(n =>
       this.annotations.includes(n.cid()),
     );
-    const primaryLabelAnnotation = annotations.find(n => n.isLabel());
-    if (primaryLabelAnnotation) {
-      this.cachedAnnotationLabel = primaryLabelAnnotation.value;
-    }
+
+    this.enrichedAnnotations = containedAnnotations;
   }
 
   get annotationLabel(): ?string {
-    return this.cachedAnnotationLabel;
+    if (!this.enrichedAnnotations) {
+      return null;
+    }
+
+    const primaryLabelAnnotation = this.enrichedAnnotations.find(n =>
+      n.isLabel(),
+    );
+    if (!primaryLabelAnnotation) {
+      return null;
+    }
+    return primaryLabelAnnotation.value;
+  }
+
+  get annotationComment(): ?string {
+    if (!this.enrichedAnnotations) {
+      return null;
+    }
+
+    const primaryCommentAnnotation = this.enrichedAnnotations.find(n =>
+      n.isComment(),
+    );
+    if (!primaryCommentAnnotation) {
+      return null;
+    }
+    return primaryCommentAnnotation.value;
   }
 
   get label(): string {
-    const labelPart = this.cachedAnnotationLabel
-      ? this.cachedAnnotationLabel
+    const labelPart = this.annotationLabel
+      ? this.annotationLabel.toString()
       : '';
-    return `${(this.hash(): any)}${labelPart.toString()}`;
+    const commentPart = this.annotationComment
+      ? ` - "${this.annotationComment}"`
+      : '';
+    return `${labelPart}${commentPart} (${(this.hash(): any)})`;
   }
 }
 
@@ -302,8 +327,9 @@ class Individual {
   negative_class_assertions: Array<ClassCid>;
   cachedCid: ?IndividualCid;
 
-  cachedAnnotationLabel: ?string;
-  cachedClassLabel: ?string;
+  enrichedAnnotations: ?Array<Annotation>;
+  enrichedClassAssertions: ?Array<Klass>;
+  enrichedNegativeClassAssertions: ?Array<Klass>;
 
   isAvailable: boolean;
 
@@ -415,40 +441,57 @@ class Individual {
     return this.hash(bayModule);
   }
 
-  enrichWithLabel(ontologyAnnotations: Array<Annotation>) {
-    if (this.cachedAnnotationLabel) {
-      return;
-    }
-
-    const annotations = ontologyAnnotations.filter(n =>
+  enrichWithAnnotations(ontologyAnnotations: Array<Annotation>) {
+    const containedAnnotations = ontologyAnnotations.filter(n =>
       this.annotations.includes(n.cid()),
     );
-    const primaryLabelAnnotation = annotations.find(n => n.isLabel());
-    if (primaryLabelAnnotation) {
-      this.cachedAnnotationLabel = primaryLabelAnnotation.value;
-    }
+
+    this.enrichedAnnotations = containedAnnotations;
   }
 
-  enrichWithClassLabel(ontologyClasses: Array<Klass>) {
-    if (this.cachedClassLabel) {
-      return;
-    }
-
-    const assertionCid =
-      this.class_assertions[0] || this.negative_class_assertions[0];
-    const class_assertion = ontologyClasses.find(n => n.cid() === assertionCid);
-
-    if (class_assertion) {
-      this.cachedClassLabel = class_assertion.annotationLabel;
-    }
+  enrichWithClasses(ontologyClasses: Array<Klass>) {
+    this.enrichedClassAssertions = ontologyClasses.filter(n =>
+      this.class_assertions.includes(n.cid()),
+    );
+    this.enrichedNegativeClassAssertions = ontologyClasses.filter(n =>
+      this.negative_class_assertions.includes(n.cid()),
+    );
   }
 
   get annotationLabel(): ?string {
-    return this.cachedAnnotationLabel;
+    if (!this.enrichedAnnotations) {
+      return null;
+    }
+
+    const primaryLabelAnnotation = this.enrichedAnnotations.find(n =>
+      n.isLabel(),
+    );
+    if (!primaryLabelAnnotation) {
+      return null;
+    }
+    return primaryLabelAnnotation.value;
   }
 
   get classLabel(): ?string {
-    return this.cachedClassLabel;
+    if (!this.enrichedClassAssertions) {
+      return null;
+    }
+    if (!this.enrichedNegativeClassAssertions) {
+      return null;
+    }
+    const negativeAssertion = this.enrichedNegativeClassAssertions.find(
+      n => n.cid() === this.negative_class_assertions[0],
+    );
+    // $FlowFixMe
+    const positiveAssertion = this.enrichedClassAssertions.find(
+      n => n.cid() === this.class_assertions[0],
+    );
+
+    const assertion = positiveAssertion || negativeAssertion;
+    if (!assertion) {
+      return null;
+    }
+    return assertion.annotationLabel;
   }
 
   get label(): string {
