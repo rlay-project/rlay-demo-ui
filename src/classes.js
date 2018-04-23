@@ -2,7 +2,11 @@
 import abiDecoder from 'abi-decoder';
 import { uniq, maxBy, groupBy } from 'lodash-es';
 
-import { solidityBytesToB58, b58ToSolidityBytes } from './helpers';
+import {
+  solidityBytesToB58,
+  b58ToSolidityBytes,
+  callEthersFunction,
+} from './helpers';
 import type {
   AnnotationCid,
   AnnotationPropertyHash,
@@ -22,12 +26,7 @@ type AnnotationData = {
   cachedCid?: ?AnnotationCid,
 };
 
-const encodeOptionalArrayArg = items => {
-  if (!items[0]) {
-    return '0x0000000000000000';
-  }
-  return b58ToSolidityBytes(items[0]);
-};
+const encodeOptionalArrayArg = (items: any) => items.map(b58ToSolidityBytes);
 
 class Annotation {
   property: AnnotationPropertyHash;
@@ -46,7 +45,7 @@ class Annotation {
     const ethCid = annCidBytes;
     const b58Cid = solidityBytesToB58(ethCid);
 
-    return ctr.retrieveAnnotation.call(ethCid).then(res => {
+    return ctr.retrieveAnnotation(ethCid).then(res => {
       const [ethPropertyHash, value] = res;
 
       const annotation = new Annotation({
@@ -94,7 +93,10 @@ class Annotation {
   store(ctr: any): Promise<void> {
     const argProperty = b58ToSolidityBytes(this.property);
 
-    return ctr.storeAnnotation(argProperty, this.value);
+    return callEthersFunction(ctr, 'storeAnnotation', [
+      argProperty,
+      this.value,
+    ]);
   }
 
   clone(): Annotation {
@@ -222,11 +224,14 @@ class Klass {
     return ctr.isStoredClass.call(ethCid);
   }
 
-  store(ctr: any): Promise<void> {
+  store(ctr: any): Promise<any> {
     const argAnnotations = encodeOptionalArrayArg(this.annotations);
     const argSubClassOfClass = encodeOptionalArrayArg(this.sub_class_of_class);
 
-    return ctr.storeClass(argAnnotations, argSubClassOfClass);
+    return callEthersFunction(ctr, 'storeClass', [
+      argAnnotations,
+      argSubClassOfClass,
+    ]);
   }
 
   clone(): Klass {
@@ -375,11 +380,11 @@ class Individual {
       this.negative_class_assertions,
     );
 
-    return ctr.storeIndividual(
+    return callEthersFunction(ctr, 'storeIndividual', [
       argAnnotations,
       argClassAssertions,
       argNegativeClassAssertions,
-    );
+    ]);
   }
 
   clone(): Individual {
