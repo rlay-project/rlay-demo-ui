@@ -94,7 +94,7 @@ class AddAnnotationForm extends React.Component<
 
     const classOptions = ontologyAnnotationProperties.map(n => ({
       ...n,
-      label: `${(n.hash: any)} (${n.value})`,
+      label: `${n.value} (${(n.hash: any)})`,
     }));
 
     return (

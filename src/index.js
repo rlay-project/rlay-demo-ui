@@ -103,7 +103,7 @@ class RootStore {
   @computed
   get classes() {
     const classes = this.ontologyStore.listableClasses.map(this.calculateHash);
-    classes.forEach(item => item.enrichWithLabel(this.annotations));
+    classes.forEach(item => item.enrichWithAnnotations(this.annotations));
     return classes;
   }
 
@@ -112,8 +112,8 @@ class RootStore {
     const individuals = this.ontologyStore.listableIndividuals.map(
       this.calculateHash,
     );
-    individuals.forEach(item => item.enrichWithLabel(this.annotations));
-    individuals.forEach(item => item.enrichWithClassLabel(this.classes));
+    individuals.forEach(item => item.enrichWithAnnotations(this.annotations));
+    individuals.forEach(item => item.enrichWithClasses(this.classes));
     return individuals;
   }
 
