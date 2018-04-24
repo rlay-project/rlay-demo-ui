@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import ErrorBoundary from 'react-error-boundary';
+import Web3 from 'web3';
 import { Web3Provider } from 'react-web3';
 import { computed } from 'mobx';
 import { observer } from 'mobx-react';
@@ -14,6 +15,7 @@ import NetworkMarginals from './components/NetworkMarginals.jsx';
 import PropositionTab from './components/PropositionTab.jsx';
 import StorageTab from './components/StorageTab.jsx';
 import TruthTable from './components/TruthTable.jsx';
+import ConfirmTransactionModal from './components/ConfirmTransactionModal.jsx';
 import {
   exampleAnnotationProperties,
   exampleAnnotations,
@@ -25,6 +27,7 @@ import {
   annotationStore as ontologyStoreConfig,
   tokenContract,
   propositionLedgerContract,
+  getEnvironmentConfig,
 } from './config';
 import { Annotation, Proposition } from './classes';
 
@@ -169,6 +172,18 @@ class RootStore {
 class Page extends React.Component {
   constructor(props) {
     super(props);
+
+    const { privateKey, useInternalWeb3 } = getEnvironmentConfig();
+
+    if (useInternalWeb3) {
+      console.debug('No injected web3 found; Using own instance');
+      window.web3 = new Web3(
+        new Web3.providers.HttpProvider('http://localhost:8545'),
+      );
+    }
+
+    this.privateKey = privateKey;
+    this.useInternalWeb3 = useInternalWeb3;
 
     const calculateHash = item => {
       const newItem = item.clone();
@@ -357,8 +372,17 @@ class Page extends React.Component {
     const handleSubmitIndividual = item =>
       ontologyStore.createLocalIndividual(calculateHash(item));
 
+    const handleSignerCreate = signer => {
+      ontologyStore.setSigner(signer);
+      propositionLedger.setSigner(signer);
+    };
+
     return (
       <ErrorBoundary>
+        <ConfirmTransactionModal
+          onSignerCreate={handleSignerCreate}
+          privateKey={this.privateKey}
+        />
         <StorageTab
           onSubmitAnnotation={handleSubmitAnnotation}
           onSubmitClass={handleSubmitClass}
@@ -381,14 +405,18 @@ class Page extends React.Component {
   }
 
   render() {
-    return (
-      <Web3Provider>
-        <div>
-          {this.renderNav()}
-          {this.renderTabContainer()}
-        </div>
-      </Web3Provider>
+    let app = (
+      <div>
+        {this.renderNav()}
+        {this.renderTabContainer()}
+      </div>
     );
+
+    if (!this.useInternalWeb3) {
+      app = <Web3Provider>{app}</Web3Provider>;
+    }
+
+    return app;
   }
 }
 

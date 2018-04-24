@@ -21,3 +21,7 @@ code {
 .nav-item {
   display: none;
 }
+
+.modal-dialog {
+  transform: translate(0,50%) !important;
+}

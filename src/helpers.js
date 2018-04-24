@@ -195,8 +195,13 @@ const solidityBytesToB58 = (solidityBytes: any) => {
 };
 
 const callEthersFunction = (contract: any, fnName: string, args: Array<any>) =>
-  contract[fnName](...args)
-    .then(res => contract.provider.getTransactionReceipt(res.hash))
+  contract.estimate[fnName](...args)
+    .then(gasLimit => contract[fnName](...args, { gasLimit }))
+    .then(res => {
+      // ensure compatibility with both Web3 and JsonRpc provider
+      const hash = res.hash || res;
+      return contract.provider.getTransactionReceipt(hash);
+    })
     .then(res =>
       contract.interface.functions[fnName].parseResult(res.logs[0].data),
     );

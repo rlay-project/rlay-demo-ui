@@ -586,7 +586,10 @@ class Proposition {
   }
 
   static submit(ctr: any, cid: any, amount: any): Promise<void> {
-    return ctr.submitProposition(b58ToSolidityBytes(cid), amount);
+    return callEthersFunction(ctr, 'submitProposition', [
+      b58ToSolidityBytes(cid),
+      amount,
+    ]);
   }
 
   enrichWithLabel(ontologyIndividuals: Array<Individual>) {

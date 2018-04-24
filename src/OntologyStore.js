@@ -26,6 +26,7 @@ export opaque type EthersContract = any;
 
 export default class OntologyStore {
   web3: any;
+  customSigner: any;
   contractConfig: ContractConfig;
 
   @observable annotations: Array<Annotation> = [];
@@ -72,10 +73,15 @@ export default class OntologyStore {
     const contract = new ethers.Contract(
       address,
       StorageContract.abi,
-      provider.getSigner(),
+      this.customSigner || provider.getSigner(),
     );
 
     return contract;
+  }
+
+  @action.bound
+  setSigner(signer: any) {
+    this.customSigner = signer;
   }
 
   //

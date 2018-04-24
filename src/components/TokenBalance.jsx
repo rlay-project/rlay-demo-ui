@@ -33,7 +33,8 @@ export default class TokenBalance extends React.Component<
     this.props.onSetAllowance(this.state.valueAllowance);
   };
 
-  tokenSymbol = () => this.props.account.tokenSymbol || '';
+  // tokenSymbol = () => this.props.account.tokenSymbol || '';
+  tokenSymbol = () => 'RLAY';
 
   render() {
     const { valueAllowance } = this.state;
