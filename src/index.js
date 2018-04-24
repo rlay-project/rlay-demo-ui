@@ -374,6 +374,7 @@ class Page extends React.Component {
 
     const handleSignerCreate = signer => {
       ontologyStore.setSigner(signer);
+      propositionLedger.setSigner(signer);
     };
 
     return (

@@ -110,13 +110,13 @@ export default class ConfirmTransactionModal extends React.Component<
         <Fragment>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <b>From:</b>
-            <span>
+            <code>
               {ethers.utils.getAddress(this.signer.wallet.address).substring(2)}
-            </span>
+            </code>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <b>To:</b>
-            {ethers.utils.getAddress(transaction.to).substring(2)}
+            <code>{ethers.utils.getAddress(transaction.to).substring(2)}</code>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <b>Gas Limit:</b>
@@ -139,7 +139,9 @@ export default class ConfirmTransactionModal extends React.Component<
 
     return (
       <Modal isOpen={this.state.modalOpen} centered>
-        <ModalHeader>Confirm Transaction</ModalHeader>
+        <ModalHeader>
+          Confirm Transaction <small>(Demo replacement for Metamask)</small>
+        </ModalHeader>
         <ModalBody>{body}</ModalBody>
         <ModalFooter>
           <Button color="danger" onClick={this.handleRejectClick}>

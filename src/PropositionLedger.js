@@ -1,7 +1,9 @@
 // @flow
 import { action, observable, configure } from 'mobx';
 import truffleContract from 'truffle-contract';
+import ethers from 'ethers';
 
+import { callEthersFunction } from './helpers';
 import { Proposition } from './classes';
 import type { ContractConfig } from './types';
 
@@ -9,6 +11,7 @@ configure(({ enforceActions: true }: any));
 
 export default class PropositionLedger {
   web3: any;
+  customSigner: ?any;
   propositionLedgerConfig: ContractConfig;
   tokenConfig: ContractConfig;
 
@@ -40,6 +43,21 @@ export default class PropositionLedger {
     return contract;
   }
 
+  propositionLedgerContractEthers() {
+    const { abi, address } = this.propositionLedgerConfig;
+    const Contract = truffleContract(abi);
+    const provider = new ethers.providers.Web3Provider(
+      this.web3.currentProvider,
+    );
+    const contract = new ethers.Contract(
+      address,
+      Contract.abi,
+      this.customSigner || provider.getSigner(),
+    );
+
+    return contract;
+  }
+
   tokenContract() {
     const { web3, tokenConfig } = this;
     const provider = web3.currentProvider; // eslint-disable-line
@@ -53,6 +71,26 @@ export default class PropositionLedger {
     const contract = Contract.at(contractAddress);
 
     return contract;
+  }
+
+  tokenContractEthers() {
+    const { abi, address } = this.tokenConfig;
+    const Contract = truffleContract(abi);
+    const provider = new ethers.providers.Web3Provider(
+      this.web3.currentProvider,
+    );
+    const contract = new ethers.Contract(
+      address,
+      Contract.abi,
+      this.customSigner || provider.getSigner(),
+    );
+
+    return contract;
+  }
+
+  @action.bound
+  setSigner(signer: any) {
+    this.customSigner = signer;
   }
 
   @action.bound
@@ -80,15 +118,14 @@ export default class PropositionLedger {
 
   @action.bound
   setAllowance(allowance: number) {
-    Promise.all([this.tokenContract(), this.propositionLedgerContract()]).then(
-      ([tokenContract, propositionLedgerContract]) => {
-        tokenContract
-          .approve(propositionLedgerContract.address, allowance)
-          .then(() => {
-            this.updateTokenAccount();
-          });
-      },
-    );
+    const tokenContract = this.tokenContractEthers();
+    const propositionLedgerContract = this.propositionLedgerContractEthers();
+    callEthersFunction(tokenContract, 'approve', [
+      propositionLedgerContract.address,
+      allowance,
+    ]).then(() => {
+      this.updateTokenAccount();
+    });
   }
 
   @action.bound
@@ -109,16 +146,12 @@ export default class PropositionLedger {
 
   @action.bound
   addWeight(cid: any, amount: number) {
-    const contract = this.propositionLedgerContract();
+    const contract = this.propositionLedgerContractEthers();
 
-    contract.then(
-      action('contractFound', ctr => {
-        Proposition.submit(ctr, cid, amount).then(
-          action('addWeightSuccess', () => {
-            this.fetchNetworkPropositions();
-            setTimeout(() => this.fetchNetworkPropositions(), 1000);
-          }),
-        );
+    Proposition.submit(contract, cid, amount).then(
+      action('addWeightSuccess', () => {
+        this.fetchNetworkPropositions();
+        setTimeout(() => this.fetchNetworkPropositions(), 1000);
       }),
     );
   }
