@@ -1,6 +1,15 @@
 // @flow
+/* eslint-disable react/no-unused-state */
 import React from 'react';
-import { Button } from 'reactstrap';
+import {
+  Button,
+  Input,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+} from 'reactstrap';
+import ethers from 'ethers';
+import { stateLink } from '../ValueLink';
 
 import { Individual } from '../classes';
 import { type IndividualCid } from '../types';
@@ -18,13 +27,34 @@ type ClassAggregationProps = {
   onAddWeight: (IndividualCid, number) => void,
 };
 
+type ClassAggregationState = {
+  valueAmountTrue: any,
+  valueAmountFalse: any,
+};
+
 const displayed = isDisplayed => ({
   display: !isDisplayed ? 'none' : 'initial',
 });
 
 export default class ClassAggregation extends React.Component<
   ClassAggregationProps,
+  ClassAggregationState,
 > {
+  constructor(props: ClassAggregationProps) {
+    super(props);
+
+    this.amountLinks = ({}: any);
+    this.amountLinks[true] = stateLink.call(this, 'valueAmountTrue'); // eslint-disable-line
+    this.amountLinks[false] = stateLink.call(this, 'valueAmountFalse'); // eslint-disable-line
+  }
+
+  state = {
+    valueAmountTrue: '',
+    valueAmountFalse: '',
+  };
+
+  amountLinks: any;
+
   winningSide = () =>
     this.props.assertion.amount <= this.props.negativeAssertion.amount;
 
@@ -83,14 +113,28 @@ export default class ClassAggregation extends React.Component<
             </span>
           </div>
           <div style={{ marginTop: '6px' }}>
-            <Button
-              onClick={e => {
-                this.props.onAddWeight(assertion.cid(), 1);
-                e.stopPropagation();
-              }}
-            >
-              add weight
-            </Button>
+            <InputGroup onClick={e => e.stopPropagation()}>
+              <Input
+                {...this.amountLinks[negative].props}
+                placeholder="Amount"
+                type="number"
+                step="1"
+              />
+              <InputGroupAddon addonType="append">
+                <InputGroupText>RLAY</InputGroupText>
+                <Button
+                  onClick={e => {
+                    this.props.onAddWeight(
+                      assertion.cid(),
+                      this.amountLinks[negative].value,
+                    );
+                    e.stopPropagation();
+                  }}
+                >
+                  add weight
+                </Button>
+              </InputGroupAddon>
+            </InputGroup>
           </div>
         </div>
       </span>
