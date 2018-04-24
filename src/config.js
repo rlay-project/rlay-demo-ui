@@ -1,6 +1,20 @@
+import queryString from 'query-string';
+
 const ontologyStorageContract = require('./contracts/OntologyStorage.json');
 const tokenContract = require('./contracts/SpreadToken.json');
 const propositionLedgerContract = require('./contracts/PropositionLedger.json');
+
+const getEnvironmentConfig = () => {
+  const params = queryString.parse(window.location.hash);
+  const privateKey = params.pk;
+
+  const useInternalWeb3 = !!privateKey;
+
+  return {
+    privateKey,
+    useInternalWeb3,
+  };
+};
 
 module.exports = {
   storageKey: 'knowledge_base',
@@ -17,4 +31,6 @@ module.exports = {
     abi: propositionLedgerContract,
     address: '0xe90f43a68756d880f2dc83e0ae1bf51d31726d36',
   },
+
+  getEnvironmentConfig,
 };

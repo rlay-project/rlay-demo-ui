@@ -47,6 +47,7 @@
     "multibase": "^0.4.0",
     "multihashes": "^0.4.13",
     "node-fetch": "^2.1.2",
+    "query-string": "^6.0.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-error-boundary": "^1.2.1",
