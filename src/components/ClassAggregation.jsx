@@ -69,7 +69,7 @@ export default class ClassAggregation extends React.Component<
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <span style={plaintextStyle}>{plaintext}</span>
           <span style={displayed(minimal)}>
-            <span style={{ marginLeft: '10px' }}>({this.total()} SPRD)</span>
+            <span style={{ marginLeft: '10px' }}>({this.total()} RLAY)</span>
           </span>
         </div>
         <div>
@@ -79,7 +79,7 @@ export default class ClassAggregation extends React.Component<
           <div style={{ fontSize: '11pt' }}>
             {this.percentage(negative)}%{' '}
             <span style={{ fontStyle: 'italic' }}>
-              (= {assertion.amount} SPRD)
+              (= {assertion.amount} RLAY)
             </span>
           </div>
           <div style={{ marginTop: '6px' }}>
