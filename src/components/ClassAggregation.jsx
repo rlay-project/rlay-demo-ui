@@ -8,7 +8,6 @@ import {
   InputGroupAddon,
   InputGroupText,
 } from 'reactstrap';
-import ethers from 'ethers';
 import { stateLink } from '../ValueLink';
 
 import { Individual } from '../classes';
