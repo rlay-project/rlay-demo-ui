@@ -65,10 +65,53 @@ const ann_wikipedia = ann_university.then(() =>
     .then(() => console.log('Stored annotation label: <Wikipedia>')),
 );
 
-const class_organization = ann_wikipedia.then(() =>
+const ann_comment_organization = ann_wikipedia.then(() =>
+  new Annotation({
+    cachedCid: 'z4mSmMHPUE7UBNQxsff9AMPNL2wzfTE1Z5NuDumaais7LdT1be6',
+    property: 'zW1fiG75n55P1ix184atgmWHu6FhgKzQqtdiA1wQcnPhPSL',
+    value: 'A group of people working towards a common goal.',
+  })
+    .store(contract)
+    .then(() =>
+      console.log(
+        'Stored annotation label: <A group of people working towards a common goal.>',
+      ),
+    ),
+);
+
+const ann_comment_company = ann_comment_organization.then(() =>
+  new Annotation({
+    cachedCid: 'z4mSmMHZnr3XLZ9RJfcDWhTWzvP9YrpuxyVowUtLFjk9noEFq5w',
+    property: 'zW1fiG75n55P1ix184atgmWHu6FhgKzQqtdiA1wQcnPhPSL',
+    value: 'A group of people who work together professionaly.',
+  })
+    .store(contract)
+    .then(() =>
+      console.log(
+        'Stored annotation label: <A group of people who work together professionaly.>',
+      ),
+    ),
+);
+
+const ann_comment_university = ann_comment_company.then(() =>
+  new Annotation({
+    cachedCid: 'z4mSmMHWd2G2vVJQ6uN7V8uX2wjXCvHN2iSXJngU1amVkqCXv3o',
+    property: 'zW1fiG75n55P1ix184atgmWHu6FhgKzQqtdiA1wQcnPhPSL',
+    value: 'Institution of higher eduction.',
+  })
+    .store(contract)
+    .then(() =>
+      console.log('Stored annotation label: <Institution of higher eduction.>'),
+    ),
+);
+
+const class_organization = ann_comment_university.then(() =>
   new Klass({
-    cachedCid: 'z4mtJt9q7bNTx2pg6QVhjx6UzKKA32oHmdaQ4VA8xDb8WTAoiwg',
-    annotations: ['z4mSmMHNfcHxm7GjmrVZi8KRosUXr7qKdjHGWMqgTKJxN5s3aZR'],
+    cachedCid: 'z4mtJt9fBRkH2MzY8Hjpw1fkeZeukJ5YbgJoHFpbLfF23SJRKiP',
+    annotations: [
+      'z4mSmMHNfcHxm7GjmrVZi8KRosUXr7qKdjHGWMqgTKJxN5s3aZR',
+      'z4mSmMHPUE7UBNQxsff9AMPNL2wzfTE1Z5NuDumaais7LdT1be6',
+    ],
   })
     .store(contract)
     .then(() => console.log('Stored class: <Organization>')),
@@ -76,9 +119,12 @@ const class_organization = ann_wikipedia.then(() =>
 
 const class_company = Promise.all([ann_company, class_organization]).then(() =>
   new Klass({
-    cachedCid: 'z4mtJt9fazsfmb9fpZb4PJREvTVJYMyg8RkmoyaJdxtSjDxef5U',
-    annotations: ['z4mSmMHRyExN3BMXCz7PLzX7jiH45MDVvPAiecjTaGhPzNnFHuc'],
-    sub_class_of_class: ['z4mtJt9q7bNTx2pg6QVhjx6UzKKA32oHmdaQ4VA8xDb8WTAoiwg'],
+    cachedCid: 'z4mtJt9jFA6GDKaCTNUwrcz84Dh3RXVhktJutkQ7MQHyPYDVGcs',
+    annotations: [
+      'z4mSmMHRyExN3BMXCz7PLzX7jiH45MDVvPAiecjTaGhPzNnFHuc',
+      'z4mSmMHZnr3XLZ9RJfcDWhTWzvP9YrpuxyVowUtLFjk9noEFq5w',
+    ],
+    sub_class_of_class: ['z4mtJt9fBRkH2MzY8Hjpw1fkeZeukJ5YbgJoHFpbLfF23SJRKiP'],
   })
     .store(contract)
     .then(() => console.log('Stored class: <Company>')),
@@ -89,9 +135,12 @@ const class_university = Promise.all([
   class_company,
 ]).then(() =>
   new Klass({
-    cachedCid: 'z4mtJt9c5dY8sfAMu9NtnjcEmEZyPiKNpoc7kYJp6k7g11PF91t',
-    annotations: ['z4mSmMHWKC5G8vF3bi2ErCpUr9jiTyVFkdPnkmwaKQ3LrkNCtWT'],
-    sub_class_of_class: ['z4mtJt9q7bNTx2pg6QVhjx6UzKKA32oHmdaQ4VA8xDb8WTAoiwg'],
+    cachedCid: 'z4mtJt9cU1RkrdzjK9GRsh6Nrx9ZeZ5J4JZzAomThhiy7RsdBSY',
+    annotations: [
+      'z4mSmMHWKC5G8vF3bi2ErCpUr9jiTyVFkdPnkmwaKQ3LrkNCtWT',
+      'z4mSmMHWd2G2vVJQ6uN7V8uX2wjXCvHN2iSXJngU1amVkqCXv3o',
+    ],
+    sub_class_of_class: ['z4mtJt9fBRkH2MzY8Hjpw1fkeZeukJ5YbgJoHFpbLfF23SJRKiP'],
   })
     .store(contract)
     .then(() => console.log('Stored class: <University>')),
@@ -104,7 +153,7 @@ const ind_wikipedia_organization_pro = Promise.all([
 ]).then(() =>
   new Individual({
     annotations: ['z4mSmMHecpvSPjqZ1Us3RHEoxPSK5duEQHhELyvuTQ3kUjLsBxz'],
-    class_assertions: ['z4mtJt9q7bNTx2pg6QVhjx6UzKKA32oHmdaQ4VA8xDb8WTAoiwg'],
+    class_assertions: ['z4mtJt9fBRkH2MzY8Hjpw1fkeZeukJ5YbgJoHFpbLfF23SJRKiP'],
   }).store(contract),
 );
 
@@ -116,7 +165,23 @@ const ind_wikipedia_organization_con = Promise.all([
   new Individual({
     annotations: ['z4mSmMHecpvSPjqZ1Us3RHEoxPSK5duEQHhELyvuTQ3kUjLsBxz'],
     negative_class_assertions: [
-      'z4mtJt9q7bNTx2pg6QVhjx6UzKKA32oHmdaQ4VA8xDb8WTAoiwg',
+      'z4mtJt9fBRkH2MzY8Hjpw1fkeZeukJ5YbgJoHFpbLfF23SJRKiP',
+    ],
+  }).store(contract),
+);
+
+const ind_wikipedia_university_pro = ind_wikipedia_organization_con.then(() =>
+  new Individual({
+    annotations: ['z4mSmMHecpvSPjqZ1Us3RHEoxPSK5duEQHhELyvuTQ3kUjLsBxz'],
+    class_assertions: ['z4mtJt9cU1RkrdzjK9GRsh6Nrx9ZeZ5J4JZzAomThhiy7RsdBSY'],
+  }).store(contract),
+);
+
+const ind_wikipedia_university_con = ind_wikipedia_university_pro.then(() =>
+  new Individual({
+    annotations: ['z4mSmMHecpvSPjqZ1Us3RHEoxPSK5duEQHhELyvuTQ3kUjLsBxz'],
+    negative_class_assertions: [
+      'z4mtJt9cU1RkrdzjK9GRsh6Nrx9ZeZ5J4JZzAomThhiy7RsdBSY',
     ],
   }).store(contract),
 );
