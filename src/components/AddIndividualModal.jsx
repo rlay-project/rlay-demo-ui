@@ -206,7 +206,7 @@ class AddIndividualContainer extends React.Component<
           height: '100%',
         }}
       >
-        <h3>Add Statement</h3>
+        <h3>Add Proposition</h3>
         <AddIndividualForm
           ontologyAnnotations={this.props.ontologyAnnotations}
           ontologyClasses={this.props.ontologyClasses}
