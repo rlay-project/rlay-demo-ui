@@ -1,0 +1,652 @@
+{
+  "contractName": "RlayToken",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_spender",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "name": "balance",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "name": "_spender",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "name": "remaining",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x6060604052341561000f57600080fd5b629896806040805190810160405280600a81526020017f524c415920546f6b656e00000000000000000000000000000000000000000000815250600a60408051908101604090815260048083527f524c415900000000000000000000000000000000000000000000000000000000602080850191909152600160a060020a033316600090815291905290812085905584905560018380516100b49291602001906100e1565b506002805460ff191660ff841617905560038180516100d79291602001906100e1565b505050505061017c565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061012257805160ff191683800117855561014f565b8280016001018555821561014f579182015b8281111561014f578251825591602001919060010190610134565b5061015b92915061015f565b5090565b61017991905b8082111561015b5760008155600101610165565b90565b61069f8061018b6000396000f3006060604052600436106100985763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166306fdde03811461009d578063095ea7b31461012757806318160ddd1461016a57806323b872dd1461018f578063313ce567146101c457806370a08231146101ed57806395d89b4114610219578063a9059cbb1461022c578063dd62ed3e1461025b575b600080fd5b34156100a857600080fd5b6100b061028d565b60405160208082528190810183818151815260200191508051906020019080838360005b838110156100ec5780820151838201526020016100d4565b50505050905090810190601f1680156101195780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561013257600080fd5b61015673ffffffffffffffffffffffffffffffffffffffff6004351660243561032b565b604051901515815260200160405180910390f35b341561017557600080fd5b61017d6103a4565b60405190815260200160405180910390f35b341561019a57600080fd5b61015673ffffffffffffffffffffffffffffffffffffffff600435811690602435166044356103aa565b34156101cf57600080fd5b6101d76104f1565b60405160ff909116815260200160405180910390f35b34156101f857600080fd5b61017d73ffffffffffffffffffffffffffffffffffffffff600435166104fa565b341561022457600080fd5b6100b0610522565b341561023757600080fd5b61015673ffffffffffffffffffffffffffffffffffffffff6004351660243561058d565b341561026657600080fd5b61017d73ffffffffffffffffffffffffffffffffffffffff6004358116906024351661063b565b60018054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156103235780601f106102f857610100808354040283529160200191610323565b820191906000526020600020905b81548152906001019060200180831161030657829003601f168201915b505050505081565b73ffffffffffffffffffffffffffffffffffffffff338116600081815260056020908152604080832094871680845294909152808220859055909291907f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b9259085905190815260200160405180910390a350600192915050565b60005481565b73ffffffffffffffffffffffffffffffffffffffff80841660008181526005602090815260408083203390951683529381528382205492825260049052918220548390108015906103fb5750828110155b151561040657600080fd5b73ffffffffffffffffffffffffffffffffffffffff808516600090815260046020526040808220805487019055918716815220805484900390556000198110156104855773ffffffffffffffffffffffffffffffffffffffff808616600090815260056020908152604080832033909416835292905220805484900390555b8373ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef8560405190815260200160405180910390a3506001949350505050565b60025460ff1681565b73ffffffffffffffffffffffffffffffffffffffff1660009081526004602052604090205490565b60038054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156103235780601f106102f857610100808354040283529160200191610323565b73ffffffffffffffffffffffffffffffffffffffff3316600090815260046020526040812054829010156105c057600080fd5b73ffffffffffffffffffffffffffffffffffffffff3381166000818152600460205260408082208054879003905592861680825290839020805486019055917fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9085905190815260200160405180910390a350600192915050565b73ffffffffffffffffffffffffffffffffffffffff9182166000908152600560209081526040808320939094168252919091522054905600a165627a7a72305820a0ae8315432c0173f4cb6b6c7ff2bd897b45f2fe1918afdffb22ed97d71121e40029",
+  "deployedBytecode": "0x6060604052600436106100985763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166306fdde03811461009d578063095ea7b31461012757806318160ddd1461016a57806323b872dd1461018f578063313ce567146101c457806370a08231146101ed57806395d89b4114610219578063a9059cbb1461022c578063dd62ed3e1461025b575b600080fd5b34156100a857600080fd5b6100b061028d565b60405160208082528190810183818151815260200191508051906020019080838360005b838110156100ec5780820151838201526020016100d4565b50505050905090810190601f1680156101195780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561013257600080fd5b61015673ffffffffffffffffffffffffffffffffffffffff6004351660243561032b565b604051901515815260200160405180910390f35b341561017557600080fd5b61017d6103a4565b60405190815260200160405180910390f35b341561019a57600080fd5b61015673ffffffffffffffffffffffffffffffffffffffff600435811690602435166044356103aa565b34156101cf57600080fd5b6101d76104f1565b60405160ff909116815260200160405180910390f35b34156101f857600080fd5b61017d73ffffffffffffffffffffffffffffffffffffffff600435166104fa565b341561022457600080fd5b6100b0610522565b341561023757600080fd5b61015673ffffffffffffffffffffffffffffffffffffffff6004351660243561058d565b341561026657600080fd5b61017d73ffffffffffffffffffffffffffffffffffffffff6004358116906024351661063b565b60018054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156103235780601f106102f857610100808354040283529160200191610323565b820191906000526020600020905b81548152906001019060200180831161030657829003601f168201915b505050505081565b73ffffffffffffffffffffffffffffffffffffffff338116600081815260056020908152604080832094871680845294909152808220859055909291907f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b9259085905190815260200160405180910390a350600192915050565b60005481565b73ffffffffffffffffffffffffffffffffffffffff80841660008181526005602090815260408083203390951683529381528382205492825260049052918220548390108015906103fb5750828110155b151561040657600080fd5b73ffffffffffffffffffffffffffffffffffffffff808516600090815260046020526040808220805487019055918716815220805484900390556000198110156104855773ffffffffffffffffffffffffffffffffffffffff808616600090815260056020908152604080832033909416835292905220805484900390555b8373ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef8560405190815260200160405180910390a3506001949350505050565b60025460ff1681565b73ffffffffffffffffffffffffffffffffffffffff1660009081526004602052604090205490565b60038054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156103235780601f106102f857610100808354040283529160200191610323565b73ffffffffffffffffffffffffffffffffffffffff3316600090815260046020526040812054829010156105c057600080fd5b73ffffffffffffffffffffffffffffffffffffffff3381166000818152600460205260408082208054879003905592861680825290839020805486019055917fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9085905190815260200160405180910390a350600192915050565b73ffffffffffffffffffffffffffffffffffffffff9182166000908152600560209081526040808320939094168252919091522054905600a165627a7a72305820a0ae8315432c0173f4cb6b6c7ff2bd897b45f2fe1918afdffb22ed97d71121e40029",
+  "sourceMap": "60:126:0:-;;;92:92;;;;;;;;124:8;725:642:1;;;;;;;;;;;;;;;;;;156:2:0;725:642:1;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;893:10:1;884:20;-1:-1:-1;884:20:1;;;;;;;;;:37;;;984:28;;;1068:4;1075:10;;1068:17;;;;;;;;:::i;:::-;-1:-1:-1;1166:8:1;:24;;-1:-1:-1;;1166:24:1;;;;;;;1270:6;1279:12;;1270:21;;;;;;;;:::i;:::-;;725:642;;;;60:126:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;60:126:0;;;-1:-1:-1;60:126:0;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;",
+  "deployedSourceMap": "60:126:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;515:18:1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;99:1;94:3;90:11;84:18;71:11;;;64:39;52:2;45:10;8:100;;;12:14;515:18:1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2801:205;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;618:26:2;;;;;;;;;;;;;;;;;;;;;;;;;;;1987:689:1;;;;;;;;;;;;;;;;;;;;;;;586:21;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2682:113;;;;;;;;;;;;;;;;657:20;;;;;;;;;;;;1373:608;;;;;;;;;;;;;;;;;;3012:144;;;;;;;;;;;;;;;;;;;;;515:18;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;2801:205::-;2892:19;2900:10;2892:19;;2868:12;2892:19;;;:7;:19;;;;;;;;:29;;;;;;;;;;;;;:38;;;2868:12;;2892:29;:19;2940:38;;2924:6;;2940:38;;;;;;;;;;;;;-1:-1:-1;2995:4:1;2801:205;;;;:::o;618:26:2:-;;;;:::o;1987:689:1:-;2350:14;;;;2069:12;2350:14;;;:7;:14;;;;;;;;2365:10;2350:26;;;;;;;;;;;;2394:15;;;:8;:15;;;;;;:25;;;;;;:48;;;2436:6;2423:9;:19;;2394:48;2386:57;;;;;;;;2453:13;;;;;;;;:8;:13;;;;;;:23;;;;;;2486:15;;;;;;:25;;;;;;;-1:-1:-1;;2525:23:1;;2521:90;;;2564:14;;;;;;;;:7;:14;;;;;;;;2579:10;2564:26;;;;;;;;;:36;;;;;;;2521:90;2636:3;2620:28;;2629:5;2620:28;;;2641:6;2620:28;;;;;;;;;;;;;;-1:-1:-1;2665:4:1;;1987:689;-1:-1:-1;;;;1987:689:1:o;586:21::-;;;;;;:::o;2682:113::-;2772:16;;2738:15;2772:16;;;:8;:16;;;;;;;2682:113::o;657:20::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1373:608;1806:20;1815:10;1806:20;1436:12;1806:20;;;:8;:20;;;;;;:30;;;;1798:39;;;;;;1847:20;1856:10;1847:20;;;;;;:8;:20;;;;;;:30;;;;;;;1887:13;;;;;;;;;;:23;;;;;;:13;1920:33;;1871:6;;1920:33;;;;;;;;;;;;;-1:-1:-1;1970:4:1;1373:608;;;;:::o;3012:144::-;3124:15;;;;3090:17;3124:15;;;:7;:15;;;;;;;;:25;;;;;;;;;;;;;3012:144::o",
+  "source": "pragma solidity ^0.4.19;\n\nimport \"tokens/eip20/EIP20.sol\";\n\ncontract RlayToken is EIP20 {\n  function RlayToken() EIP20(\n    10000000,\n    \"RLAY Token\",\n    10,\n    \"RLAY\"\n  ) public {}\n}\n",
+  "sourcePath": "/Users/hobofan/rlay/rlay-protocol/contracts/RlayToken.sol",
+  "ast": {
+    "absolutePath": "/Users/hobofan/rlay/rlay-protocol/contracts/RlayToken.sol",
+    "exportedSymbols": {
+      "RlayToken": [
+        15
+      ]
+    },
+    "id": 16,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".19"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:0"
+      },
+      {
+        "absolutePath": "tokens/eip20/EIP20.sol",
+        "file": "tokens/eip20/EIP20.sol",
+        "id": 2,
+        "nodeType": "ImportDirective",
+        "scope": 16,
+        "sourceUnit": 244,
+        "src": "26:32:0",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": [],
+            "baseName": {
+              "contractScope": null,
+              "id": 3,
+              "name": "EIP20",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 243,
+              "src": "82:5:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_EIP20_$243",
+                "typeString": "contract EIP20"
+              }
+            },
+            "id": 4,
+            "nodeType": "InheritanceSpecifier",
+            "src": "82:5:0"
+          }
+        ],
+        "contractDependencies": [
+          243,
+          309
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 15,
+        "linearizedBaseContracts": [
+          15,
+          243,
+          309
+        ],
+        "name": "RlayToken",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": {
+              "id": 13,
+              "nodeType": "Block",
+              "src": "182:2:0",
+              "statements": []
+            },
+            "documentation": null,
+            "id": 14,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "3130303030303030",
+                    "id": 7,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "124:8:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_10000000_by_1",
+                      "typeString": "int_const 10000000"
+                    },
+                    "value": "10000000"
+                  },
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "524c415920546f6b656e",
+                    "id": 8,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "string",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "138:12:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_stringliteral_11c6b890ceb86bceaaf450f47b3d0a0b170710bae617a3ccdc6317676403e989",
+                      "typeString": "literal_string \"RLAY Token\""
+                    },
+                    "value": "RLAY Token"
+                  },
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "3130",
+                    "id": 9,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "156:2:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_10_by_1",
+                      "typeString": "int_const 10"
+                    },
+                    "value": "10"
+                  },
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "524c4159",
+                    "id": 10,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "string",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "164:6:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_stringliteral_c2a677c7e78915b226d0bc478b847648bf2c5d99953bc8c545c89247421d395c",
+                      "typeString": "literal_string \"RLAY\""
+                    },
+                    "value": "RLAY"
+                  }
+                ],
+                "id": 11,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 6,
+                  "name": "EIP20",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 243,
+                  "src": "113:5:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_type$_t_contract$_EIP20_$243_$",
+                    "typeString": "type(contract EIP20)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "113:61:0"
+              }
+            ],
+            "name": "RlayToken",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 5,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "110:2:0"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 12,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "182:0:0"
+            },
+            "scope": 15,
+            "src": "92:92:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 16,
+        "src": "60:126:0"
+      }
+    ],
+    "src": "0:187:0"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/hobofan/rlay/rlay-protocol/contracts/RlayToken.sol",
+    "exportedSymbols": {
+      "RlayToken": [
+        15
+      ]
+    },
+    "id": 16,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".19"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:0"
+      },
+      {
+        "absolutePath": "tokens/eip20/EIP20.sol",
+        "file": "tokens/eip20/EIP20.sol",
+        "id": 2,
+        "nodeType": "ImportDirective",
+        "scope": 16,
+        "sourceUnit": 244,
+        "src": "26:32:0",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": [],
+            "baseName": {
+              "contractScope": null,
+              "id": 3,
+              "name": "EIP20",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 243,
+              "src": "82:5:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_EIP20_$243",
+                "typeString": "contract EIP20"
+              }
+            },
+            "id": 4,
+            "nodeType": "InheritanceSpecifier",
+            "src": "82:5:0"
+          }
+        ],
+        "contractDependencies": [
+          243,
+          309
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 15,
+        "linearizedBaseContracts": [
+          15,
+          243,
+          309
+        ],
+        "name": "RlayToken",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": {
+              "id": 13,
+              "nodeType": "Block",
+              "src": "182:2:0",
+              "statements": []
+            },
+            "documentation": null,
+            "id": 14,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "3130303030303030",
+                    "id": 7,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "124:8:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_10000000_by_1",
+                      "typeString": "int_const 10000000"
+                    },
+                    "value": "10000000"
+                  },
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "524c415920546f6b656e",
+                    "id": 8,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "string",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "138:12:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_stringliteral_11c6b890ceb86bceaaf450f47b3d0a0b170710bae617a3ccdc6317676403e989",
+                      "typeString": "literal_string \"RLAY Token\""
+                    },
+                    "value": "RLAY Token"
+                  },
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "3130",
+                    "id": 9,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "156:2:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_10_by_1",
+                      "typeString": "int_const 10"
+                    },
+                    "value": "10"
+                  },
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "524c4159",
+                    "id": 10,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "string",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "164:6:0",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_stringliteral_c2a677c7e78915b226d0bc478b847648bf2c5d99953bc8c545c89247421d395c",
+                      "typeString": "literal_string \"RLAY\""
+                    },
+                    "value": "RLAY"
+                  }
+                ],
+                "id": 11,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 6,
+                  "name": "EIP20",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 243,
+                  "src": "113:5:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_type$_t_contract$_EIP20_$243_$",
+                    "typeString": "type(contract EIP20)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "113:61:0"
+              }
+            ],
+            "name": "RlayToken",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 5,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "110:2:0"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 12,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "182:0:0"
+            },
+            "scope": 15,
+            "src": "92:92:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 16,
+        "src": "60:126:0"
+      }
+    ],
+    "src": "0:187:0"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.21+commit.dfe3193c.Emscripten.clang"
+  },
+  "networks": {
+    "1528382671821": {
+      "events": {},
+      "links": {},
+      "address": "0x10ef71366ad76d6bddddc66677c38e137aa564db",
+      "transactionHash": "0xdcbcec65da0db73e4e58da74bc715bc81f8c661cc0825897fcf7201166bfb024"
+    }
+  },
+  "schemaVersion": "2.0.0",
+  "updatedAt": "2018-06-07T14:44:47.432Z"
+}

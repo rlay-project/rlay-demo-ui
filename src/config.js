@@ -1,7 +1,7 @@
 import queryString from 'query-string';
 
 const ontologyStorageContract = require('./contracts/OntologyStorage.json');
-const tokenContract = require('./contracts/SpreadToken.json');
+const tokenContract = require('./contracts/RlayToken.json');
 const propositionLedgerContract = require('./contracts/PropositionLedger.json');
 
 const getEnvironmentConfig = () => {
