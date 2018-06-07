@@ -28,13 +28,15 @@ module.exports = {
     new CopyWebpackPlugin([{ from: 'public', to: '../' }]),
     new CopyWebpackPlugin([
       {
-        from: 'vendor/bay/target/wasm32-unknown-unknown/release/bay_web.wasm',
+        from:
+          'vendor/rlay-ontology/target/wasm32-unknown-unknown/release/rlay_ontology_stdweb.wasm',
         to: '../',
       },
     ]),
     new CopyWebpackPlugin([
       {
-        from: 'vendor/bay/target/wasm32-unknown-unknown/release/bay_web.js',
+        from:
+          'vendor/rlay-ontology/target/wasm32-unknown-unknown/release/rlay_ontology_stdweb.js',
         to: '../',
       },
     ]),

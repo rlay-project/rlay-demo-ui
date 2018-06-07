@@ -9,7 +9,7 @@ mkdir -p ipfs_deploy
 ipget -o ipfs_deploy "${scrape_hash:0:${#scrape_hash}-6}"
 rm ipfs_deploy/ipfs_log
 
-cp build/bay_web.wasm ipfs_deploy
+cp build/rlay_ontology_stdweb.wasm ipfs_deploy
 final_hash=$(ipfs add -Q -r ipfs_deploy)
 
 echo "https://ipfs.io/ipfs/${final_hash}"
