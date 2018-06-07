@@ -38,7 +38,7 @@ const VizGraph = ({ graphString }) => {
   return <span dangerouslySetInnerHTML={{ __html: image }} />;
 };
 
-Rust.bay_web.then(module => {
+Rust.rlay_ontology_stdweb.then(module => {
   const graphDot = module.print_graph();
   const graphMoralDot = module.print_moral_graph();
   const graphMaxCliquesDot = module.print_max_cliques();
@@ -420,7 +420,7 @@ class Page extends React.Component {
   }
 }
 
-Rust.bay_web.then(module => {
+Rust.rlay_ontology_stdweb.then(module => {
   const main = <Page bayModule={module} />;
 
   Object.keys(exampleAnnotations).forEach(storedHash => {

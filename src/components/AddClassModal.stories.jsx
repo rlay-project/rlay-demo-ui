@@ -28,7 +28,10 @@ const ontologyClassesEx1 = [
 ];
 
 storiesOf('AddClassForm', module).add('default', () => {
-  const WrappedAddClassForm = withBayModuleOntology(AddClassForm, Rust.bay_web);
+  const WrappedAddClassForm = withBayModuleOntology(
+    AddClassForm,
+    Rust.rlay_ontology_stdweb,
+  );
 
   return (
     <div style={{ margin: '40px' }}>
@@ -44,7 +47,7 @@ storiesOf('AddClassForm', module).add('default', () => {
 storiesOf('AddClassContainer', module).add('default', () => {
   const WrappedAddClassForm = withBayModuleOntology(
     AddClassContainer,
-    Rust.bay_web,
+    Rust.rlay_ontology_stdweb,
   );
 
   return (

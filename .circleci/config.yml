@@ -38,13 +38,13 @@ jobs:
       - run: npm install
       - run:
           name: Install rustup
-          command: curl https://sh.rustup.rs -sSf | sh /dev/stdin --default-toolchain $(cat vendor/bay/bay-wasm/rust-toolchain) -y --verbose
+          command: curl https://sh.rustup.rs -sSf | sh /dev/stdin --default-toolchain $(cat vendor/rlay-ontology/rlay_ontology_stdweb/rust-toolchain) -y --verbose
       - run:
           name: Install cargo-web
           command: source ~/.cargo/env && cargo install cargo-web --vers $CARGO_WEB_VERSION
       - run:
-          name: Fetch bay-wasm dependencies (for cache)
-          command: source ~/.cargo/env && cd vendor/bay/bay-wasm && cargo fetch
+          name: Fetch rlay_ontology_stdweb dependencies (for cache)
+          command: source ~/.cargo/env && cd vendor/rlay-ontology/rlay_ontology_stdweb && cargo fetch
 
       - save_cache:
           paths:

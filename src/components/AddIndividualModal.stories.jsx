@@ -33,7 +33,7 @@ const ontologyClassesEx1 = [
 storiesOf('AddIndividualForm', module).add('default', () => {
   const WrappedAddIndividualForm = withBayModuleOntology(
     AddIndividualForm,
-    Rust.bay_web,
+    Rust.rlay_ontology_stdweb,
   );
 
   return (
@@ -50,7 +50,7 @@ storiesOf('AddIndividualForm', module).add('default', () => {
 storiesOf('AddIndividualContainer', module).add('default', () => {
   const WrappedAddIndividualForm = withBayModuleOntology(
     AddIndividualContainer,
-    Rust.bay_web,
+    Rust.rlay_ontology_stdweb,
   );
 
   return (

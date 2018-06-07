@@ -109,7 +109,7 @@ export default class StorageTab extends React.Component<StorageTabProps> {
 
     return (
       <Fragment>
-        <h4>Statements</h4>
+        <h4>Propositions</h4>
         <div style={{ marginTop: '20px', marginBottom: '20px' }}>
           <IndividualList
             individuals={this.props.ontologyIndividuals}

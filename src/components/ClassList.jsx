@@ -62,6 +62,14 @@ class ClassList extends React.Component<ClassListProps> {
 
   // eslint-disable-next-line arrow-body-style
   renderCollectionAttribute = (item: Klass, label: string, key: string) => {
+    // TODO: demo hack
+    const addLabel = {
+      z4mSmMHNfcHxm7GjmrVZi8KRosUXr7qKdjHGWMqgTKJxN5s3aZR:
+        '  label-"Organization"',
+      z4mSmMHRyExN3BMXCz7PLzX7jiH45MDVvPAiecjTaGhPzNnFHuc: '  label-"Company"',
+      z4mSmMHWKC5G8vF3bi2ErCpUr9jiTyVFkdPnkmwaKQ3LrkNCtWT:
+        '  label-"University"',
+    };
     // $FlowFixMe
     return !isEmpty(item[key]) ? (
       <Fragment>
@@ -70,6 +78,7 @@ class ClassList extends React.Component<ClassListProps> {
         {item[key].map(klass => (
           <Fragment>
             <code>{((klass: any): string)}</code>
+            <span style={{ marginLeft: '10px' }}>{addLabel[klass]}</span>
             <br />
           </Fragment>
         ))}
