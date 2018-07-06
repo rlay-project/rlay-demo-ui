@@ -22,7 +22,7 @@
     "prettier": "node_modules/.bin/prettier --write src/**/*.{js,jsx}"
   },
   "author": "",
-  "license": "TODO",
+  "license": "MIT OR Apache-2.0",
   "dependencies": {
     "@babel/core": "7.0.0-beta.44",
     "@babel/plugin-proposal-class-properties": "7.0.0-beta.44",
@@ -38,6 +38,7 @@
     "cids": "^0.5.2",
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.3.1",
+    "ethereumjs-abi": "^0.6.5",
     "ethers": "^3.0.9",
     "express": "^4.16.2",
     "js-sha3": "^0.7.0",
