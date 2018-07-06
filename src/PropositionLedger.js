@@ -91,20 +91,22 @@ export default class PropositionLedger {
   @action.bound
   setSigner(signer: any) {
     this.customSigner = signer;
+    console.log(signer);
   }
 
   @action.bound
   updateTokenAccount() {
+    const accountAddress = this.customSigner
+      ? this.customSigner.wallet.address
+      : this.web3.eth.accounts[0];
     Promise.all([this.tokenContract(), this.propositionLedgerContract()]).then(
       ([tokenContract, propositionLedgerContract]) => {
-        tokenContract.balanceOf
-          .call(this.web3.eth.accounts[0])
-          .then(balance => {
-            this.tokenAccount.balance = balance;
-          });
+        tokenContract.balanceOf.call(accountAddress).then(balance => {
+          this.tokenAccount.balance = balance;
+        });
 
         tokenContract.allowance
-          .call(this.web3.eth.accounts[0], propositionLedgerContract.address)
+          .call(accountAddress, propositionLedgerContract.address)
           .then(allowance => {
             this.tokenAccount.allowance = allowance;
           });
