@@ -585,11 +585,9 @@ class Proposition {
     return groups;
   }
 
-  static submit(ctr: any, cid: any, amount: any): Promise<void> {
-    return callEthersFunction(ctr, 'submitProposition', [
-      b58ToSolidityBytes(cid),
-      amount,
-    ]);
+  static submit(ctr: any, web3: any, cid: any, amount: any): Promise<void> {
+    // using web3 instead of ethers.js because ethers.js had a strange bug when estimating gas???
+    return ctr.submitProposition(b58ToSolidityBytes(cid), amount);
   }
 
   enrichWithLabel(ontologyIndividuals: Array<Individual>) {
