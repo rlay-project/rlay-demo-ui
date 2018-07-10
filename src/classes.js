@@ -585,7 +585,7 @@ class Proposition {
     return groups;
   }
 
-  static submit(ctr: any, web3, cid: any, amount: any): Promise<void> {
+  static submit(ctr: any, web3: any, cid: any, amount: any): Promise<void> {
     // using web3 instead of ethers.js because ethers.js had a strange bug when estimating gas???
     return ctr.submitProposition(b58ToSolidityBytes(cid), amount);
   }
