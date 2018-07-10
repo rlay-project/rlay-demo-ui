@@ -1,4 +1,3 @@
-import Viz from 'viz.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
@@ -14,7 +13,6 @@ import NetworkCPT from './components/NetworkCPT.jsx';
 import NetworkMarginals from './components/NetworkMarginals.jsx';
 import PropositionTab from './components/PropositionTab.jsx';
 import StorageTab from './components/StorageTab.jsx';
-import TruthTable from './components/TruthTable.jsx';
 import ConfirmTransactionModal from './components/ConfirmTransactionModal.jsx';
 import {
   exampleAnnotationProperties,
@@ -31,47 +29,49 @@ import {
 } from './config';
 import { Annotation, Proposition } from './classes';
 
-const VizGraph = ({ graphString }) => {
-  const graphDot = graphString;
-  const image = Viz(graphDot, { format: 'svg' });
+class InvalidNetworkWarning extends React.Component {
+  constructor(props) {
+    super(props);
 
-  return <span dangerouslySetInnerHTML={{ __html: image }} />;
-};
+    if (window.web3) {
+      this.networkId = window.web3.version.network;
+    }
+  }
 
-Rust.rlay_ontology_stdweb.then(module => {
-  const graphDot = module.print_graph();
-  const graphMoralDot = module.print_moral_graph();
-  const graphMaxCliquesDot = module.print_max_cliques();
-  const graphJoinTreeDot = module.print_join_tree();
+  networkId = null;
+  expectedNetworkId = '1409';
 
-  const truthTable = module.truth_table();
-  const annotationPropertyLabel = module.annotation_property_label();
+  renderWarning() {
+    const containerStyle = {
+      position: 'absolute',
+      display: 'flex',
+      width: '100%',
+      height: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
+    };
+    return (
+      <div style={containerStyle}>
+        <div className="border rounded" style={{ padding: '10px' }}>
+          Metamask was found, but you seem to be connected to the wrong network.<br />
+          To access Rlay, you need to set up MetaMask to use a custom RPC with
+          the URL <code>http://testnet-rpc.rlay.com:8545</code>
+          <br />
+          <br />
+          If you have trouble with the setup, feel free to reach out to us{' '}
+          <a href="https://t.me/rlay_official">in our Telegram channel!</a>
+        </div>
+      </div>
+    );
+  }
 
-  const main = (
-    <span>
-      <span style={{ display: 'inline-block' }}>
-        <h2>Original Graph</h2>
-        <VizGraph graphString={graphDot} />
-      </span>
-      <span style={{ display: 'inline-block' }}>
-        <h2>Moral Graph</h2>
-        <VizGraph graphString={graphMoralDot} />
-      </span>
-      <span style={{ display: 'inline-block' }}>
-        <h2>Join Tree</h2>
-        <p dangerouslySetInnerHTML={{ __html: graphJoinTreeDot }} />
-      </span>
-      <TruthTable tt={truthTable} />
-      {graphMaxCliquesDot.map(clique => <VizGraph graphString={clique} />)}
-      <span>
-        {'Hash for AnnotationProperty <rdfs:label>'}
-        {annotationPropertyLabel}
-      </span>
-    </span>
-  );
-
-  ReactDOM.render(main, window.document.getElementById('react'));
-});
+  render() {
+    if (this.networkId !== this.expectedNetworkId) {
+      return this.renderWarning();
+    }
+    return this.props.children;
+  }
+}
 
 class RootStore {
   calculateHash = null;
@@ -191,7 +191,9 @@ class Page extends React.Component {
       return newItem;
     };
 
-    this.store = new RootStore(calculateHash);
+    if (window.web3) {
+      this.store = new RootStore(calculateHash);
+    }
   }
 
   state = {
@@ -352,6 +354,9 @@ class Page extends React.Component {
 
   renderTabStorage() {
     const { ontologyAnnotationProperties } = this.state;
+    if (!this.store) {
+      return null;
+    }
     const { ontologyStore, propositionLedger } = this.store;
 
     const clearStorage = () => {
@@ -406,10 +411,12 @@ class Page extends React.Component {
 
   render() {
     let app = (
-      <div>
-        {this.renderNav()}
-        {this.renderTabContainer()}
-      </div>
+      <InvalidNetworkWarning>
+        <div>
+          {this.renderNav()}
+          {this.renderTabContainer()}
+        </div>
+      </InvalidNetworkWarning>
     );
 
     if (!this.useInternalWeb3) {

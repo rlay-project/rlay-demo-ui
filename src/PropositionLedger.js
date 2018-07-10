@@ -148,13 +148,18 @@ export default class PropositionLedger {
 
   @action.bound
   addWeight(cid: any, amount: number) {
-    const contract = this.propositionLedgerContractEthers();
+    const { web3 } = this;
+    const contract = this.propositionLedgerContract();
 
-    Proposition.submit(contract, cid, amount).then(
-      action('addWeightSuccess', () => {
-        this.fetchNetworkPropositions();
-        setTimeout(() => this.fetchNetworkPropositions(), 1000);
+    contract.then(
+      action('contractFound', ctr => {
+        Proposition.submit(ctr, web3, cid, amount).then(
+          action('addWeightSuccess', () => {
+            this.fetchNetworkPropositions();
+            setTimeout(() => this.fetchNetworkPropositions(), 1000);
+          }),
+        );
       }),
-    );
+    )
   }
 }
