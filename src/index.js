@@ -38,8 +38,9 @@ class InvalidNetworkWarning extends React.Component {
     }
   }
 
-  networkId = null;
+  checkNetwork = true;
   expectedNetworkId = '1409';
+  networkId = null;
 
   renderWarning() {
     const containerStyle = {
@@ -173,7 +174,11 @@ class Page extends React.Component {
   constructor(props) {
     super(props);
 
-    const { privateKey, useInternalWeb3 } = getEnvironmentConfig();
+    const {
+      privateKey,
+      useInternalWeb3,
+      checkNetwork,
+    } = getEnvironmentConfig();
 
     if (useInternalWeb3) {
       console.debug('No injected web3 found; Using own instance');
@@ -184,6 +189,7 @@ class Page extends React.Component {
 
     this.privateKey = privateKey;
     this.useInternalWeb3 = useInternalWeb3;
+    this.checkNetwork = checkNetwork;
 
     const calculateHash = item => {
       const newItem = item.clone();
@@ -411,13 +417,15 @@ class Page extends React.Component {
 
   render() {
     let app = (
-      <InvalidNetworkWarning>
-        <div>
-          {this.renderNav()}
-          {this.renderTabContainer()}
-        </div>
-      </InvalidNetworkWarning>
+      <div>
+        {this.renderNav()}
+        {this.renderTabContainer()}
+      </div>
     );
+
+    if (this.checkNetwork) {
+      app = <InvalidNetworkWarning>{app}</InvalidNetworkWarning>;
+    }
 
     if (!this.useInternalWeb3) {
       app = <Web3Provider>{app}</Web3Provider>;

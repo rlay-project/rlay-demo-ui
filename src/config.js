@@ -9,10 +9,12 @@ const getEnvironmentConfig = () => {
   const privateKey = params.pk;
 
   const useInternalWeb3 = !!privateKey;
+  const checkNetwork = params.skipNetworkCheck !== '1';
 
   return {
     privateKey,
     useInternalWeb3,
+    checkNetwork,
   };
 };
 
