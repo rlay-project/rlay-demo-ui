@@ -28,6 +28,13 @@ type AnnotationData = {
 
 const encodeOptionalArrayArg = (items: any) => items.map(b58ToSolidityBytes);
 
+const clone = function clone() {
+  const cloned = Object.assign({}, this);
+  Object.setPrototypeOf(cloned, this.constructor.prototype);
+
+  return (cloned: any);
+};
+
 class Annotation {
   property: AnnotationPropertyHash;
   value: string;
@@ -35,7 +42,11 @@ class Annotation {
 
   isAvailable: boolean;
 
+  clone: () => Annotation;
+
   constructor(data: AnnotationData) {
+    this.clone = clone;
+
     this.property = data.property;
     this.value = data.value;
     this.cachedCid = data.cachedCid;
@@ -45,17 +56,24 @@ class Annotation {
     const ethCid = annCidBytes;
     const b58Cid = solidityBytesToB58(ethCid);
 
-    return ctr.retrieveAnnotation(ethCid).then(res => {
-      const [ethPropertyHash, value] = res;
+    return ctr
+      .retrieveAnnotation(ethCid)
+      .then(res => Annotation.parseFromRetrieve(res, b58Cid));
+  }
 
-      const annotation = new Annotation({
-        property: solidityBytesToB58(ethPropertyHash),
-        value,
-      });
-      annotation.cachedCid = b58Cid;
+  static parseFromRetrieve(
+    retrieveRes: Array<any>,
+    b58Cid: ?AnnotationCid,
+  ): Annotation {
+    const [ethPropertyHash, value] = retrieveRes;
 
-      return annotation;
+    const annotation = new Annotation({
+      property: solidityBytesToB58(ethPropertyHash),
+      value,
     });
+    annotation.cachedCid = b58Cid;
+
+    return annotation;
   }
 
   static getAllStored(ctr: any, web3: any): Promise<Array<AnnotationCid>> {
@@ -97,13 +115,6 @@ class Annotation {
       argProperty,
       this.value,
     ]);
-  }
-
-  clone(): Annotation {
-    const clone = Object.assign({}, this);
-    Object.setPrototypeOf(clone, this.constructor.prototype);
-
-    return (clone: any);
   }
 
   hash(bayModule?: BayModule): AnnotationCid {
@@ -168,9 +179,12 @@ class Klass {
 
   enrichedAnnotations: ?Array<Annotation>;
 
+  clone: () => Klass;
   isAvailable: boolean;
 
   constructor(data?: ClassData = {}) {
+    this.clone = clone;
+
     this.annotations = data.annotations || [];
     this.sub_class_of_class = data.sub_class_of_class || [];
     this.cachedCid = data.cachedCid;
@@ -181,19 +195,23 @@ class Klass {
     const ethCid = itemCidBytes;
     const b58Cid = solidityBytesToB58(ethCid);
 
-    return (ctr: any).retrieveClass(ethCid).then(res => {
-      let [annotations, sub_class_of_class] = res;
-      annotations = annotations.map(solidityBytesToB58);
-      sub_class_of_class = sub_class_of_class.map(solidityBytesToB58);
+    return (ctr: any)
+      .retrieveClass(ethCid)
+      .then(res => Klass.parseFromRetrieve(res, b58Cid));
+  }
 
-      const item = new Klass({
-        annotations,
-        sub_class_of_class,
-      });
-      item.cachedCid = b58Cid;
+  static parseFromRetrieve(retrieveRes: Array<any>, b58Cid: ?ClassCid): Klass {
+    let [annotations, sub_class_of_class] = retrieveRes;
+    annotations = annotations.map(solidityBytesToB58);
+    sub_class_of_class = sub_class_of_class.map(solidityBytesToB58);
 
-      return item;
+    const item = new Klass({
+      annotations,
+      sub_class_of_class,
     });
+    item.cachedCid = b58Cid;
+
+    return item;
   }
 
   static getAllStored(ctr: any, web3: any): Promise<Array<ClassCid>> {
@@ -236,13 +254,6 @@ class Klass {
       argAnnotations,
       argSubClassOfClass,
     ]);
-  }
-
-  clone(): Klass {
-    const clone = Object.assign({}, this);
-    Object.setPrototypeOf(clone, this.constructor.prototype);
-
-    return (clone: any);
   }
 
   hash(bayModule?: BayModule): ClassCid {
@@ -331,9 +342,12 @@ class Individual {
   enrichedClassAssertions: ?Array<Klass>;
   enrichedNegativeClassAssertions: ?Array<Klass>;
 
+  clone: () => Individual;
   isAvailable: boolean;
 
   constructor(data?: IndividualData = {}) {
+    this.clone = clone;
+
     this.annotations = data.annotations || [];
     this.class_assertions = data.class_assertions || [];
     this.negative_class_assertions = data.negative_class_assertions || [];
@@ -348,23 +362,34 @@ class Individual {
     const ethCid = itemCidBytes;
     const b58Cid = solidityBytesToB58(ethCid);
 
-    return (ctr: any).retrieveIndividual(ethCid).then(res => {
-      let [annotations, class_assertions, negative_class_assertions] = res;
-      annotations = annotations.map(solidityBytesToB58);
-      class_assertions = class_assertions.map(solidityBytesToB58);
-      negative_class_assertions = negative_class_assertions.map(
-        solidityBytesToB58,
-      );
+    return (ctr: any)
+      .retrieveIndividual(ethCid)
+      .then(res => Individual.parseFromRetrieve(res, b58Cid));
+  }
 
-      const item = new Individual({
-        annotations,
-        class_assertions,
-        negative_class_assertions,
-      });
-      item.cachedCid = b58Cid;
+  static parseFromRetrieve(
+    retrieveRes: Array<any>,
+    b58Cid: ?IndividualCid,
+  ): Individual {
+    let [
+      annotations,
+      class_assertions,
+      negative_class_assertions,
+    ] = retrieveRes;
+    annotations = annotations.map(solidityBytesToB58);
+    class_assertions = class_assertions.map(solidityBytesToB58);
+    negative_class_assertions = negative_class_assertions.map(
+      solidityBytesToB58,
+    );
 
-      return item;
+    const item = new Individual({
+      annotations,
+      class_assertions,
+      negative_class_assertions,
     });
+    item.cachedCid = b58Cid;
+
+    return item;
   }
 
   static getAllStored(ctr: any, web3: any): Promise<Array<IndividualCid>> {
@@ -411,13 +436,6 @@ class Individual {
       argClassAssertions,
       argNegativeClassAssertions,
     ]);
-  }
-
-  clone(): Individual {
-    const clone = Object.assign({}, this);
-    Object.setPrototypeOf(clone, this.constructor.prototype);
-
-    return (clone: any);
   }
 
   hash(bayModule?: BayModule): IndividualCid {
