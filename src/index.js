@@ -83,22 +83,39 @@ class RootStore {
     this.calculateHash = calculateHash;
 
     extendWeb3OldWithRlay(window.web3);
+  }
 
-    const ontologyStore = new OntologyStore(window.web3, ontologyStoreConfig);
-    ontologyStore.fetchNetworkAnnotations();
-    ontologyStore.fetchNetworkClasses();
-    ontologyStore.fetchNetworkIndividuals();
-    this.ontologyStore = ontologyStore;
+  init() {
+    return new Promise((resolve, reject) => {
+      window.web3.rlay.version((err, versionInfo) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(versionInfo);
+      });
+    }).then(versionInfo => {
+      ontologyStoreConfig.address =
+        versionInfo.contractAddresses.OntologyStorage;
+      propositionLedgerContract.address =
+        versionInfo.contractAddresses.PropositionLedger;
+      tokenContract.address = versionInfo.contractAddresses.RlayToken;
 
-    const propositionLedger = new PropositionLedger(
-      window.web3,
-      propositionLedgerContract,
-      tokenContract,
-    );
-    propositionLedger.updateTokenAccount();
-    propositionLedger.fetchNetworkPropositions();
-    propositionLedger.fetchPropositionPools();
-    this.propositionLedger = propositionLedger;
+      const ontologyStore = new OntologyStore(window.web3, ontologyStoreConfig);
+      ontologyStore.fetchNetworkAnnotations();
+      ontologyStore.fetchNetworkClasses();
+      ontologyStore.fetchNetworkIndividuals();
+      this.ontologyStore = ontologyStore;
+
+      const propositionLedger = new PropositionLedger(
+        window.web3,
+        propositionLedgerContract,
+        tokenContract,
+      );
+      propositionLedger.updateTokenAccount();
+      propositionLedger.fetchNetworkPropositions();
+      propositionLedger.fetchPropositionPools();
+      this.propositionLedger = propositionLedger;
+    });
   }
 
   @computed
@@ -195,6 +212,7 @@ class Page extends React.Component {
 
     if (window.web3) {
       this.store = new RootStore(calculateHash);
+      this.store.init().then(() => this.forceUpdate());
     }
   }
 
@@ -356,7 +374,7 @@ class Page extends React.Component {
 
   renderTabStorage() {
     const { ontologyAnnotationProperties } = this.state;
-    if (!this.store) {
+    if (!this.store || !this.store.ontologyStore) {
       return null;
     }
     const { ontologyStore, propositionLedger } = this.store;
