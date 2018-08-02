@@ -14,7 +14,10 @@ import { Individual } from '../classes';
 import { type IndividualCid } from '../types';
 
 type PropositionEnhancement = {
-  amount: number,
+  totalWeight: {
+    toString: () => String,
+  },
+  isAggregatedValue: boolean,
 };
 
 export type Assertion = Individual & PropositionEnhancement;
@@ -54,15 +57,14 @@ export default class ClassAggregation extends React.Component<
 
   amountLinks: any;
 
-  winningSide = () =>
-    this.props.assertion.amount <= this.props.negativeAssertion.amount;
+  winningSide = () => this.props.negativeAssertion.isAggregatedValue;
 
   percentage = (negative: boolean) => {
-    const amountA = this.props.assertion.amount;
-    const amountB = this.props.negativeAssertion.amount;
-    const total = amountA + amountB;
+    const amountA = this.props.assertion.totalWeight;
+    const amountB = this.props.negativeAssertion.totalWeight;
+    const total = new window.web3.BigNumber(0).plus(amountA).plus(amountB);
 
-    let percentage = amountA / total;
+    let percentage = new window.web3.BigNumber(amountA).dividedBy(total);
     if (negative) {
       percentage = 1 - percentage;
     }
@@ -71,9 +73,10 @@ export default class ClassAggregation extends React.Component<
   };
 
   total = () => {
-    const amountA = this.props.assertion.amount;
-    const amountB = this.props.negativeAssertion.amount;
-    return amountA + amountB;
+    const amountA = this.props.assertion.totalWeight;
+    const amountB = this.props.negativeAssertion.totalWeight;
+    const total = new window.web3.BigNumber(0).plus(amountA).plus(amountB);
+    return total;
   };
 
   renderAssertion = (assertion: Assertion, negative: boolean) => {
@@ -98,7 +101,9 @@ export default class ClassAggregation extends React.Component<
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <span style={plaintextStyle}>{plaintext}</span>
           <span style={displayed(minimal)}>
-            <span style={{ marginLeft: '10px' }}>({this.total()} RLAY)</span>
+            <span style={{ marginLeft: '10px' }}>
+              ({this.total().toString()} RLAY)
+            </span>
           </span>
         </div>
         <div>
@@ -108,7 +113,7 @@ export default class ClassAggregation extends React.Component<
           <div style={{ fontSize: '11pt' }}>
             {this.percentage(negative)}%{' '}
             <span style={{ fontStyle: 'italic' }}>
-              (= {assertion.amount} RLAY)
+              (= {assertion.totalWeight.toString()} RLAY)
             </span>
           </div>
           <div style={{ marginTop: '6px' }}>

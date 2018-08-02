@@ -17,6 +17,7 @@ export default class PropositionLedger {
 
   @observable tokenAccount = {};
   @observable propositions = [];
+  @observable propositionPools = [];
 
   constructor(
     web3: any,
@@ -142,6 +143,24 @@ export default class PropositionLedger {
             (this.propositions: any).replace(propositions);
           }),
         );
+      }),
+    );
+  }
+
+  @action.bound
+  fetchPropositionPools() {
+    const { web3 } = this;
+
+    new Promise((resolve, reject) => {
+      web3.rlay.getPropositionPools((err, res) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(res);
+      });
+    }).then(
+      action('getPropositionPools success', propositionPools => {
+        (this.propositionPools: any).replace(propositionPools);
       }),
     );
   }

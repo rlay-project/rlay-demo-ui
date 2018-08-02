@@ -6,6 +6,7 @@ import Web3 from 'web3';
 import { Web3Provider } from 'react-web3';
 import { computed } from 'mobx';
 import { observer } from 'mobx-react';
+import { groupBy } from 'lodash-es';
 
 import OntologyStore from './OntologyStore';
 import PropositionLedger from './PropositionLedger';
@@ -14,6 +15,7 @@ import NetworkMarginals from './components/NetworkMarginals.jsx';
 import PropositionTab from './components/PropositionTab.jsx';
 import StorageTab from './components/StorageTab.jsx';
 import ConfirmTransactionModal from './components/ConfirmTransactionModal.jsx';
+import { extendWeb3OldWithRlay } from './web3Rlay';
 import {
   exampleAnnotationProperties,
   exampleAnnotations,
@@ -27,7 +29,7 @@ import {
   propositionLedgerContract,
   getEnvironmentConfig,
 } from './config';
-import { Annotation, Proposition } from './classes';
+import { Annotation } from './classes';
 
 class InvalidNetworkWarning extends React.Component {
   constructor(props) {
@@ -80,20 +82,40 @@ class RootStore {
   constructor(calculateHash) {
     this.calculateHash = calculateHash;
 
-    const ontologyStore = new OntologyStore(window.web3, ontologyStoreConfig);
-    ontologyStore.fetchNetworkAnnotations();
-    ontologyStore.fetchNetworkClasses();
-    ontologyStore.fetchNetworkIndividuals();
-    this.ontologyStore = ontologyStore;
+    extendWeb3OldWithRlay(window.web3);
+  }
 
-    const propositionLedger = new PropositionLedger(
-      window.web3,
-      propositionLedgerContract,
-      tokenContract,
-    );
-    propositionLedger.updateTokenAccount();
-    propositionLedger.fetchNetworkPropositions();
-    this.propositionLedger = propositionLedger;
+  init() {
+    return new Promise((resolve, reject) => {
+      window.web3.rlay.version((err, versionInfo) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(versionInfo);
+      });
+    }).then(versionInfo => {
+      ontologyStoreConfig.address =
+        versionInfo.contractAddresses.OntologyStorage;
+      propositionLedgerContract.address =
+        versionInfo.contractAddresses.PropositionLedger;
+      tokenContract.address = versionInfo.contractAddresses.RlayToken;
+
+      const ontologyStore = new OntologyStore(window.web3, ontologyStoreConfig);
+      ontologyStore.fetchNetworkAnnotations();
+      ontologyStore.fetchNetworkClasses();
+      ontologyStore.fetchNetworkIndividuals();
+      this.ontologyStore = ontologyStore;
+
+      const propositionLedger = new PropositionLedger(
+        window.web3,
+        propositionLedgerContract,
+        tokenContract,
+      );
+      propositionLedger.updateTokenAccount();
+      propositionLedger.fetchNetworkPropositions();
+      propositionLedger.fetchPropositionPools();
+      this.propositionLedger = propositionLedger;
+    });
   }
 
   @computed
@@ -123,49 +145,40 @@ class RootStore {
 
   @computed
   get propositionGroups() {
-    const findLabelAnnotation = (individual, annotations) => {
-      let containedAnnotations = individual.annotations.map(cid =>
-        annotations.find(item => item.cid() === cid),
-      );
-      containedAnnotations = containedAnnotations.filter(Boolean);
-      return (
-        containedAnnotations.find(n => n.isLabel()) || { annotationLabel: '' }
-      );
-    };
+    const { propositionPools } = this.propositionLedger;
 
-    const enrichIndividualWithProposition = (individual, propositions) => {
-      const propositon = propositions.find(
-        n => n.individualCid === individual.cid(),
-      );
-
-      const item = individual.clone();
-      if (propositon) {
-        item.amount = propositon.amount;
-      } else {
-        item.amount = 0;
-      }
-      return item;
-    };
-
-    const enrichGroupWithProposition = (group, propositions) =>
-      group.map(subGroup =>
-        subGroup.map(individual =>
-          enrichIndividualWithProposition(individual, propositions),
-        ),
-      );
-
-    const groups = Proposition.groupContradicting(this.individuals).map(group =>
-      enrichGroupWithProposition(group, this.propositionLedger.propositions),
-    );
-
-    const propositionGroups = groups.map(group => ({
+    let groups = groupBy(propositionPools, 'subject');
+    groups = Object.entries(groups).map(([subject, pools]) => ({
+      subject,
       groups: {
-        class_assertions: group,
+        class_assertions: pools.map(pool =>
+          pool.values.toJS().map(proposition => {
+            let ontologyProposition = this.individuals.find(
+              n => n.cid() === proposition.cid,
+            );
+            if (!ontologyProposition) {
+              return null;
+            }
+
+            ontologyProposition = ontologyProposition.clone();
+            ontologyProposition.isAggregatedValue =
+              proposition.isAggregatedValue;
+            ontologyProposition.totalWeight = proposition.totalWeight;
+
+            return ontologyProposition;
+          }),
+        ),
       },
-      subject: findLabelAnnotation(group[0][0], this.annotations),
     }));
 
-    return propositionGroups;
+    groups = groups.map(group => ({
+      ...group,
+      subject: this.annotations.find(n => n.cid() === group.subject),
+    }));
+
+    groups = groups.filter(n => n.subject);
+
+    return groups;
   }
 }
 
@@ -199,6 +212,7 @@ class Page extends React.Component {
 
     if (window.web3) {
       this.store = new RootStore(calculateHash);
+      this.store.init().then(() => this.forceUpdate());
     }
   }
 
@@ -360,7 +374,7 @@ class Page extends React.Component {
 
   renderTabStorage() {
     const { ontologyAnnotationProperties } = this.state;
-    if (!this.store) {
+    if (!this.store || !this.store.ontologyStore) {
       return null;
     }
     const { ontologyStore, propositionLedger } = this.store;
