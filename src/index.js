@@ -58,7 +58,7 @@ class InvalidNetworkWarning extends React.Component {
         <div className="border rounded" style={{ padding: '10px' }}>
           Metamask was found, but you seem to be connected to the wrong network.<br />
           To access Rlay, you need to set up MetaMask to use a custom RPC with
-          the URL <code>http://testnet-rpc.rlay.com:8545</code>
+          the URL <code>http://testnet-rpc.rlay.com:8547</code>
           <br />
           <br />
           If you have trouble with the setup, feel free to reach out to us{' '}
